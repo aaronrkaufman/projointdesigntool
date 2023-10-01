@@ -1,0 +1,18 @@
+.sidebar {
+  width: 20rem;
+  height: calc(100vh);
+  background-color: var(--whiteClr);
+  padding-top: 5rem;
+  padding-left: 2rem;
+  position: fixed;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+}
+
+.list > li {
+  font-weight: bold;
+}
