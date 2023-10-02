@@ -1,8 +1,16 @@
-import styles from "./survey.module.css"
+import styles from "./survey.module.css";
 
-export const AddAttribute = () => {
-    return <div className={styles.container}>
-        <span className={styles.line}></span>
-        <button className={styles.btn}>Add Attribute</button>
-    </div>
+interface AddAttributeProps {
+  onCreate: () => void;
 }
+
+export const AddAttribute = ({ onCreate }: AddAttributeProps) => {
+  return (
+    <div className={styles.container}>
+      <span className={styles.line}></span>
+      <button className={styles.btn} onClick={onCreate}>
+        Add Attribute
+      </button>
+    </div>
+  );
+};
