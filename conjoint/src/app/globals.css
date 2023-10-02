@@ -7,13 +7,15 @@
   --headerClr: #3375b1;
   --addClr: #767474;
   --activeClr: #d1eff7;
+  --lineClr: #50b1d4;
 }
 
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
+  transition: all 0.5s ease-in-out
 }
 
 html,
