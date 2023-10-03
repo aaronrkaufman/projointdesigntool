@@ -1,7 +1,7 @@
 import { Header } from "@/components/header";
 import styles from "./page.module.css";
 import { Sidebar } from "@/components/sidebar";
-import { Survey } from "@/components/survey/survey";
+import { SurveyContainer } from "@/components/survey/survey.container";
 
 const Profile = () => {
   return (
@@ -9,7 +9,7 @@ const Profile = () => {
       <Header></Header>
       <main className={styles.main}>
         <Sidebar />
-        <Survey />
+        <SurveyContainer />
       </main>
     </>
   );
