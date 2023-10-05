@@ -38,12 +38,17 @@ In order to test the functionality of the methods, you have to run the `_test.py
 python _test.py
 ```
 
-`TO BE IMPROVED` In the future each API call will be able to be called separately but for now feel free to play around with the `_test.py` file to test specific method.
+Each API call will can be called separately in the `_test.py` file to test specific method. To test `exportJS` method call:
 
-## INFO: API call structure
+```bash
+python _test.py exportJS
+```
+
+## Info: API call structure
 
 `base` - the base url of the server
-`path` - path to the API(same as the route in `main.py`)
+`path` - path to the API directories
+`name` - name of the API call
 `headers` - HTML headers
 `data` - payload send to the server
 ``

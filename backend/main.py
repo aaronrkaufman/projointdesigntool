@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request
+import os
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 from tkinter import messagebox
@@ -245,28 +246,6 @@ for (var pr = 0; pr < returnarrayKeys.length; pr++){
 """
 
 
-"""
-{
-    [
-        {
-            name: attribute_name, 
-            levels: [
-                        {
-                            name: level_name, 
-                            weight: float
-                        },
-                        {
-                            name: level_name, 
-                            weight: float
-                        }
-                    ]
-        }
-        
-    ]
-}
-"""
-
-
 def _cleanAttributes(attributes, level_dict):
     # Drop attributes that don't have any levels
     attrout = []
@@ -377,6 +356,44 @@ def _clearProbabilities(level_dict):
     return probabilities
 
 
+"""
+{
+    [
+        {
+            name: attribute_name, 
+            levels: [
+                        {
+                            name: level_name, 
+                            weight: float
+                        },
+                        {
+                            name: level_name, 
+                            weight: float
+                        }
+                    ]
+        }
+        
+    ]
+}
+"""
+
+
+def _refactorAttributes(attributes_list_dict):
+    """(TEMPORARY) Refactored to old design"""
+    attributes = []
+    level_dict = {}
+    probabilites = {}
+    for attribute in attributes_list_dict:
+        attributes.append(attribute["name"])
+
+        level_dict[attribute["name"]] = []
+        probabilites[attribute["name"]] = []
+        for level in attribute["levels"]:
+            level_dict[attribute["name"]].append(level["name"])
+            probabilites[attribute["name"]].append(level["weight"])
+    return attributes, level_dict, probabilites
+
+
 @app.route("/api/v1/exportJS", methods=["POST"])
 def exportToJS():
     """
@@ -386,13 +403,11 @@ def exportToJS():
     :attr:`attributes` -> List[Dict] Required
     """
 
-    # TODO split attributes(NEW DESIGN) to attributes and level_dict(OLD DESIGN)
-
     # Convert parameters to types
     data = request.json
-    attributes = data.get("attributes", [])
-    level_dict = data.get("level_dict", {})
-    probabilities = data.get("probabilities", {})
+    attributes_list_dict = data.get("attributes", [])
+
+    # Optional
     constraints = data.get("constraints", [])
     restrictions = data.get("restrictions", [])
     filename = data.get("filename", "survey.js")
@@ -402,76 +417,78 @@ def exportToJS():
     noDuplicates = data.get("noDuplicates", 0)
     random = data.get("random", 0)
 
+    # Split attributes(NEW DESIGN) to attributes and level_dict(OLD DESIGN)
+    attributes, level_dict, probabilities = _refactorAttributes(attributes_list_dict)
+
     attributes = _cleanAttributes(attributes, level_dict)
     constraints = _cleanConstraints(constraints)
     if probabilities == {}:
         probabilities = _clearProbabilities(level_dict)
 
     """ Write into file """
-    out_file = open(filename, "w", encoding="utf-8")
-    out_file.write(temp_1)
-    out_file.write("\n\n")
+    with open(filename, "w", encoding="utf-8") as file_js:
+        file_js.write(temp_1)
+        file_js.write("\n\n")
 
-    out_file.write(_createArrayString(attributes, level_dict))
-    out_file.write(_createRestrictionString(restrictions))
+        file_js.write(_createArrayString(attributes, level_dict))
+        file_js.write(_createRestrictionString(restrictions))
 
-    if random == 1:
-        out_file.write(_createProbString(attributes, probabilities))
-    else:
-        out_file.write("var probabilityarray = {};\n\n")
-
-    out_file.write(
-        "// Indicator for whether weighted randomization should be enabled or not\n"
-    )
-    out_file.write("var weighted = " + str(random) + ";\n\n")
-    out_file.write("// K = Number of tasks displayed to the respondent\n")
-    out_file.write("var K = " + str(tasks) + ";\n\n")
-    out_file.write("// N = Number of profiles displayed in each task\n")
-    out_file.write("var N = " + str(profiles) + ";\n\n")
-    out_file.write("// num_attributes = Number of Attributes in the Array\n")
-    out_file.write("var num_attributes = featurearray.length;\n\n")
-    out_file.write("// Should duplicate profiles be rejected?\n")
-
-    out_file.write(
-        f"var noDuplicateProfiles = {'true' if noDuplicates else 'false'};\n"
-    )
-
-    if randomize == 1:
-        out_file.write("\n")
-
-        if len(constraints) > 0:
-            constString = "var attrconstraintarray = ["
-            for m in range(len(constraints)):
-                const = constraints[m]
-                constString = constString + "["
-                for i in range(len(const)):
-                    entry = const[i]
-                    constString = constString + '"' + entry + '"'
-                    if i != len(const) - 1:
-                        constString = constString + ","
-                if m != len(constraints) - 1:
-                    constString = constString + "],"
-                else:
-                    constString = constString + "]"
-            constString = constString + "];\n\n"
+        if random == 1:
+            file_js.write(_createProbString(attributes, probabilities))
         else:
-            constString = "var attrconstraintarray = [];\n"
+            file_js.write("var probabilityarray = {};\n\n")
 
-        out_file.write(constString)
-        out_file.write("\n")
-        out_file.write(temp_2)
-    else:
-        out_file.write("\n")
-        out_file.write(temp_2_star)
-        out_file.write("\n")
-        out_file.write("var featureArrayNew = featurearray;\n\n")
+        file_js.write(
+            "// Indicator for whether weighted randomization should be enabled or not\n"
+        )
+        file_js.write("var weighted = " + str(random) + ";\n\n")
+        file_js.write("// K = Number of tasks displayed to the respondent\n")
+        file_js.write("var K = " + str(tasks) + ";\n\n")
+        file_js.write("// N = Number of profiles displayed in each task\n")
+        file_js.write("var N = " + str(profiles) + ";\n\n")
+        file_js.write("// num_attributes = Number of Attributes in the Array\n")
+        file_js.write("var num_attributes = featurearray.length;\n\n")
+        file_js.write("// Should duplicate profiles be rejected?\n")
 
-    out_file.write(temp_3)
+        file_js.write(
+            f"var noDuplicateProfiles = {'true' if noDuplicates else 'false'};\n"
+        )
 
-    out_file.close()
+        if randomize == 1:
+            file_js.write("\n")
 
-    response = jsonify({"message": "Resource created successfully!"})
-    return response, 201
+            if len(constraints) > 0:
+                constString = "var attrconstraintarray = ["
+                for m in range(len(constraints)):
+                    const = constraints[m]
+                    constString = constString + "["
+                    for i in range(len(const)):
+                        entry = const[i]
+                        constString = constString + '"' + entry + '"'
+                        if i != len(const) - 1:
+                            constString = constString + ","
+                    if m != len(constraints) - 1:
+                        constString = constString + "],"
+                    else:
+                        constString = constString + "]"
+                constString = constString + "];\n\n"
+            else:
+                constString = "var attrconstraintarray = [];\n"
+
+            file_js.write(constString)
+            file_js.write("\n")
+            file_js.write(temp_2)
+        else:
+            file_js.write("\n")
+            file_js.write(temp_2_star)
+            file_js.write("\n")
+            file_js.write("var featureArrayNew = featurearray;\n\n")
+
+        file_js.write(temp_3)
+
+        file_js.close()
+
+    return send_from_directory(os.getcwd(), filename, as_attachment=True), 201
 
 
 if __name__ == "__main__":
