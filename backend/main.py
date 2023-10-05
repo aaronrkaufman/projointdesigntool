@@ -356,28 +356,6 @@ def _clearProbabilities(level_dict):
     return probabilities
 
 
-"""
-{
-    [
-        {
-            name: attribute_name, 
-            levels: [
-                        {
-                            name: level_name, 
-                            weight: float
-                        },
-                        {
-                            name: level_name, 
-                            weight: float
-                        }
-                    ]
-        }
-        
-    ]
-}
-"""
-
-
 def _refactorAttributes(attributes_list_dict):
     """(TEMPORARY) Refactored to old design"""
     attributes = []
@@ -493,6 +471,3 @@ def exportToJS():
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
-
-
-exportToJS()
