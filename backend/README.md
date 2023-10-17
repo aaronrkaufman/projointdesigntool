@@ -1,54 +1,72 @@
+# Projoint Django Project
+
+Projoint is a Django-based project that provides a robust platform for managing projects and collaborations. This README file includes instructions on how to set up the project, create a superuser, and use the API endpoints.
+
 ## Prerequisites
 
-Before you begin, ensure you have the following prerequisites installed on your system:
+Before you begin, ensure you have the following installed on your system:
+- Python (>=3.6)
+- Pip (package installer for Python)
 
-- Python: Flask is a Python web framework, so you'll need Python installed. You can download it from [Python's official website](https://www.python.org/downloads/).
+## Installation
 
-## Step 1: Install Flask
+1. Clone the repository to your local machine:
 
-With your virtual environment activated, you can now install Flask. Run the following command:
+```
+git clone https://github.com/akhat/projoint.git
+cd projoint
+```
+
+2. Create a virtual environment:
+ 
+``` 
+python -m venv venv
+```
+3. Activate the virtual environment (for Linux/macOS):
+``` 
+source venv/bin/activate
+```
+4. Install project dependencies:
+``` 
+pip install -r requirements.txt
+```
+5. Apply database migrations:
+``` 
+python manage.py makemigrations
+python manage.py migrate
+```
+## Create a Superuser
+
+To create a superuser for accessing the Django admin interface and managing the application:
+```
+python manage.py createsuperuser
+```
+Follow the prompts to enter your desired username, email address, and password.
+
+## API Documentation
+
+### User Registration
+Register a new user:
 
 ```bash
-pip install Flask
+curl -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "password": "testpassword", "email": "test@example.com"}' http://localhost:8000/api/register/
 ```
-
-This command will download and install Flask and its dependencies.
-
-## Step 2: Run the Flask Application
-
-To start your Flask web server, run the following command from the same directory where `main.py` file is located:
+### User Login
+Log in with existing user credentials:
 
 ```bash
-python main.py
+curl -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "password": "testpassword"}' http://localhost:8000/api/login/
 ```
+It returns ```token``` on successful login. 
 
-You should see output similar to the following:
-
-```
- * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-```
-
-This means your Flask web server is running locally at `http://127.0.0.1:5000/`. The web server will give an error because no API is linked to the main page.
-
-## Step 3: Make an API Call
-
-In order to test the functionality of the methods, you have to run the `_test.py` file. The file includes either `GET` or `POST` calls to the APIs.
-
+### User Logout
+Log out a user using their authentication token:
 ```bash
-python _test.py
+curl -X POST -H "Authorization: Token YOUR_AUTH_TOKEN" http://localhost:8000/api/logout/
 ```
 
-Each API call will can be called separately in the `_test.py` file to test specific method. To test `exportJS` method call:
-
+### Running the Development Server
+To run the development server and access the API and admin interface, use the following command:
 ```bash
-python _test.py exportJS
+python manage.py runserver
 ```
-
-## Info: API call structure
-
-`base` - the base url of the server
-`path` - path to the API directories
-`name` - name of the API call
-`headers` - HTML headers
-`data` - payload send to the server
-``
