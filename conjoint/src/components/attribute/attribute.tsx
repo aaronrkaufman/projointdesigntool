@@ -1,6 +1,17 @@
-import React, { FC, KeyboardEvent, ChangeEvent, useState } from "react";
+import React, {
+  FC,
+  KeyboardEvent,
+  ChangeEvent,
+  useState,
+  useRef,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+  useContext,
+} from "react";
 import styles from "../survey/survey.module.css";
 import { IAttribute } from "./attribute.container";
+import { HighlightedContext } from "@/context/highlighted";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -21,23 +32,25 @@ export const Attribute: FC<PropsAttributeComponent> = ({
   onBlur,
   onChange,
 }) => {
-  // Define state to store column values
-  const [columnValues, setColumnValues] = useState<string[]>([]);
+  const attributeRef = useRef<HTMLLIElement | null>(null);
 
-  // Function to handle changes in the columns
-  const handleColumnChange = (event: ChangeEvent<HTMLInputElement>, levelIndex: number) => {
-    const editedValue = event.target.value;
-    
-    // Create a copy of the columnValues array to avoid mutating state directly
-    const updatedColumnValues = [...columnValues];
+  useEffect(() => {
+    !show && setHighlightedAttribute(-1);
+  }, [show]);
 
-    // Update the value for the specific level
-    updatedColumnValues[levelIndex] = editedValue;
-    setColumnValues(updatedColumnValues);
-  };
+  const { highlightedAttribute, setHighlightedAttribute } =
+    useContext(HighlightedContext);
 
   return (
-    <li className={styles.attribute}>
+    <li
+      ref={attributeRef}
+      className={`${styles.attribute} ${
+        highlightedAttribute === attribute.key ? styles.stroke : ""
+      }`}
+      onClick={() => {
+        show && setHighlightedAttribute(attribute.key);
+      }}
+    >
       <div className={styles.attribute_left}>
         <svg
           onClick={onShow}
@@ -60,20 +73,15 @@ export const Attribute: FC<PropsAttributeComponent> = ({
         {show ? (
           <ul className={`${styles.levels}`}>
             {attribute.levels.map((level, index) => (
-              <li>
+              <li key={index}>
                 <span className={styles.circle}></span>
                 {level.name}
-                <input
-                  type="text"
-                  value={columnValues[index] || `1/${attribute.levels.length}`}
-                  onChange={(e) => handleColumnChange(e, index)}
-                  className={styles.weights}
-                />
               </li>
             ))}
             <li>
               <span className={styles.circle}></span>
               <input
+                type="text"
                 className={styles.input}
                 placeholder={"Add level"}
                 value={newLevel}
@@ -85,6 +93,18 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           </ul>
         ) : (
           <p>{attribute.levels.length} levels</p>
+        )}
+      </div>
+      <div className={`${styles.attribute_weights} ${styles.notvisible}`}>
+        {show ? (
+          <ul className={`${styles.weights}`}>
+            {attribute.weights.map((weight, index) => (
+              <li key={index}>{weight}</li>
+            ))}
+            <li>{1.0}</li>
+          </ul>
+        ) : (
+          ""
         )}
       </div>
     </li>

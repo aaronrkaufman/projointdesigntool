@@ -1,7 +1,8 @@
 // AttributeContainer.tsx
-import React, { FC, useState } from "react";
+import React, { FC, useContext, useEffect, useState } from "react";
 import { Attribute } from "./attribute";
 import { AttributeCreator } from "./attribute_creator";
+import { HighlightedContext } from "@/context/highlighted";
 
 export interface ILevel {
   name: string;
@@ -10,6 +11,8 @@ export interface ILevel {
 
 export interface IAttribute {
   name: string;
+  key: number;
+  weights: number[];
   levels: ILevel[];
 }
 
@@ -56,7 +59,17 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
     }
   };
 
-  const handleShow = () => setShow(!show);
+  const { setHighlightedAttribute } = useContext(HighlightedContext);
+
+  const handleShow = () => {
+    if (!show) {
+      attribute && setHighlightedAttribute(attribute?.key);
+    } else {
+      setHighlightedAttribute(-1);
+    }
+    // setHighlighted(!show);
+    setShow(!show);
+  };
 
   return isCreator ? (
     <AttributeCreator
