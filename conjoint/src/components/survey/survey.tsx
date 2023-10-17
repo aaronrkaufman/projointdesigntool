@@ -1,9 +1,11 @@
 // SurveyComponent.tsx
-import React, { FC } from "react";
+import React, { FC, useContext, useEffect } from "react";
 import styles from "./survey.module.css";
 import { AddAttribute } from "./add_attribute";
 import { IAttribute } from "../attribute/attribute.container";
 import { AttributeContainer } from "../attribute/attribute.container";
+import { Button } from "../button";
+import { HighlightedContext } from "@/context/highlighted";
 
 interface Props {
   attributes: IAttribute[];
@@ -21,25 +23,35 @@ export const Survey: FC<Props> = ({
   onCancelNewAttribute,
   onAddLevelToAttribute,
   onCreateAttribute,
-}) => (
-  <section className={styles.survey}>
-    <h2>Immigrant Survey</h2>
-    <ul className={styles.attributes}>
-      {attributes.map((attribute, index) => (
-        <AttributeContainer
-          key={index}
-          attribute={attribute}
-          addLevel={onAddLevelToAttribute}
-        />
-      ))}
-      {isCreatingAttribute && (
-        <AttributeContainer
-          isCreator
-          addNewAttribute={onAddAttribute}
-          cancelNewAttribute={onCancelNewAttribute}
-        />
-      )}
-    </ul>
-    <AddAttribute onCreate={onCreateAttribute} />
-  </section>
-);
+}) => {
+  const { highlightedAttribute } = useContext(HighlightedContext);
+  return (
+    <section className={styles.survey}>
+      <div className={styles.top}>
+        <h2>Immigrant Survey</h2>
+        {highlightedAttribute === -1 ? (
+          ""
+        ) : (
+          <Button text="Edit weights"></Button>
+        )}
+      </div>
+      <ul className={styles.attributes}>
+        {attributes.map((attribute, index) => (
+          <AttributeContainer
+            key={index}
+            attribute={attribute}
+            addLevel={onAddLevelToAttribute}
+          />
+        ))}
+        {isCreatingAttribute && (
+          <AttributeContainer
+            isCreator
+            addNewAttribute={onAddAttribute}
+            cancelNewAttribute={onCancelNewAttribute}
+          />
+        )}
+      </ul>
+      <AddAttribute onCreate={onCreateAttribute} />
+    </section>
+  );
+};
