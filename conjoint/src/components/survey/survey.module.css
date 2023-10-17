@@ -54,7 +54,7 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  width: calc((100% - 4rem) / 2) !important;
+  width: calc((100% - 4rem) / 2);
   padding: 1rem 1.5rem;
   height: fit-content;
 }
@@ -67,7 +67,7 @@
   height: fit-content;
   transition: height 1s ease-in-out;
   overflow: hidden;
-  width: calc((100% - 4rem) / 2) !important;
+  width: calc((100% - 4rem) / 2)
 }
 
 .attribute_right p {
@@ -128,17 +128,21 @@
   width: 4rem;
   border-left: 1px solid var(--bgClr);
   padding: 1rem;
+  transition: none;
 }
 
 .weights {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  visibility: hidden;
+  transition: none
+  /* visibility: hidden; */
 }
 
 .notvisible {
+  visibility: hidden;
   background-color: var(--bgClr);
+  transition: none;
 }
 
 .weights li {
@@ -147,4 +151,5 @@
   width: 100%;
   justify-content: center;
   align-items: center;
+  transition: none
 }

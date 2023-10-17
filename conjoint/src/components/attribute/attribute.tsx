@@ -38,7 +38,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
     !show && setHighlightedAttribute(-1);
   }, [show]);
 
-  const { highlightedAttribute, setHighlightedAttribute } =
+  const { highlightedAttribute, setHighlightedAttribute, showWeights } =
     useContext(HighlightedContext);
 
   return (
@@ -95,7 +95,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           <p>{attribute.levels.length} levels</p>
         )}
       </div>
-      <div className={`${styles.attribute_weights} ${styles.notvisible}`}>
+      <div className={`${styles.attribute_weights} ${showWeights && show ? '' :styles.notvisible}`}>
         {show ? (
           <ul className={`${styles.weights}`}>
             {attribute.weights.map((weight, index) => (

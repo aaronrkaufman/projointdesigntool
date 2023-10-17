@@ -24,7 +24,7 @@ export const Survey: FC<Props> = ({
   onAddLevelToAttribute,
   onCreateAttribute,
 }) => {
-  const { highlightedAttribute } = useContext(HighlightedContext);
+  const { highlightedAttribute, setShowWeights, showWeights } = useContext(HighlightedContext);
   return (
     <section className={styles.survey}>
       <div className={styles.top}>
@@ -32,7 +32,7 @@ export const Survey: FC<Props> = ({
         {highlightedAttribute === -1 ? (
           ""
         ) : (
-          <Button text="Edit weights"></Button>
+          <Button text="Edit weights" onClick={() => setShowWeights(!showWeights)}></Button>
         )}
       </div>
       <ul className={styles.attributes}>

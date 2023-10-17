@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   next:
-    specifier: latest
+    specifier: ^13.5.3
     version: 13.5.3(react-dom@18.2.0)(react@18.2.0)
   react:
     specifier: latest
@@ -18,7 +18,7 @@ dependencies:
 devDependencies:
   '@types/node':
     specifier: latest
-    version: 20.6.0
+    version: 20.8.2
   '@types/react':
     specifier: latest
     version: 18.2.24
@@ -232,8 +232,8 @@ packages:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
     dev: true
 
-  /@types/node@20.6.0:
-    resolution: {integrity: sha512-najjVq5KN2vsH2U/xyh2opaSEz6cZMR2SetLIlxlj08nOcmPOemJmUK2o4kUzfLqfrWE0PIrNeE16XhYDd3nqg==}
+  /@types/node@20.8.2:
+    resolution: {integrity: sha512-Vvycsc9FQdwhxE3y3DzeIxuEJbWGDsnrxvMADzTDF/lcdR9/K+AQIeAghTQsHtotg/q0j3WEOYS/jQgSdWue3w==}
     dev: true
 
   /@types/prop-types@15.7.8:
@@ -243,11 +243,19 @@ packages:
   /@types/react-dom@18.2.8:
     resolution: {integrity: sha512-bAIvO5lN/U8sPGvs1Xm61rlRHHaq5rp5N3kp9C+NJ/Q41P8iqjkXSu0+/qu8POsjH9pNWb0OYabFez7taP7omw==}
     dependencies:
-      '@types/react': 18.2.24
+      '@types/react': 18.2.28
     dev: true
 
   /@types/react@18.2.24:
     resolution: {integrity: sha512-Ee0Jt4sbJxMu1iDcetZEIKQr99J1Zfb6D4F3qfUWoR1JpInkY1Wdg4WwCyBjL257D0+jGqSl1twBjV8iCaC0Aw==}
+    dependencies:
+      '@types/prop-types': 15.7.8
+      '@types/scheduler': 0.16.4
+      csstype: 3.1.2
+    dev: true
+
+  /@types/react@18.2.28:
+    resolution: {integrity: sha512-ad4aa/RaaJS3hyGz0BGegdnSRXQBkd1CCYDCdNjBPg90UUpLgo+WlJqb9fMYUxtehmzF3PJaTWqRZjko6BRzBg==}
     dependencies:
       '@types/prop-types': 15.7.8
       '@types/scheduler': 0.16.4
