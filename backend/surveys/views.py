@@ -1,9 +1,13 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.http import FileResponse
 from rest_framework import status
+
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
 
-from .serializers import ExportJSSerializer
+from .models import Survey
+from .serializers import ExportJSSerializer, SurveySerializer
 
 
 # Create your views here.
@@ -391,20 +395,19 @@ def _sendFileResponse(file_path):
 @extend_schema(
     request=ExportJSSerializer,
     responses={201: None},  # You can specify a serializer for the response if needed
-    description="POST Method to export survey to JS. Creates a file on the server and then returns it to the user.",
+    description="Export survey to JS. Creates a file on the server and returns it to the user",
 )
 @api_view(["POST"])
 def export_js(request):
     """
-    POST Method to export survey to JS
-    Creates a file on the server and then (TODO)returns it to the user
+    Export survey to JS
+    Creates a file on the server and returns it to the user
 
-    :attr:`attributes` -> List[Dict] Required
+    :attr:`attributes` -> List[Dict] Required\n
+    :attr:`constraints` -> List[] Optional
     """
     # Convert parameters to types
     if request.method == "POST":
-        # return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         attributes_list_dict = request.data.get("attributes", [])
 
         # Optional
@@ -490,3 +493,41 @@ def export_js(request):
 
             file_js.close()
         return _sendFileResponse(filename)
+
+
+@extend_schema(
+    request=SurveySerializer,
+    responses={
+        status.HTTP_201_CREATED: SurveySerializer,
+        status.HTTP_400_BAD_REQUEST: None,
+    },  # Specify the serializer for the 201 response
+    description="Saves the survey to user's profile",
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def save_user_survey(request):
+    serializer = SurveySerializer(data=request.data, context={"request": request})
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(
+    responses={
+        status.HTTP_200_OK: SurveySerializer(many=True),
+        status.HTTP_204_NO_CONTENT: None,
+    },  # No content for 204
+    description="Returns a list of the user's surveys in JSON format",
+)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_user_surveys(request):
+    surveys = Survey.objects.filter(profile=request.user)
+    if surveys.exists():
+        serializer = SurveySerializer(surveys, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(
+            {"message": "User has no surveys"}, status=status.HTTP_204_NO_CONTENT
+        )

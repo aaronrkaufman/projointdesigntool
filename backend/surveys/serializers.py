@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .models import Survey
 
 
 class ExportJSSerializer(serializers.Serializer):
@@ -17,3 +18,19 @@ class ExportJSSerializer(serializers.Serializer):
     randomize = serializers.IntegerField(required=False, default=1)
     noDuplicates = serializers.IntegerField(required=False, default=0)
     random = serializers.IntegerField(required=False, default=0)
+
+
+class SurveySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Survey
+        fields = ["attributes", "constraints"]
+        extra_kwargs = {
+            "constraints": {
+                "required": False,
+                "allow_blank": True,
+            }
+        }
+
+    def create(self, validated_data):
+        profile = self.context["request"].user
+        return Survey.objects.create(profile=profile, **validated_data)

@@ -1,13 +1,29 @@
 import hashlib
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
+from rest_framework.test import APIClient
+from django.contrib.auth import get_user_model
+
+from .models import Survey
 
 
 # Create your tests here.
+
+Profile = get_user_model()
+
+
 class SurveyPostTests(TestCase):
     def setUp(self):
         # This method will run before every test function.
-        self.client = Client()
+        self.profile = Profile.objects.create_user(
+            username="testprofile",
+            email="testprofile@example.com",
+            password="testpassword123",
+        )
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.profile)
+
         self.payload = {
             "attributes": [
                 {
@@ -28,8 +44,8 @@ class SurveyPostTests(TestCase):
         }
 
     def test_export_success(self):
-        url = reverse("surveys:export_js")
-        response = self.client.post(url, self.payload, content_type="application/json")
+        url = reverse("surveys:export")
+        response = self.client.post(url, self.payload, format="json")
         self.assertEqual(response.status_code, 201)
 
         response_content = b"".join(chunk for chunk in response.streaming_content)
@@ -39,6 +55,18 @@ class SurveyPostTests(TestCase):
         self.assertEqual(response_hash, original_hash)
 
     def test_export_failure(self):
-        url = reverse("surveys:export_js")
-        response = self.client.get(url, self.payload, content_type="application/json")
+        url = reverse("surveys:export")
+        response = self.client.get(url, self.payload, format="json")
         self.assertEqual(response.status_code, 405)
+
+    def test_save_success(self):
+        url = reverse("surveys:save")
+        response = self.client.post(url, self.payload, format="json")
+        self.assertEqual(response.status_code, 201)
+
+    def test_list_no_surveys_success(self):
+        Survey.objects.filter(profile=self.profile).delete()
+        url = reverse("surveys:list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.data["message"], "User has no surveys")
