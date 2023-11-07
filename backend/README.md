@@ -53,6 +53,14 @@ python manage.py createsuperuser
 
 Follow the prompts to enter your desired username, email address, and password.
 
+## Running the Development Server
+
+To run the development server and access the API and admin interface, use the following command:
+
+```bash
+python3 manage.py runserver
+```
+
 ## API Documentation
 
 ### User Registration
@@ -60,7 +68,7 @@ Follow the prompts to enter your desired username, email address, and password.
 Register a new user:
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "password": "testpassword", "email": "test@example.com"}' http://localhost:8000/api/register/
+curl -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "password": "testpassword", "email": "test@example.com"}' http://localhost:8000/api/profiles/register/
 ```
 
 ### User Login
@@ -68,7 +76,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "p
 Log in with existing user credentials:
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "password": "testpassword"}' http://localhost:8000/api/login/
+curl -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "password": "testpassword"}' http://localhost:8000/api/profiles/login/
 ```
 
 It returns `token` on successful login.
@@ -78,18 +86,10 @@ It returns `token` on successful login.
 Log out a user using their authentication token:
 
 ```bash
-curl -X POST -H "Authorization: Token YOUR_AUTH_TOKEN" http://localhost:8000/api/logout/
+curl -X POST -H "Authorization: Token YOUR_AUTH_TOKEN" http://localhost:8000/api/profiles/logout/
 ```
 
-### Running the Development Server
-
-To run the development server and access the API and admin interface, use the following command:
-
-```bash
-python3 manage.py runserver
-```
-
-### Testing APIs
+## Testing APIs
 
 To test specific command, run the module name of the API
 

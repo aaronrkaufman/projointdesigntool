@@ -1,7 +1,9 @@
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from django.http import FileResponse
 from rest_framework import status
+from drf_spectacular.utils import extend_schema
+
+from .serializers import ExportJSSerializer
 
 
 # Create your views here.
@@ -386,6 +388,11 @@ def _sendFileResponse(file_path):
     return response
 
 
+@extend_schema(
+    request=ExportJSSerializer,
+    responses={201: None},  # You can specify a serializer for the response if needed
+    description="POST Method to export survey to JS. Creates a file on the server and then returns it to the user.",
+)
 @api_view(["POST"])
 def export_js(request):
     """

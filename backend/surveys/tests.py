@@ -28,7 +28,7 @@ class SurveyPostTests(TestCase):
         }
 
     def test_export_success(self):
-        url = reverse("export_js")
+        url = reverse("surveys:export_js")
         response = self.client.post(url, self.payload, content_type="application/json")
         self.assertEqual(response.status_code, 201)
 
@@ -39,6 +39,6 @@ class SurveyPostTests(TestCase):
         self.assertEqual(response_hash, original_hash)
 
     def test_export_failure(self):
-        url = reverse("export_js")
+        url = reverse("surveys:export_js")
         response = self.client.get(url, self.payload, content_type="application/json")
         self.assertEqual(response.status_code, 405)
