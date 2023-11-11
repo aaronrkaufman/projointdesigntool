@@ -4,6 +4,7 @@ import { Survey } from "./survey";
 import { useState } from "react";
 import { IAttribute } from "../attribute/attribute.container";
 import { HighlightedProvider } from "@/context/highlighted";
+import AttributeProvider from "@/context/attributes_context";
 
 export const SurveyContainer: FC = () => {
   const [attributes, setAttributes] = useState<IAttribute[]>([
@@ -27,40 +28,11 @@ export const SurveyContainer: FC = () => {
     },
   ]);
 
-  const [isCreatingAttribute, setIsCreatingAttribute] = useState(false);
-
-  const handleCreateAttribute = () => setIsCreatingAttribute(true);
-
-  const addNewAttribute = (name: string) => {
-    setAttributes([
-      ...attributes,
-      { name, levels: [], key: attributes.length + 1, weights: [] },
-    ]);
-    setIsCreatingAttribute(false);
-  };
-
-  const cancelNewAttribute = () => setIsCreatingAttribute(false);
-
-  const addLevelToAttribute = (attributeName: string, newLevel: string) => {
-    setAttributes((prevAttributes) =>
-      prevAttributes.map((attribute) =>
-        attribute.name === attributeName
-          ? { ...attribute, levels: [...attribute.levels, { name: newLevel }] }
-          : attribute
-      )
-    );
-  };
-
   return (
-    <HighlightedProvider>
-      <Survey
-        attributes={attributes}
-        isCreatingAttribute={isCreatingAttribute}
-        onAddAttribute={addNewAttribute}
-        onCancelNewAttribute={cancelNewAttribute}
-        onAddLevelToAttribute={addLevelToAttribute}
-        onCreateAttribute={handleCreateAttribute}
-      />
-    </HighlightedProvider>
+    <AttributeProvider>
+      <HighlightedProvider>
+        <Survey />
+      </HighlightedProvider>
+    </AttributeProvider>
   );
 };

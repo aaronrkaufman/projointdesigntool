@@ -1,5 +1,5 @@
 import { Header } from "@/components/header";
-import styles from "./page.module.css";
+import styles from "../profile/page.module.css";
 import { Sidebar } from "@/components/sidebar";
 import { SurveyContainer } from "@/components/survey/survey.container";
 

@@ -95,11 +95,15 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           <p>{attribute.levels.length} levels</p>
         )}
       </div>
-      <div className={`${styles.attribute_weights} ${showWeights && show ? '' :styles.notvisible}`}>
-        {show ? (
+      <div
+        className={`${styles.attribute_weights} ${
+          showWeights && show ? "" : styles.notvisible
+        }`}
+      >
+        {show && highlightedAttribute === attribute.key ? (
           <ul className={`${styles.weights}`}>
             {attribute.weights.map((weight, index) => (
-              <li key={index}>{weight}</li>
+              <input className={styles.input} key={index} value={weight}></input>
             ))}
             <li>{1.0}</li>
           </ul>

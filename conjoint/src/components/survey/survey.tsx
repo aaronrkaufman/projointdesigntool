@@ -6,25 +6,44 @@ import { IAttribute } from "../attribute/attribute.container";
 import { AttributeContainer } from "../attribute/attribute.container";
 import { Button } from "../button";
 import { HighlightedContext } from "@/context/highlighted";
+import { useAttributes } from "@/context/attributes_context";
 
-interface Props {
-  attributes: IAttribute[];
-  isCreatingAttribute: boolean;
-  onAddAttribute: (name: string) => void;
-  onCancelNewAttribute: () => void;
-  onAddLevelToAttribute: (attributeName: string, newLevel: string) => void;
-  onCreateAttribute: () => void;
-}
+// interface Props {
+//   attributes: IAttribute[];
+//   isCreatingAttribute: boolean;
+//   onAddAttribute: (name: string) => void;
+//   onCancelNewAttribute: () => void;
+//   onAddLevelToAttribute: (attributeName: string, newLevel: string) => void;
+//   onCreateAttribute: () => void;
+//   onUpdateWeight: (
+//     attributeKey: number,
+//     index: number,
+//     newWeight: string
+//   ) => void;
+// }
 
-export const Survey: FC<Props> = ({
-  attributes,
-  isCreatingAttribute,
-  onAddAttribute,
-  onCancelNewAttribute,
-  onAddLevelToAttribute,
-  onCreateAttribute,
-}) => {
-  const { highlightedAttribute, setShowWeights, showWeights } = useContext(HighlightedContext);
+export const Survey: FC = (
+  {
+    // attributes,
+    // isCreatingAttribute,
+    // onAddAttribute,
+    // onCancelNewAttribute,
+    // onAddLevelToAttribute,
+    // onCreateAttribute,
+    // onUpdateWeight
+  }
+) => {
+  const { highlightedAttribute, setShowWeights, showWeights } =
+    useContext(HighlightedContext);
+
+  const {
+    attributes,
+    addLevelToAttribute,
+    isCreatingAttribute,
+    addNewAttribute,
+    cancelNewAttribute,
+    handleCreateAttribute,
+  } = useAttributes();
   return (
     <section className={styles.survey}>
       <div className={styles.top}>
@@ -32,7 +51,10 @@ export const Survey: FC<Props> = ({
         {highlightedAttribute === -1 ? (
           ""
         ) : (
-          <Button text="Edit weights" onClick={() => setShowWeights(!showWeights)}></Button>
+          <Button
+            text={showWeights ? "Save weights" : "Edit weights"}
+            onClick={() => setShowWeights(!showWeights)}
+          ></Button>
         )}
       </div>
       <ul className={styles.attributes}>
@@ -40,18 +62,18 @@ export const Survey: FC<Props> = ({
           <AttributeContainer
             key={index}
             attribute={attribute}
-            addLevel={onAddLevelToAttribute}
+            addLevel={addLevelToAttribute}
           />
         ))}
         {isCreatingAttribute && (
           <AttributeContainer
             isCreator
-            addNewAttribute={onAddAttribute}
-            cancelNewAttribute={onCancelNewAttribute}
+            addNewAttribute={addNewAttribute}
+            cancelNewAttribute={cancelNewAttribute}
           />
         )}
       </ul>
-      <AddAttribute onCreate={onCreateAttribute} />
+      <AddAttribute onCreate={handleCreateAttribute} />
     </section>
   );
 };
