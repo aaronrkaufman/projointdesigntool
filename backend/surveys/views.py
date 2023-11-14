@@ -9,6 +9,8 @@ from drf_spectacular.utils import extend_schema
 from .models import Survey
 from .serializers import ExportJSSerializer, SurveySerializer
 
+import random
+
 
 # Create your views here.
 
@@ -530,4 +532,33 @@ def list_user_surveys(request):
     else:
         return Response(
             {"message": "User has no surveys"}, status=status.HTTP_204_NO_CONTENT
+        )
+
+
+@extend_schema(
+    request=SurveySerializer,
+    responses={
+        status.HTTP_201_CREATED: SurveySerializer,
+        status.HTTP_400_BAD_REQUEST: None,
+    },  # Specify the serializer for the 201 response
+    description="Saves the survey to user's profile",
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def preview_survey(request):
+    try:
+        questions = request.data.get("attributes")
+        preview_sets = []
+
+        for _ in range(2):  # Generate two sets of answers
+            answer_set = tuple(
+                random.choice(question["levels"])["name"] for question in questions
+            )
+            preview_sets.append(answer_set)
+
+        return Response({"previews": preview_sets}, status=status.HTTP_201_CREATED)
+    except:
+        return Response(
+            {"message": "Invalid survey data."},
+            status=status.HTTP_400_BAD_REQUEST,
         )

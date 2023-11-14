@@ -24,7 +24,7 @@ class SurveyPostTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.profile)
 
-        self.payload = {
+        self.payloadSuccess = {
             "attributes": [
                 {
                     "name": "asfasf",
@@ -43,9 +43,23 @@ class SurveyPostTests(TestCase):
             ]
         }
 
+        self.payloadFailure = {
+            "error": [
+                {
+                    "name": "asfasf",
+                },
+                {
+                    "levels": [
+                        {"name": "3", "weight": 0.5},
+                        {"name": "4", "weight": 0.5},
+                    ],
+                },
+            ]
+        }
+
     def test_export_success(self):
         url = reverse("surveys:export")
-        response = self.client.post(url, self.payload, format="json")
+        response = self.client.post(url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 201)
 
         response_content = b"".join(chunk for chunk in response.streaming_content)
@@ -56,12 +70,12 @@ class SurveyPostTests(TestCase):
 
     def test_export_failure(self):
         url = reverse("surveys:export")
-        response = self.client.get(url, self.payload, format="json")
+        response = self.client.get(url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 405)
 
     def test_save_success(self):
         url = reverse("surveys:save")
-        response = self.client.post(url, self.payload, format="json")
+        response = self.client.post(url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 201)
 
     def test_list_no_surveys_success(self):
@@ -70,3 +84,21 @@ class SurveyPostTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(response.data["message"], "User has no surveys")
+
+    def test_preview_survey_success(self):
+        url = reverse("surveys:preview")
+        response = self.client.post(url, self.payloadSuccess, format="json")
+        self.assertEqual(response.status_code, 201)
+
+        questions = []
+        for question in self.payloadSuccess["attributes"]:
+            for answer in question["levels"]:
+                questions.append(answer["name"])
+
+        # How to assertEquality?
+        # self.assertContains(response.content, 201)
+
+    def test_preview_survey_failure(self):
+        url = reverse("surveys:preview")
+        response = self.client.post(url, self.payloadFailure, format="json")
+        self.assertEqual(response.status_code, 400)
