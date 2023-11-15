@@ -8,7 +8,7 @@ const Profile = () => {
     <>
       <Header></Header>
       <main className={styles.main}>
-        <Sidebar active={1} />
+        <Sidebar active={"1"} />
         <SurveyContainer />
       </main>
     </>

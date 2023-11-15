@@ -1,8 +1,12 @@
+"use client"
+
 import { Header } from "@/components/header";
 import styles from "../../profile/page.module.css";
 import { Sidebar } from "@/components/sidebar";
 import { SurveyContainer } from "@/components/survey/survey.container";
 import { IDocument } from "@/components/documents/document";
+import { DocProvider, DocumentContext } from "@/context/document_context";
+import { useContext, useEffect } from "react";
 // Assuming you have a list of documents somewhere in your application
 const documentsList: IDocument[] = [
   { name: "1", key: 1 },
@@ -16,8 +20,14 @@ interface IServerProps {
 }
 
 export default function DocumentPage({ params }: IServerProps) {
-  const documentName = params.document as string;
-  console.log(documentName)
+  const documentName = decodeURIComponent(params.document as string);
+  // console.log(documentName);
+  const { currentDoc, setCurrentDoc } = useContext(DocumentContext);
+
+  useEffect(() => {
+    setCurrentDoc(documentName);
+    // console.log("whatis happening", currentDoc)
+  }, [documentName]);
 
   // const documentData = await fetchDocumentData(documentName);
 
@@ -28,8 +38,9 @@ export default function DocumentPage({ params }: IServerProps) {
   return (
     <>
       <Header></Header>
+
       <main className={styles.main}>
-        <Sidebar active={1} />
+        <Sidebar active={documentName} />
         <SurveyContainer />
       </main>
     </>

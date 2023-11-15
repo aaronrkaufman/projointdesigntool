@@ -5,6 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { DocumentContext } from "./document_context";
 
 interface Level {
   name: string;
@@ -54,18 +55,29 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [attributes, setAttributes] = useState<Attribute[]>([]);
 
+  const { currentDoc } = useContext(DocumentContext);
+
   useEffect(() => {
-    const localData = localStorage.getItem("attributes");
-    if (localData) {
-      setAttributes(JSON.parse(localData));
+    console.log("here it is:", currentDoc);
+    if (currentDoc) {
+      const localData = localStorage.getItem(`attributes-${currentDoc}`);
+      if (localData) {
+        setAttributes(JSON.parse(localData));
+      }
     }
-  }, []);
+  }, [currentDoc]);
 
   const [isCreatingAttribute, setIsCreatingAttribute] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("attributes", JSON.stringify(attributes));
-  }, [attributes]);
+    console.log("but here it is:", currentDoc);
+    if (currentDoc) {
+      localStorage.setItem(
+        `attributes-${currentDoc}`,
+        JSON.stringify(attributes)
+      );
+    }
+  }, [attributes, currentDoc]);
 
   const addNewAttribute = (name: string) => {
     const newAttribute: Attribute = {

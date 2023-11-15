@@ -7,6 +7,7 @@ import { AttributeContainer } from "../attribute/attribute.container";
 import { Button } from "../button";
 import { HighlightedContext } from "@/context/highlighted";
 import { useAttributes } from "@/context/attributes_context";
+import { DocumentContext } from "@/context/document_context";
 
 // interface Props {
 //   attributes: IAttribute[];
@@ -35,7 +36,6 @@ export const Survey: FC = (
 ) => {
   const { highlightedAttribute, setShowWeights, showWeights } =
     useContext(HighlightedContext);
-
   const {
     attributes,
     addLevelToAttribute,

@@ -3,11 +3,14 @@
 import { Documents } from "./documents/documents";
 import styles from "./sidebar.module.css";
 
-export const Sidebar = ({ active }: { active: number }) => {
+export const Sidebar = ({ active }: { active: string }) => {
   return (
     <div className={styles.sidebar}>
-      <h2>Documents</h2>
-      <Documents />
+      <div className={styles.top}>
+        <h2>Documents</h2>
+        <button>+</button>
+      </div>
+      <Documents active={active} />
     </div>
   );
 };
