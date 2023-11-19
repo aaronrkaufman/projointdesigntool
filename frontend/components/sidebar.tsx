@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Documents } from "./documents/documents";
 import styles from "./sidebar.module.css";
 import { IDocument } from "./documents/document";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 export const Sidebar = ({ active }: { active: string }) => {
   const [documents, setDocuments] = useState<IDocument[]>([

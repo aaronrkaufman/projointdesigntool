@@ -3,8 +3,8 @@ import React, { FC, useEffect } from "react";
 import { Survey } from "./survey";
 import { useState } from "react";
 import { IAttribute } from "../attribute/attribute.container";
-import { HighlightedProvider } from "@/context/highlighted";
-import AttributeProvider, { useAttributes } from "@/context/attributes_context";
+import { HighlightedProvider } from "../../context/highlighted";
+import AttributeProvider, { useAttributes } from "../../context/attributes_context";
 import { DragDropContext } from "react-beautiful-dnd";
 
 const reorder = (

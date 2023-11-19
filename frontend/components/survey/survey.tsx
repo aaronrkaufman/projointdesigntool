@@ -5,10 +5,10 @@ import { AddAttribute } from "./add_attribute";
 import { IAttribute } from "../attribute/attribute.container";
 import { AttributeContainer } from "../attribute/attribute.container";
 import { Button } from "../button";
-import { HighlightedContext } from "@/context/highlighted";
-import { useAttributes } from "@/context/attributes_context";
-import { DocumentContext } from "@/context/document_context";
-import VerticalList from "./check";
+import { HighlightedContext } from "../../context/highlighted";
+import { useAttributes } from "../../context/attributes_context";
+import { DocumentContext } from "../../context/document_context";
+
 import { Droppable } from "react-beautiful-dnd";
 
 export const Survey: FC = () => {
@@ -24,6 +24,7 @@ export const Survey: FC = () => {
   } = useAttributes();
 
   const { currentDoc } = useContext(DocumentContext);
+  console.log("waht is this:", currentDoc)
   return (
     <section className={styles.survey}>
       <div className={styles.top}>
@@ -54,7 +55,6 @@ export const Survey: FC = () => {
         )}
       </ul>
       <AddAttribute onCreate={handleCreateAttribute} />
-      <VerticalList />
     </section>
   );
 };

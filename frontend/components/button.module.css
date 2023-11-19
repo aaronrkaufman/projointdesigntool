@@ -1,0 +1,9 @@
+.btn {
+  z-index: 1;
+  background-color: var(--headerClr);
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  font-weight: bold;
+  font-size: 1rem;
+}

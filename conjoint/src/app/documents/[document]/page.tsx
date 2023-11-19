@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Header } from "@/components/header";
 import styles from "../../profile/page.module.css";
@@ -7,6 +7,7 @@ import { SurveyContainer } from "@/components/survey/survey.container";
 import { IDocument } from "@/components/documents/document";
 import { DocProvider, DocumentContext } from "@/context/document_context";
 import { useContext, useEffect } from "react";
+import AttributeProvider from "@/context/attributes_context";
 // Assuming you have a list of documents somewhere in your application
 const documentsList: IDocument[] = [
   { name: "1", key: 1 },
@@ -37,12 +38,14 @@ export default function DocumentPage({ params }: IServerProps) {
   // }
   return (
     <>
-      <Header></Header>
+      <AttributeProvider>
+        <Header></Header>
 
-      <main className={styles.main}>
-        <Sidebar active={documentName} />
-        <SurveyContainer />
-      </main>
+        <main className={styles.main}>
+          <Sidebar active={documentName} />
+          <SurveyContainer />
+        </main>
+      </AttributeProvider>
     </>
   );
 }
