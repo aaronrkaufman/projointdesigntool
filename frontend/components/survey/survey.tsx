@@ -1,5 +1,5 @@
 // SurveyComponent.tsx
-import React, { FC, useContext, useEffect } from "react";
+import React, { FC, useContext, useEffect, useRef, useState } from "react";
 import styles from "./survey.module.css";
 import { AddAttribute } from "./add_attribute";
 import { IAttribute } from "../attribute/attribute.container";
@@ -21,15 +21,58 @@ export const Survey: FC = () => {
     addNewAttribute,
     cancelNewAttribute,
     handleCreateAttribute,
-    setAttributes,
   } = useAttributes();
 
   const { currentDoc } = useContext(DocumentContext);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [docName, setDocName] = useState<string>(currentDoc);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (docName !== currentDoc) {
+      setDocName(currentDoc);
+    }
+  }, [currentDoc]);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDocName(e.target.value);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    // Here you can call a function to save the docName
+    // saveDocName(docName);
+  };
+
   return (
     <section className={styles.survey}>
       <div className={styles.top}>
-        <h2>{currentDoc}</h2>
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            value={docName}
+            style={{ width: `${(docName.length + 1) * 14}px` }}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            className={styles.editableInput}
+            // additional styling or attributes
+          />
+        ) : (
+          <h2
+            onClick={() => {
+              setIsEditing(true);
+            }}
+          >
+            {docName}
+          </h2>
+        )}
         {highlightedAttribute === -1 ? (
           ""
         ) : (

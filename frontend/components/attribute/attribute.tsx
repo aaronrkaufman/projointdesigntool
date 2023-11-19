@@ -13,6 +13,7 @@ import styles from "../survey/survey.module.css";
 import { IAttribute } from "./attribute.container";
 import { HighlightedContext } from "../../context/highlighted";
 import { Draggable } from "react-beautiful-dnd";
+import DragButton from "../drag_button";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -22,7 +23,7 @@ interface PropsAttributeComponent {
   onKeyPress: (event: KeyboardEvent) => void;
   onBlur: () => void;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  index: number
+  index: number;
 }
 
 export const Attribute: FC<PropsAttributeComponent> = ({
@@ -33,7 +34,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
   onKeyPress,
   onBlur,
   onChange,
-  index
+  index,
 }) => {
   const attributeRef = useRef<HTMLLIElement | null>(null);
 
@@ -54,7 +55,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
         <li
           ref={provided.innerRef}
           {...provided.draggableProps}
-          {...provided.dragHandleProps}
+          // {...provided.dragHandleProps}
           className={`${styles.attribute} ${
             highlightedAttribute === attribute.key ? styles.stroke : ""
           }`}
@@ -63,6 +64,12 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           }}
         >
           <div className={styles.attribute_left}>
+            <div className={styles.dragHandle}>
+              <DragButton
+                direction={"horizontal"}
+                {...provided.dragHandleProps}
+              />
+            </div>
             <svg
               onClick={onShow}
               width="18"

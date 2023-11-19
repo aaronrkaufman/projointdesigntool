@@ -1,0 +1,40 @@
+.drag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* visibility: hidden; */
+  color: black;
+  /* border: 1px solid black; */
+}
+/* 
+.drag:hover {
+  visibility: visible;
+} */
+
+.drag {
+  position: relative;
+  display: inline-block;
+}
+
+.drag .tooltiptext {
+  visibility: hidden;
+  /* width: fit-content; */
+  background-color: var(--activeClr);
+  color: var(--txtClr);
+  text-align: center;
+  border-radius: 6px;
+  padding: 0.25rem;
+  position: absolute;
+  font-size: 0.75rem;
+  z-index: 1;
+  /* bottom: 0; */
+  top: 100%;
+  left: -50%;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.drag:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
