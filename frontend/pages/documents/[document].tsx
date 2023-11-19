@@ -7,8 +7,11 @@ import { SurveyContainer } from "../../components/survey/survey.container";
 import { IDocument } from "../../components/documents/document";
 import { DocProvider, DocumentContext } from "../../context/document_context";
 import { useContext, useEffect } from "react";
-import AttributeProvider from "../../context/attributes_context";
+import AttributeProvider, {
+  useAttributes,
+} from "../../context/attributes_context";
 import { GetServerSideProps } from "next";
+import { DragDropContext } from "react-beautiful-dnd";
 // Assuming you have a list of documents somewhere in your application
 const documentsList: IDocument[] = [
   { name: "1", key: 1 },
@@ -37,16 +40,31 @@ function DocumentPage({ params }: IServerProps) {
   //   // Throw a 404 error if the document is not found
   //   throw new Response('Not Found', { status: 404 });
   // }
+
+  const { attributes, setAttributes } = useAttributes();
+
+  const onDragEnd = (result: any) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const reorderedAttributes = [...attributes];
+    const [reorderedItem] = reorderedAttributes.splice(result.source.index, 1);
+    reorderedAttributes.splice(result.destination.index, 0, reorderedItem);
+    console.log(reorderedAttributes, attributes);
+    setAttributes(reorderedAttributes);
+  };
+
   return (
     <>
-      <AttributeProvider>
+      <DragDropContext onDragEnd={onDragEnd}>
         <Header></Header>
 
         <main className={styles.main}>
           <Sidebar active={documentName} />
           <SurveyContainer />
         </main>
-      </AttributeProvider>
+      </DragDropContext>
     </>
   );
 }

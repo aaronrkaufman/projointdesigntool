@@ -21,10 +21,11 @@ export const Survey: FC = () => {
     addNewAttribute,
     cancelNewAttribute,
     handleCreateAttribute,
+    setAttributes,
   } = useAttributes();
 
   const { currentDoc } = useContext(DocumentContext);
-  console.log("waht is this:", currentDoc)
+
   return (
     <section className={styles.survey}>
       <div className={styles.top}>
@@ -38,22 +39,32 @@ export const Survey: FC = () => {
           ></Button>
         )}
       </div>
-      <ul className={styles.attributes}>
-        {attributes.map((attribute, index) => (
-          <AttributeContainer
-            key={index}
-            attribute={attribute}
-            addLevel={addLevelToAttribute}
-          />
-        ))}
-        {isCreatingAttribute && (
-          <AttributeContainer
-            isCreator
-            addNewAttribute={addNewAttribute}
-            cancelNewAttribute={cancelNewAttribute}
-          />
+      <Droppable droppableId="droppable-attributes">
+        {(provided) => (
+          <ul
+            className={styles.attributes}
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+          >
+            {attributes.map((attribute, index) => (
+              <AttributeContainer
+                key={index}
+                attribute={attribute}
+                index={index}
+                addLevel={addLevelToAttribute}
+              />
+            ))}
+            {provided.placeholder}
+            {isCreatingAttribute && (
+              <AttributeContainer
+                isCreator
+                addNewAttribute={addNewAttribute}
+                cancelNewAttribute={cancelNewAttribute}
+              />
+            )}
+          </ul>
         )}
-      </ul>
+      </Droppable>
       <AddAttribute onCreate={handleCreateAttribute} />
     </section>
   );

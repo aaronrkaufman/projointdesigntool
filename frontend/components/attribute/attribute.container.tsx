@@ -22,6 +22,7 @@ interface PropsAttributeContainer {
   addNewAttribute?: (name: string) => void;
   cancelNewAttribute?: () => void;
   isCreator?: boolean; // To determine whether to render AttributeCreator or AttributeComponent
+  index?: number
 }
 
 export const AttributeContainer: FC<PropsAttributeContainer> = ({
@@ -30,6 +31,7 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
   addNewAttribute,
   cancelNewAttribute,
   isCreator = false,
+  index
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [newLevel, setNewLevel] = useState<string>("");
@@ -88,6 +90,7 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
       onBlur={() => setNewLevel("")}
       onChange={(e) => setNewLevel(e.target.value)}
       attribute={attribute!}
+      index={index!}
     />
   );
 };
