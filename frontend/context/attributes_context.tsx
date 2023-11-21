@@ -9,6 +9,7 @@ import { DocumentContext } from "./document_context";
 
 interface Level {
   name: string;
+  id: number;
 }
 
 interface Attribute {
@@ -104,7 +105,10 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
           return {
             ...attribute,
             weights: newWeights,
-            levels: [...attribute.levels, { name: newLevel }],
+            levels: [
+              ...attribute.levels,
+              { name: newLevel, id: attribute.levels.length + 1 },
+            ],
           };
         }
         return attribute;

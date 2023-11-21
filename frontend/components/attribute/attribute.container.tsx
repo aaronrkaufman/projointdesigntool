@@ -7,6 +7,7 @@ import { HighlightedContext } from "../../context/highlighted";
 export interface ILevel {
   name: string;
   weight?: number;
+  id: number;
 }
 
 export interface IAttribute {
@@ -22,7 +23,7 @@ interface PropsAttributeContainer {
   addNewAttribute?: (name: string) => void;
   cancelNewAttribute?: () => void;
   isCreator?: boolean; // To determine whether to render AttributeCreator or AttributeComponent
-  index?: number
+  index?: number;
 }
 
 export const AttributeContainer: FC<PropsAttributeContainer> = ({
@@ -31,7 +32,7 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
   addNewAttribute,
   cancelNewAttribute,
   isCreator = false,
-  index
+  index,
 }) => {
   const [show, setShow] = useState<boolean>(false);
   const [newLevel, setNewLevel] = useState<string>("");
@@ -89,7 +90,7 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
       onKeyPress={handleKeyPressAttribute}
       onBlur={() => setNewLevel("")}
       onChange={(e) => setNewLevel(e.target.value)}
-      attribute={attribute!}
+      attribute={attribute ?? { name: "", levels: [], weights: [], key: 1 }}
       index={index!}
     />
   );

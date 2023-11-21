@@ -12,8 +12,9 @@ import React, {
 import styles from "../survey/survey.module.css";
 import { IAttribute } from "./attribute.container";
 import { HighlightedContext } from "../../context/highlighted";
-import { Draggable } from "react-beautiful-dnd";
+import { Draggable, Droppable } from "react-beautiful-dnd";
 import DragButton from "../drag_button";
+import { Level } from "../level/level";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -37,6 +38,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
   index,
 }) => {
   const attributeRef = useRef<HTMLLIElement | null>(null);
+  // console.log(attribute, index);
 
   useEffect(() => {
     !show && setHighlightedAttribute(-1);
@@ -48,7 +50,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
   return (
     <Draggable
       key={attribute.key}
-      draggableId={`draggable-${attribute.name}`}
+      draggableId={`draggable-${attribute.key}`}
       index={index}
     >
       {(provided) => (
@@ -89,26 +91,32 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           </div>
           <div className={styles.attribute_right}>
             {show ? (
-              <ul className={`${styles.levels}`}>
-                {attribute.levels.map((level, index) => (
-                  <li key={index}>
-                    <span className={styles.circle}></span>
-                    {level.name}
-                  </li>
-                ))}
-                <li>
-                  <span className={styles.circle}></span>
-                  <input
-                    type="text"
-                    className={styles.input}
-                    placeholder={"Add level"}
-                    value={newLevel}
-                    onChange={onChange}
-                    onKeyDown={onKeyPress}
-                    onBlur={onBlur}
-                  />
-                </li>
-              </ul>
+              <Droppable droppableId={`droppable-levels-${attribute.key}`} type="levels">
+                {(provided) => (
+                  <ul
+                    className={`${styles.levels}`}
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {attribute.levels.map((level, index) => (
+                      <Level key={level.id} {...level} index={index}></Level>
+                    ))}
+                    {provided.placeholder}
+                    <li>
+                      <span className={styles.circle}></span>
+                      <input
+                        type="text"
+                        className={styles.input}
+                        placeholder={"Add level"}
+                        value={newLevel}
+                        onChange={onChange}
+                        onKeyDown={onKeyPress}
+                        onBlur={onBlur}
+                      />
+                    </li>
+                  </ul>
+                )}
+              </Droppable>
             ) : (
               <p>{attribute.levels.length} levels</p>
             )}

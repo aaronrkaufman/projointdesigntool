@@ -82,7 +82,7 @@ export const Survey: FC = () => {
           ></Button>
         )}
       </div>
-      <Droppable droppableId="droppable-attributes">
+      <Droppable droppableId="droppable-attributes" type="group">
         {(provided) => (
           <ul
             className={styles.attributes}

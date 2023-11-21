@@ -4,7 +4,9 @@ import { Survey } from "./survey";
 import { useState } from "react";
 import { IAttribute } from "../attribute/attribute.container";
 import { HighlightedProvider } from "../../context/highlighted";
-import AttributeProvider, { useAttributes } from "../../context/attributes_context";
+import AttributeProvider, {
+  useAttributes,
+} from "../../context/attributes_context";
 import { DragDropContext } from "react-beautiful-dnd";
 
 const reorder = (
@@ -22,15 +24,44 @@ export const SurveyContainer: FC = () => {
   const { attributes, setAttributes } = useAttributes();
 
   const onDragEnd = (result: any) => {
-    if (!result.destination) {
+    const { source, destination, type } = result;
+    // Dropped outside the list
+    if (!destination || source.droppableId !== destination.droppableId) {
       return;
     }
-    const reorderedItems = reorder(
-      attributes,
-      result.source.index,
-      result.destination.index
-    );
-    setAttributes(reorderedItems);
+
+    // If the source and destination droppables are the same
+
+    if (source.droppableId.startsWith("droppable-attributes")) {
+      const reorderedItems = reorder(
+        attributes,
+        result.source.index,
+        result.destination.index
+      );
+      setAttributes(reorderedItems);
+    } else {
+      const newAttributes = [...attributes];
+      // Find the attribute by droppableId, which should match the attribute's key
+      const attributeIndex = newAttributes.findIndex(
+        (attr) => `droppable-levels-${attr.key}` === source.droppableId
+      );
+      if (attributeIndex !== -1) {
+        // Reorder levels within the attribute
+        const [movedLevel] = newAttributes[attributeIndex].levels.splice(
+          source.index,
+          1
+        );
+        newAttributes[attributeIndex].levels.splice(
+          destination.index,
+          0,
+          movedLevel
+        );
+      }
+
+      // Update the state with the new attributes array
+
+      setAttributes(newAttributes);
+    }
   };
 
   // const [attributes, setAttributes] = useState<IAttribute[]>([
