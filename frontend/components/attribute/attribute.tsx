@@ -66,7 +66,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           }}
         >
           <div className={styles.attribute_left}>
-            <div className={styles.dragHandle}>
+            <div className={`${styles.dragHandle} ${styles.dragAttribute}`}>
               <DragButton
                 direction={"horizontal"}
                 {...provided.dragHandleProps}
@@ -91,7 +91,10 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           </div>
           <div className={styles.attribute_right}>
             {show ? (
-              <Droppable droppableId={`droppable-levels-${attribute.key}`} type="levels">
+              <Droppable
+                droppableId={`droppable-levels-${attribute.key}`}
+                type="levels"
+              >
                 {(provided) => (
                   <ul
                     className={`${styles.levels}`}
@@ -103,7 +106,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                     ))}
                     {provided.placeholder}
                     <li>
-                      <span className={styles.circle}></span>
+                      {/* <span className={styles.circle}></span> */}
                       <input
                         type="text"
                         className={styles.input}
