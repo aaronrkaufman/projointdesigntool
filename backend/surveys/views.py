@@ -8,6 +8,7 @@ from drf_spectacular.utils import extend_schema
 
 from .models import Survey
 from .serializers import ExportJSSerializer, SurveySerializer
+import requests
 
 import random
 
@@ -247,9 +248,6 @@ var returnarrayKeys = Object.keys(returnarray);
 for (var pr = 0; pr < returnarrayKeys.length; pr++){
        Qualtrics.SurveyEngine.setEmbeddedData(returnarrayKeys[pr], returnarray[returnarrayKeys[pr]]); 
 }
-
-
-
 """
 
 """
@@ -562,3 +560,236 @@ def preview_survey(request):
             {"message": "Invalid survey data."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+def __CreateHTML(i, num_attr, profiles):
+    top = '<span>Question '+ str(i+1) + '</span>\n<br /><br />\n<span>Please carefully review the options detailed below, then please answer the questions.</span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?</span>\n<br />\n<div>\n<br />\n<table class="UserTable">\n<tbody>\n'    
+        
+    # Create a header row
+    header = "<tr>\n<td>&nbsp;</td>\n"
+    for k in range(profiles):
+        header = header + '<td style="text-align: center;">\n<strong>Choice ' + str(k+1) + '</strong></td>\n'
+    header = header + '</tr>\n'
+        
+    # Row Array
+    rows = ["A"]*num_attr
+    for m in range(num_attr):
+        rows[m] = "<tr>\n<td style='text-align: center;'><strong>${e://Field/F-" + str(i+1) + "-" + str(m+1) + "}</strong></td>\n"
+        for n in range(profiles):
+            rows[m] = rows[m] + "<td style='text-align: center;'>${e://Field/F-"+str(i+1) +"-" + str(n+1)+"-"+str(m+1)+"}</td>\n"
+        rows[m] = rows[m] + "</tr>"
+            
+    # Ending
+    footer = "</tbody>\n</table>\n</div>"
+        
+    text_out = top + header
+    for j in rows:
+        text_out = text_out + j
+            
+    text_out = text_out + footer 
+    return text_out
+
+def __CreateBlock(surveyID, bl, user_token):
+    url = "https://yul1.qualtrics.com/API/v3/survey-definitions/" + surveyID + "/blocks"
+    payload = {"Type":"Standard", "Description": "Block"}
+    headers = {
+    "Content-Type": "application/json",
+    "X-API-TOKEN": user_token
+    }
+
+    response = requests.request("POST", url, json=payload, headers=headers).json()
+    return response["result"]["BlockID"]
+
+def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js):
+    url = "https://yul1.qualtrics.com/API/v3/survey-definitions"
+    payload = {
+        "SurveyName": name,
+        "Language": "AR",
+        "ProjectCategory": "CORE"
+    }
+    headers = {
+      "Content-Type": "application/json",
+      "X-API-TOKEN": user_token
+    }
+    response = requests.request("POST", url, json=payload, headers=headers).json()
+    surveyID = response["result"]["SurveyID"]
+    for i in range(task):
+        bl = __GetFlow(surveyID, user_token)
+        blockID = __CreateBlock(surveyID, bl, user_token)
+        currText = __CreateHTML(i, num_attr, profiles)
+        currQ = __CreateQuestion(surveyID, currText, blockID, user_token, profiles, js)
+    return surveyID
+    
+def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js):
+    url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}/questions"
+    querystring = {"blockId":blockID}
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-TOKEN": user_token,
+    }
+
+    # Define the question text and number of answer choices
+    question_text = text
+    num_choices = profiles  # Replace "n" with the actual number of answer choices
+
+    # Create the answer choices based on the number specified
+    answer_choices = {str(i): {"Display": f"Profile {i}"} for i in range(1, num_choices + 1)}
+
+    # Define the payload to create a multiple-choice question within the specified block
+    payload = {
+        "QuestionText": question_text,
+        "QuestionType": "MC",
+        "Selector": "SAVR",
+        "Choices": answer_choices,
+        "QuestionJS": js
+    }
+    response = requests.post(url, json=payload, headers=headers, params=querystring)
+
+def __GetFlow(surveyID, user_token):
+    url = "https://yul1.qualtrics.com/API/v3/survey-definitions/"+ surveyID + "/flow"
+
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-TOKEN": user_token
+    }
+    response = requests.request("GET", url, headers=headers).json()
+    #print(response["result"]["Flow"][0]["ID"])
+    return response["result"]["Flow"][0]["ID"]
+
+def __DownloadSurvey(surveyID, user_token):
+    url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}"
+
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-TOKEN": user_token,
+    }
+
+    querystring = {
+        "format": "qsf",  
+    }
+
+    try:
+        response = requests.get(url, headers=headers, params=querystring)
+
+        if response.status_code == 200:
+            qsf_data = response.text  # QSF data in the response text
+
+            # Save the QSF data to a file named "survey.qsf"
+            with open("survey.qsf", "w") as qsf_file:
+                qsf_file.write(qsf_data)
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+def __createJS(level_dict, attributes, restrictions, random, tasks, profiles, randomize, constraints, noDuplicates, probabilities):
+    if probabilities == {}:
+        probabilities = _clearProbabilities(level_dict)
+
+    """ Write into file """
+    js = "Qualtrics.SurveyEngine.addOnload(function() {\n"
+    js += "\t" + temp_1 + "\n\n"
+
+    js += "\t" + _createArrayString(attributes, level_dict) + "\n"
+    js += "\t" + _createRestrictionString(restrictions) + "\n"
+
+    if random == 1:
+        js += "\t" + _createProbString(attributes, probabilities) + "\n"
+    else:
+        js += "\tvar probabilityarray = {};\n\n"
+
+    js += "\t// Indicator for whether weighted randomization should be enabled or not\n"
+    js += "\tvar weighted = " + str(random) + ";\n\n"
+    js += "\t// K = Number of tasks displayed to the respondent\n"
+    js += "\tvar K = " + str(tasks) + ";\n\n"
+    js += "\t// N = Number of profiles displayed in each task\n"
+    js += "\tvar N = " + str(profiles) + ";\n\n"
+    js += "\t// num_attributes = Number of Attributes in the Array\n"
+    js += "\tvar num_attributes = featurearray.length;\n\n"
+    js += "\t// Should duplicate profiles be rejected?\n"
+
+    js += "\tvar noDuplicateProfiles = " + str(noDuplicates).lower() + ";\n"
+
+    if randomize == 1:
+        js += "\n"
+
+        if len(constraints) > 0:
+            constString = "\tvar attrconstraintarray = ["
+            for m in range(len(constraints)):
+                const = constraints[m]
+                constString += "["
+                for i in range(len(const)):
+                    entry = const[i]
+                    constString += '"' + entry + '"'
+                    if i != len(const) - 1:
+                        constString += ","
+                if m != len(constraints) - 1:
+                    constString += "],"
+                else:
+                    constString += "]"
+            constString += "];\n\n"
+        else:
+            constString = "\tvar attrconstraintarray = [];\n"
+
+        js += constString
+        js += temp_2
+    else:
+        js += "\n"
+        js += temp_2_star
+        js += "\n"
+        js += "\tvar featureArrayNew = featurearray;\n\n"
+    js += temp_3
+    js = js.rstrip('\n')
+    js += "\n"
+    js += "});\n"
+    js += "Qualtrics.SurveyEngine.addOnReady(function() {\n"
+    js += "\t/* Place your JavaScript here to run when the page is fully displayed */\n"
+    js += "});\n"
+    js += "Qualtrics.SurveyEngine.addOnUnload(function() {\n"
+    js += "\t/* Place your JavaScript here to run when the page is unloaded */\n"
+    js += "});"
+    return js
+
+
+
+@extend_schema(
+    request=SurveySerializer,
+    responses={
+        status.HTTP_201_CREATED: SurveySerializer,
+        status.HTTP_400_BAD_REQUEST: None,
+    },  # Specify the serializer for the 201 response
+    description="Creating Qualtrics survey and exporting QSF file",
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_qualtrics(request):
+    if request.method == "POST":
+        attributes_list_dict = request.data.get("attributes", [])
+
+        # Optional
+        constraints = request.data.get("constraints", [])
+        restrictions = request.data.get("restrictions", [])
+        filename = request.data.get("filename", "export survey")
+        profiles = request.data.get("profiles", 2)
+        tasks = request.data.get("tasks", 5)
+        randomize = request.data.get("randomize", 1)
+        noDuplicates = request.data.get("noDuplicates", 0)
+        random = request.data.get("random", 0)
+        
+
+        attributes, level_dict, probabilities = _refactorAttributes(
+            attributes_list_dict
+        )
+        js_text = __createJS(level_dict, attributes, restrictions, random, tasks, profiles, randomize, constraints, noDuplicates, probabilities)
+
+        num_attr = len(attributes)
+        user_token = "ZOxp1TYLxPH8dlBs1FogWM3UNdKsLTHVmUAB1Rfm" #FIGURE OUT BETTER WAY TO STORE THIS
+        currText = ""
+        created = __CreateSurvey(filename, user_token, tasks, num_attr, profiles, currText, js_text)
+        __DownloadSurvey(created, user_token)
+        return _sendFileResponse('survey.qsf')
+
+
+
+
+
+
+
