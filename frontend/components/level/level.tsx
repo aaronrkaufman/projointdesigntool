@@ -4,12 +4,14 @@ import { ILevel } from "../attribute/attribute.container";
 import { Draggable } from "react-beautiful-dnd";
 import DragButton from "../drag_button";
 import { useState, useRef, useEffect } from "react";
+import { useAttributes } from "../../context/attributes_context";
 
 interface ILevelComponent extends ILevel {
   index: number;
+  attributeName: string;
 }
 
-export const Level = ({ name, index, id }: ILevelComponent) => {
+export const Level = ({ name, index, id, attributeName }: ILevelComponent) => {
   const [isEditing, setIsEditing] = useState(false);
   const [levelName, setLevelName] = useState<string>(name);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -19,6 +21,8 @@ export const Level = ({ name, index, id }: ILevelComponent) => {
   //         setLevelName(currentDoc);
   //     }
   //   }, [currentDoc]);
+
+  const { deleteLevelFromAttribute, handleLevelNameChange } = useAttributes();
 
   useEffect(() => {
     if (isEditing) {
@@ -32,8 +36,10 @@ export const Level = ({ name, index, id }: ILevelComponent) => {
 
   const handleBlur = () => {
     setIsEditing(false);
+    // console.log("yes?")
     // Here you can call a function to save the docName
     // saveDocName(docName);
+    handleLevelNameChange(attributeName, levelName, index);
   };
 
   return (
@@ -68,7 +74,14 @@ export const Level = ({ name, index, id }: ILevelComponent) => {
             ) : (
               <p className={styles.levelName}>{levelName}</p>
             )}
-            <p>X</p>
+            <p
+              onClick={() => {
+                deleteLevelFromAttribute(attributeName, index);
+              }}
+              className={styles.deleteLevel}
+            >
+              x
+            </p>
           </div>
         </li>
       )}

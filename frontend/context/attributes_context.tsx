@@ -26,6 +26,7 @@ interface AttributeContextType {
   setIsCreatingAttribute: React.Dispatch<React.SetStateAction<boolean>>;
   addNewAttribute: (name: string) => void;
   addLevelToAttribute: (attributeName: string, newLevel: string) => void;
+  deleteLevelFromAttribute: (attributeName: string, levelIndex: number) => void;
   updateWeight: (
     attributeKey: number,
     index: number,
@@ -33,6 +34,11 @@ interface AttributeContextType {
   ) => void;
   cancelNewAttribute: () => void;
   handleCreateAttribute: () => void;
+  handleLevelNameChange: (
+    attributeName: string,
+    newName: string,
+    levelIndex: number
+  ) => void;
   // Include other function signatures as needed
 }
 
@@ -116,7 +122,61 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     );
   };
 
+  const deleteLevelFromAttribute = (
+    attributeName: string,
+    levelIndex: number
+  ) => {
+    setAttributes((prevAttributes) =>
+      prevAttributes.map((attribute) => {
+        if (attribute.name === attributeName) {
+          // Remove the level at the specified index
+          const newLevels = attribute.levels.filter(
+            (_, index) => index !== levelIndex
+          );
+          const newNumberOfLevels = newLevels.length;
+          const newWeight =
+            newNumberOfLevels > 0
+              ? parseFloat((1 / newNumberOfLevels).toFixed(2))
+              : 0;
+          const newWeights = Array(newNumberOfLevels).fill(newWeight);
+
+          return { ...attribute, weights: newWeights, levels: newLevels };
+        }
+        return attribute;
+      })
+    );
+  };
+
   const cancelNewAttribute = () => setIsCreatingAttribute(false);
+
+  const handleLevelNameChange = (
+    attributeName: string,
+    newName: string,
+    levelIndex: number
+  ) => {
+    // console.log("yes here.", attributeName, newName, levelIndex)
+    setAttributes((prevAttributes) =>
+      prevAttributes.map((attribute) => {
+        // Check if this is the attribute to update
+        if (attribute.name === attributeName) {
+          // Copy the levels array
+          const newLevels = [...attribute.levels];
+
+          // Check if the level index is valid
+          if (levelIndex >= 0 && levelIndex < newLevels.length) {
+            // Update the level name
+            newLevels[levelIndex] = { ...newLevels[levelIndex], name: newName };
+          }
+
+          // Return the updated attribute
+          return { ...attribute, levels: newLevels };
+        }
+
+        // For other attributes, return them as is
+        return attribute;
+      })
+    );
+  };
 
   const updateWeight = (
     attributeKey: number,
@@ -167,9 +227,11 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setIsCreatingAttribute,
     addNewAttribute,
     addLevelToAttribute,
+    deleteLevelFromAttribute,
     updateWeight,
     cancelNewAttribute,
     handleCreateAttribute,
+    handleLevelNameChange,
     // Add other functions here
   };
 

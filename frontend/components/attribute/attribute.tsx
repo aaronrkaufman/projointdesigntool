@@ -102,7 +102,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                     ref={provided.innerRef}
                   >
                     {attribute.levels.map((level, index) => (
-                      <Level key={level.id} {...level} index={index}></Level>
+                      <Level key={level.id} {...level} index={index} attributeName={attribute.name}></Level>
                     ))}
                     {provided.placeholder}
                     <li>
