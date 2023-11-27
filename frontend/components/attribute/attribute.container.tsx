@@ -90,7 +90,14 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
       onKeyPress={handleKeyPressAttribute}
       onBlur={() => setNewLevel("")}
       onChange={(e) => setNewLevel(e.target.value)}
-      attribute={attribute ?? { name: "", levels: [], weights: [], key: 1 }}
+      attribute={
+        attribute ?? {
+          name: "",
+          levels: [],
+          weights: [],
+          key: 1,
+        }
+      }
       index={index!}
     />
   );

@@ -11,6 +11,16 @@ import { DocumentContext } from "../../context/document_context";
 
 import { Droppable } from "react-beautiful-dnd";
 
+const getTimeElapsed = (lastEdited: Date) => {
+  const now = new Date();
+  const elapsed = now.getTime() - lastEdited.getTime(); // time in milliseconds
+
+  if (elapsed < 60000) return "last edited now";
+  if (elapsed < 3600000) return `${Math.round(elapsed / 60000)} minutes ago`;
+  if (elapsed < 86400000) return `${Math.round(elapsed / 3600000)} hours ago`;
+  // Add more conditions for days, months, years as needed
+};
+
 export const Survey: FC = () => {
   const { highlightedAttribute, setShowWeights, showWeights } =
     useContext(HighlightedContext);
@@ -23,7 +33,7 @@ export const Survey: FC = () => {
     handleCreateAttribute,
   } = useAttributes();
 
-  const { currentDoc } = useContext(DocumentContext);
+  const { currentDoc, lastEdited, setLastEdited } = useContext(DocumentContext);
 
   const [isEditing, setIsEditing] = useState(false);
   const [docName, setDocName] = useState<string>(currentDoc);
@@ -47,6 +57,7 @@ export const Survey: FC = () => {
 
   const handleBlur = () => {
     setIsEditing(false);
+    setLastEdited(new Date());
     // Here you can call a function to save the docName
     // saveDocName(docName);
   };
@@ -81,6 +92,7 @@ export const Survey: FC = () => {
             onClick={() => setShowWeights(!showWeights)}
           ></Button>
         )}
+        <div>Last edited: {getTimeElapsed(lastEdited)}</div>
       </div>
       <Droppable droppableId="droppable-attributes" type="group">
         {(provided) => (

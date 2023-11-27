@@ -534,7 +534,7 @@ def list_user_surveys(request):
 
 
 @extend_schema(
-    request=SurveySerializer,
+    request=ExportJSSerializer,
     responses={
         status.HTTP_201_CREATED: SurveySerializer,
         status.HTTP_400_BAD_REQUEST: None,
@@ -542,16 +542,22 @@ def list_user_surveys(request):
     description="Saves the survey to user's profile",
 )
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def preview_survey(request):
     try:
         questions = request.data.get("attributes")
         preview_sets = []
+        print(1)
 
         for _ in range(2):  # Generate two sets of answers
-            answer_set = tuple(
-                random.choice(question["levels"])["name"] for question in questions
-            )
+            answer_set = []
+            for question in questions:
+                print(random.choice(question["levels"])["name"])
+                answer_set.append(random.choice(question["levels"])["name"])
+            # answer_set = tuple(
+            #     random.choice(question["levels"])["name"] for question in questions
+            # )
+            print(2)
             preview_sets.append(answer_set)
 
         return Response({"previews": preview_sets}, status=status.HTTP_201_CREATED)
@@ -759,7 +765,7 @@ def __createJS(level_dict, attributes, restrictions, random, tasks, profiles, ra
     description="Creating Qualtrics survey and exporting QSF file",
 )
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def create_qualtrics(request):
     if request.method == "POST":
         attributes_list_dict = request.data.get("attributes", [])

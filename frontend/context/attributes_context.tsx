@@ -62,16 +62,22 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [attributes, setAttributes] = useState<Attribute[]>([]);
 
-  const { currentDoc } = useContext(DocumentContext);
+  const { currentDoc, lastEdited, setLastEdited } = useContext(DocumentContext);
   const [prevDoc, setPrevDoc] = useState<string>("");
+  const [edited, setEdited] = useState<boolean>(false);
 
   useEffect(() => {
-    if (currentDoc && currentDoc != prevDoc) {
+    if (currentDoc && currentDoc !== prevDoc) {
+      setEdited(false);
       setPrevDoc(currentDoc);
-      // console.log("here it is:", currentDoc, "ande here:", prevDoc);
       const localData = localStorage.getItem(`attributes-${currentDoc}`);
       if (localData) {
-        setAttributes(JSON.parse(localData));
+        const parsedData = JSON.parse(localData);
+        setAttributes(parsedData.attributes);
+        setLastEdited(new Date(parsedData.lastEdited));
+        // Use parsedData.lastEdited as needed
+      } else {
+        setAttributes([]);
       }
     }
   }, [currentDoc]);
@@ -80,13 +86,27 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     // console.log("but here it is:", currentDoc);
-    if (currentDoc && attributes.length > 0 && currentDoc == prevDoc) {
+    if (
+      currentDoc &&
+      attributes.length > 0 &&
+      currentDoc === prevDoc &&
+      edited
+    ) {
+      setLastEdited(new Date());
+      const dataToSave = {
+        attributes: attributes,
+        lastEdited: lastEdited, // Update last edited time
+      };
       localStorage.setItem(
         `attributes-${currentDoc}`,
-        JSON.stringify(attributes)
+        JSON.stringify(dataToSave)
       );
+
+      setEdited(false);
+
+      console.log("maybe now?");
     }
-  }, [attributes, currentDoc]);
+  }, [attributes, currentDoc, lastEdited]);
 
   const addNewAttribute = (name: string) => {
     const newAttribute: Attribute = {
@@ -97,6 +117,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     };
     setAttributes([...attributes, newAttribute]);
     setIsCreatingAttribute(false);
+    setEdited(true);
   };
 
   const handleCreateAttribute = () => setIsCreatingAttribute(true);
@@ -120,6 +141,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         return attribute;
       })
     );
+    setEdited(true);
   };
 
   const deleteLevelFromAttribute = (
@@ -140,11 +162,16 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
               : 0;
           const newWeights = Array(newNumberOfLevels).fill(newWeight);
 
-          return { ...attribute, weights: newWeights, levels: newLevels };
+          return {
+            ...attribute,
+            weights: newWeights,
+            levels: newLevels,
+          };
         }
         return attribute;
       })
     );
+    setEdited(true);
   };
 
   const cancelNewAttribute = () => setIsCreatingAttribute(false);
@@ -176,6 +203,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         return attribute;
       })
     );
+    setEdited(true);
   };
 
   const updateWeight = (

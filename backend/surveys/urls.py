@@ -8,6 +8,6 @@ urlpatterns = [
     path("export/", export_js, name="export"),
     path("list/", list_user_surveys, name="list"),
     path("save/", save_user_survey, name="save"),
-    path("qualtrics/", create_qualtrics, name="qualtrics")
+    path("qualtrics/", create_qualtrics, name="qualtrics"),
     path("preview/", preview_survey, name="preview"),
 ]

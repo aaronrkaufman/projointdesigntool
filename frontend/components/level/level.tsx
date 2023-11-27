@@ -36,10 +36,12 @@ export const Level = ({ name, index, id, attributeName }: ILevelComponent) => {
 
   const handleBlur = () => {
     setIsEditing(false);
-    // console.log("yes?")
-    // Here you can call a function to save the docName
-    // saveDocName(docName);
-    handleLevelNameChange(attributeName, levelName, index);
+
+    if (levelName.trim() === "") {
+      deleteLevelFromAttribute(attributeName, index);
+    } else {
+      handleLevelNameChange(attributeName, levelName, index);
+    }
   };
 
   return (

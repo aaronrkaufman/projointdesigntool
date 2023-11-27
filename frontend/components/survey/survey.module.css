@@ -10,6 +10,7 @@
 .top {
   display: flex;
   gap: 2rem;
+  align-items: center;
 }
 
 .top input {
@@ -129,7 +130,7 @@
   width: fit-content;
   visibility: hidden;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .deleteLevel:hover {
@@ -163,7 +164,7 @@
   /* position: absolute; */
   /* left: -1.25rem; */
   bottom: 0rem;
-  top: 0.5rem;
+  top: 0.125rem;
   padding-right: 2rem;
   padding-top: 1rem;
   /* font-size: 1.25rem; */
