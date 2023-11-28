@@ -10,26 +10,20 @@ const api = axios.create({
 export default api;
 
 export const downloadSurvey = async (
-  attributes: Attribute[]
+  attributes: Attribute[],
+  path: "qualtrics" | "export"
 ): Promise<void> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
     console.log(processedAttributes);
-    const response = await api.post(
-      "/surveys/qualtrics/",
-      processedAttributes,
-      {
-        responseType: "blob",
-      }
-    );
+    const response = await api.post(`/surveys/${path}/`, processedAttributes, {
+      responseType: "blob",
+    });
 
     console.log(response);
 
-    // Extract the filename from the Content-Disposition header
-    // const contentDispositionHeader = response.headers["content-disposition"];
-    // const matches = contentDispositionHeader.match(/filename="(.+)"/);
-    // const filename = (matches && matches[1]) || "default-filename.qsf";
-    const filename = "default-filename.qsf";
+    const filename =
+      path === "qualtrics" ? "default-filename.qsf" : "survey.js";
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
