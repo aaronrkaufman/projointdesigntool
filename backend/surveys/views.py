@@ -4,13 +4,11 @@ from rest_framework import status
 
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
 from .models import Survey
 from .serializers import ExportJSSerializer, SurveySerializer
-import requests
-
-import random
+import requests, os, random
 
 
 # Create your views here.
@@ -383,18 +381,53 @@ def _sendFileResponse(file_path):
     file_js = open(file_path, "rb")
     response = FileResponse(
         file_js,
-        content_type="text/plain; charset=utf-8",
+        content_type="application/javascript",
         status=status.HTTP_201_CREATED,
         as_attachment=True,
         filename=file_path,
     )
     response.closed = file_js.close
+    # Delete the file
+    os.remove(file_path)
     return response
 
 
 @extend_schema(
     request=ExportJSSerializer,
-    responses={201: None},  # You can specify a serializer for the response if needed
+    responses={
+        201: OpenApiResponse(
+            response="application/javascript",
+            description="A JavaScript file containing the exported survey data.",
+            examples=[
+                OpenApiExample(
+                    "SurveyJSFileExample",
+                    summary="Exported Survey JS File",
+                    description="A JavaScript file stream named survey.js containing the exported survey data.",
+                    value={
+                        "content_type": "application/javascript",
+                        "headers": {
+                            "Content-Disposition": 'attachment; filename="{filename}"'
+                        },
+                    },
+                )
+            ],
+        ),
+        400: OpenApiResponse(
+            response="application/json",
+            description="An error response indicating that the request was invalid.",
+            examples=[
+                OpenApiExample(
+                    "Error Example",
+                    summary="Bad Request Response",
+                    description="This response is returned when the request data is invalid.",
+                    value={
+                        "error": "Invalid data provided.",
+                        "details": "The attributes field is required.",
+                    },
+                )
+            ],
+        ),
+    },  # You can specify a serializer for the response if needed
     description="Export survey to JS. Creates a file on the server and returns it to the user",
 )
 @api_view(["POST"])
@@ -404,7 +437,6 @@ def export_js(request):
     Creates a file on the server and returns it to the user
 
     :attr:`attributes` -> List[Dict] Required\n
-    :attr:`constraints` -> List[] Optional
     """
     # Convert parameters to types
     if request.method == "POST":
@@ -498,9 +530,33 @@ def export_js(request):
 @extend_schema(
     request=SurveySerializer,
     responses={
-        status.HTTP_201_CREATED: SurveySerializer,
-        status.HTTP_400_BAD_REQUEST: None,
-    },  # Specify the serializer for the 201 response
+        status.HTTP_201_CREATED: OpenApiResponse(
+            description="Saves the survey to user's profile",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name="SurveySaveSuccess",
+                    description="The survey has been successfully saved to the user's profile.",
+                    value={"message": "Survey has been saved."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_201_CREATED)],
+                )
+            ],
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Bad Request",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name="SurveySaveFail",
+                    description="The survey data provided is invalid.",
+                    value={"error": "Invalid data provided."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                )
+            ],
+        ),
+    },
     description="Saves the survey to user's profile",
 )
 @api_view(["POST"])
@@ -509,7 +565,9 @@ def save_user_survey(request):
     serializer = SurveySerializer(data=request.data, context={"request": request})
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            {"message": "Survey has been saved."}, status=status.HTTP_201_CREATED
+        )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -569,54 +627,70 @@ def preview_survey(request):
 
 
 def __CreateHTML(i, num_attr, profiles):
-    top = '<span>Question '+ str(i+1) + '</span>\n<br /><br />\n<span>Please carefully review the options detailed below, then please answer the questions.</span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?</span>\n<br />\n<div>\n<br />\n<table class="UserTable">\n<tbody>\n'    
-        
+    top = (
+        "<span>Question "
+        + str(i + 1)
+        + '</span>\n<br /><br />\n<span>Please carefully review the options detailed below, then please answer the questions.</span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?</span>\n<br />\n<div>\n<br />\n<table class="UserTable">\n<tbody>\n'
+    )
+
     # Create a header row
     header = "<tr>\n<td>&nbsp;</td>\n"
     for k in range(profiles):
-        header = header + '<td style="text-align: center;">\n<strong>Choice ' + str(k+1) + '</strong></td>\n'
-    header = header + '</tr>\n'
-        
+        header = (
+            header
+            + '<td style="text-align: center;">\n<strong>Choice '
+            + str(k + 1)
+            + "</strong></td>\n"
+        )
+    header = header + "</tr>\n"
+
     # Row Array
-    rows = ["A"]*num_attr
+    rows = ["A"] * num_attr
     for m in range(num_attr):
-        rows[m] = "<tr>\n<td style='text-align: center;'><strong>${e://Field/F-" + str(i+1) + "-" + str(m+1) + "}</strong></td>\n"
+        rows[m] = (
+            "<tr>\n<td style='text-align: center;'><strong>${e://Field/F-"
+            + str(i + 1)
+            + "-"
+            + str(m + 1)
+            + "}</strong></td>\n"
+        )
         for n in range(profiles):
-            rows[m] = rows[m] + "<td style='text-align: center;'>${e://Field/F-"+str(i+1) +"-" + str(n+1)+"-"+str(m+1)+"}</td>\n"
+            rows[m] = (
+                rows[m]
+                + "<td style='text-align: center;'>${e://Field/F-"
+                + str(i + 1)
+                + "-"
+                + str(n + 1)
+                + "-"
+                + str(m + 1)
+                + "}</td>\n"
+            )
         rows[m] = rows[m] + "</tr>"
-            
+
     # Ending
     footer = "</tbody>\n</table>\n</div>"
-        
+
     text_out = top + header
     for j in rows:
         text_out = text_out + j
-            
-    text_out = text_out + footer 
+
+    text_out = text_out + footer
     return text_out
+
 
 def __CreateBlock(surveyID, bl, user_token):
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions/" + surveyID + "/blocks"
-    payload = {"Type":"Standard", "Description": "Block"}
-    headers = {
-    "Content-Type": "application/json",
-    "X-API-TOKEN": user_token
-    }
+    payload = {"Type": "Standard", "Description": "Block"}
+    headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
 
     response = requests.request("POST", url, json=payload, headers=headers).json()
     return response["result"]["BlockID"]
 
+
 def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js):
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions"
-    payload = {
-        "SurveyName": name,
-        "Language": "AR",
-        "ProjectCategory": "CORE"
-    }
-    headers = {
-      "Content-Type": "application/json",
-      "X-API-TOKEN": user_token
-    }
+    payload = {"SurveyName": name, "Language": "AR", "ProjectCategory": "CORE"}
+    headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
     response = requests.request("POST", url, json=payload, headers=headers).json()
     surveyID = response["result"]["SurveyID"]
     for i in range(task):
@@ -625,10 +699,11 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js):
         currText = __CreateHTML(i, num_attr, profiles)
         currQ = __CreateQuestion(surveyID, currText, blockID, user_token, profiles, js)
     return surveyID
-    
+
+
 def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}/questions"
-    querystring = {"blockId":blockID}
+    querystring = {"blockId": blockID}
     headers = {
         "Content-Type": "application/json",
         "X-API-TOKEN": user_token,
@@ -639,7 +714,9 @@ def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js):
     num_choices = profiles  # Replace "n" with the actual number of answer choices
 
     # Create the answer choices based on the number specified
-    answer_choices = {str(i): {"Display": f"Profile {i}"} for i in range(1, num_choices + 1)}
+    answer_choices = {
+        str(i): {"Display": f"Profile {i}"} for i in range(1, num_choices + 1)
+    }
 
     # Define the payload to create a multiple-choice question within the specified block
     payload = {
@@ -647,20 +724,19 @@ def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js):
         "QuestionType": "MC",
         "Selector": "SAVR",
         "Choices": answer_choices,
-        "QuestionJS": js
+        "QuestionJS": js,
     }
     response = requests.post(url, json=payload, headers=headers, params=querystring)
 
-def __GetFlow(surveyID, user_token):
-    url = "https://yul1.qualtrics.com/API/v3/survey-definitions/"+ surveyID + "/flow"
 
-    headers = {
-        "Content-Type": "application/json",
-        "X-API-TOKEN": user_token
-    }
+def __GetFlow(surveyID, user_token):
+    url = "https://yul1.qualtrics.com/API/v3/survey-definitions/" + surveyID + "/flow"
+
+    headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
     response = requests.request("GET", url, headers=headers).json()
-    #print(response["result"]["Flow"][0]["ID"])
+    # print(response["result"]["Flow"][0]["ID"])
     return response["result"]["Flow"][0]["ID"]
+
 
 def __DownloadSurvey(surveyID, user_token):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}"
@@ -671,7 +747,7 @@ def __DownloadSurvey(surveyID, user_token):
     }
 
     querystring = {
-        "format": "qsf",  
+        "format": "qsf",
     }
 
     try:
@@ -686,7 +762,19 @@ def __DownloadSurvey(surveyID, user_token):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
-def __createJS(level_dict, attributes, restrictions, random, tasks, profiles, randomize, constraints, noDuplicates, probabilities):
+
+def __createJS(
+    level_dict,
+    attributes,
+    restrictions,
+    random,
+    tasks,
+    profiles,
+    randomize,
+    constraints,
+    noDuplicates,
+    probabilities,
+):
     if probabilities == {}:
         probabilities = _clearProbabilities(level_dict)
 
@@ -743,7 +831,7 @@ def __createJS(level_dict, attributes, restrictions, random, tasks, profiles, ra
         js += "\n"
         js += "\tvar featureArrayNew = featurearray;\n\n"
     js += temp_3
-    js = js.rstrip('\n')
+    js = js.rstrip("\n")
     js += "\n"
     js += "});\n"
     js += "Qualtrics.SurveyEngine.addOnReady(function() {\n"
@@ -753,7 +841,6 @@ def __createJS(level_dict, attributes, restrictions, random, tasks, profiles, ra
     js += "\t/* Place your JavaScript here to run when the page is unloaded */\n"
     js += "});"
     return js
-
 
 
 @extend_schema(
@@ -779,23 +866,28 @@ def create_qualtrics(request):
         randomize = request.data.get("randomize", 1)
         noDuplicates = request.data.get("noDuplicates", 0)
         random = request.data.get("random", 0)
-        
 
         attributes, level_dict, probabilities = _refactorAttributes(
             attributes_list_dict
         )
-        js_text = __createJS(level_dict, attributes, restrictions, random, tasks, profiles, randomize, constraints, noDuplicates, probabilities)
+        js_text = __createJS(
+            level_dict,
+            attributes,
+            restrictions,
+            random,
+            tasks,
+            profiles,
+            randomize,
+            constraints,
+            noDuplicates,
+            probabilities,
+        )
 
         num_attr = len(attributes)
-        user_token = "ZOxp1TYLxPH8dlBs1FogWM3UNdKsLTHVmUAB1Rfm" #FIGURE OUT BETTER WAY TO STORE THIS
+        user_token = "ZOxp1TYLxPH8dlBs1FogWM3UNdKsLTHVmUAB1Rfm"  # FIGURE OUT BETTER WAY TO STORE THIS
         currText = ""
-        created = __CreateSurvey(filename, user_token, tasks, num_attr, profiles, currText, js_text)
+        created = __CreateSurvey(
+            filename, user_token, tasks, num_attr, profiles, currText, js_text
+        )
         __DownloadSurvey(created, user_token)
-        return _sendFileResponse('survey.qsf')
-
-
-
-
-
-
-
+        return _sendFileResponse("survey.qsf")
