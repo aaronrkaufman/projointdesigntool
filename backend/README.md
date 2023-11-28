@@ -43,6 +43,14 @@ python3 manage.py makemigrations
 python3 manage.py migrate
 ```
 
+## Update Requirements
+
+If you have added any new libraries, run this command to update the requirements specifications
+
+```
+pip freeze > requirements.txt
+```
+
 ## Create a Superuser
 
 To create a superuser for accessing the Django admin interface and managing the application:

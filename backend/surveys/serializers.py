@@ -2,13 +2,29 @@ from rest_framework import serializers
 from .models import Survey
 
 
-class ExportJSSerializer(serializers.Serializer):
-    attributes = serializers.ListField(child=serializers.DictField(), required=True)
+class ConstraintSerializer(serializers.Serializer):
     constraints = serializers.ListField(
-        child=serializers.ListField(child=serializers.CharField()),
+        child=serializers.ListField(
+            child=serializers.CharField(),
+        ),
         required=False,
-        default=[],
+        default=list,
     )
+
+
+class LevelSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    weight = serializers.FloatField(default=1.0)
+
+
+class AttributeSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    levels = LevelSerializer(many=True)
+
+
+class ExportJSSerializer(serializers.Serializer):
+    attributes = AttributeSerializer(many=True, required=True)
+    constraints = ConstraintSerializer()
     restrictions = serializers.ListField(
         child=serializers.DictField(), required=False, default=[]
     )
@@ -21,16 +37,14 @@ class ExportJSSerializer(serializers.Serializer):
 
 
 class SurveySerializer(serializers.ModelSerializer):
+    attributes = AttributeSerializer(many=True, required=True)
+    constraints = ConstraintSerializer()
+
     class Meta:
         model = Survey
         fields = ["attributes", "constraints"]
-        extra_kwargs = {
-            "constraints": {
-                "required": False,
-                "allow_blank": True,
-            }
-        }
 
     def create(self, validated_data):
-        profile = self.context["request"].user
-        return Survey.objects.create(profile=profile, **validated_data)
+        return Survey.objects.create(
+            profile=self.context["request"].user, **validated_data
+        )
