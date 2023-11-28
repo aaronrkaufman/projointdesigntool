@@ -19,7 +19,10 @@ export const Document = ({ name, active }: IDoc) => {
           <p>{name}</p>
           {active && (
             <ul className={styles.helpers}>
-              <li>Preview</li> <li>Settings</li> <li>Restrictions</li>
+              <Link href={`/documents/${encodedName}/preview`}>
+                <p>Preview</p>
+              </Link>{" "}
+              <li>Settings</li> <li>Restrictions</li>
             </ul>
           )}
         </div>

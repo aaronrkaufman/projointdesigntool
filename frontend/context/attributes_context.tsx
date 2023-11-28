@@ -12,7 +12,7 @@ interface Level {
   id: number;
 }
 
-interface Attribute {
+export interface Attribute {
   name: string;
   levels: Level[];
   key: number;

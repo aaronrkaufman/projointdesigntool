@@ -1,0 +1,59 @@
+/* CarSelection.module.css */
+.cardContainer {
+  display: flex;
+  justify-content: center;
+
+  margin-left: 20rem;
+  margin-top: 4rem;
+  padding: 1rem 3rem;
+  gap: 2rem;
+}
+
+.attributes {
+  padding: 1rem;
+  margin: 1rem 0;
+  display: flex;
+  gap: 2rem;
+  flex-direction: column;
+}
+
+.attributes li {
+    font-weight: bold;
+}
+
+.card,
+.cardSelected {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  width: 200px; /* Adjust width as necessary */
+  margin: 1rem 0;
+}
+
+.cardSelected {
+  border-color: blue; /* Or use a class to change the background color */
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.buttonContainer {
+  margin-top: 2rem;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.selectButton {
+  background-color: blue;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Additional styling as needed */

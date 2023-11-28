@@ -10,6 +10,7 @@ import { useAttributes } from "../../context/attributes_context";
 import { DocumentContext } from "../../context/document_context";
 
 import { Droppable } from "react-beautiful-dnd";
+import { downloadSurvey } from "../../services/api";
 
 const getTimeElapsed = (lastEdited: Date) => {
   const now = new Date();
@@ -35,6 +36,16 @@ export const Survey: FC = () => {
 
   const { currentDoc, lastEdited, setLastEdited } = useContext(DocumentContext);
 
+  // Handle download of a file through export
+  const [isLoading, setisLoading] = useState<boolean>(false);
+
+  const handleDownload = async () => {
+    setisLoading(true);
+    await downloadSurvey(attributes);
+    setisLoading(false);
+  };
+
+  // Handle name change
   const [isEditing, setIsEditing] = useState(false);
   const [docName, setDocName] = useState<string>(currentDoc);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +75,11 @@ export const Survey: FC = () => {
 
   return (
     <section className={styles.survey}>
+      {isLoading && (
+        <div className={styles.loaderOverlay}>
+          <div className={styles.loadingText}>Loading...</div>
+        </div>
+      )}
       <div className={styles.top}>
         {isEditing ? (
           <input
@@ -92,6 +108,10 @@ export const Survey: FC = () => {
             onClick={() => setShowWeights(!showWeights)}
           ></Button>
         )}
+        <Button
+          text="Export to Qualtrics"
+          onClick={() => handleDownload()}
+        ></Button>
         <div>Last edited: {getTimeElapsed(lastEdited)}</div>
       </div>
       <Droppable droppableId="droppable-attributes" type="group">

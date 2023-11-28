@@ -7,6 +7,25 @@
   gap: 2rem;
 }
 
+.loaderOverlay {
+  position: fixed; /* or 'absolute' if the parent container is relative */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent white background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensures the overlay is above other content */
+  backdrop-filter: blur(2px); /* Creates the blur effect */
+}
+
+.loadingText {
+  font-size: 2rem;
+  color: #333;
+}
+
 .top {
   display: flex;
   gap: 2rem;
@@ -124,6 +143,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 2px white solid;
 }
 
 .levelInfo .deleteLevel {

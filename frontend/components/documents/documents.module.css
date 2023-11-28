@@ -11,6 +11,10 @@
   border-radius: 0.25rem;
 }
 
+.container p:hover {
+  cursor: pointer;
+}
+
 .list > li > button {
   width: 100%;
   /* margin: 0; */
@@ -30,6 +34,7 @@
   font-weight: lighter;
 }
 
-.helpers li {
+.helpers li, .helpers p {
   color: var(--addClr);
 }
+
