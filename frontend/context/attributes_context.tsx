@@ -40,6 +40,8 @@ interface AttributeContextType {
     levelIndex: number
   ) => void;
   setEdited: (edited: boolean) => void;
+  storageChanged: number;
+  setStorageChanged: (storageChanged: number) => void;
   // Include other function signatures as needed
 }
 
@@ -63,51 +65,55 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [attributes, setAttributes] = useState<Attribute[]>([]);
 
-  const { currentDoc, lastEdited, setLastEdited } = useContext(DocumentContext);
-  const [prevDoc, setPrevDoc] = useState<string>("");
+  const { currentDoc, lastEdited, setLastEdited, currentDocID, setCurrentDoc } =
+    useContext(DocumentContext);
+  const [prevDocID, setPrevDocID] = useState<string>("");
   const [edited, setEdited] = useState<boolean>(false);
+  const [storageChanged, setStorageChanged] = useState<number>(0);
 
   useEffect(() => {
-    if (currentDoc && currentDoc !== prevDoc) {
+    if (currentDocID && currentDocID !== prevDocID) {
       setEdited(false);
-      setPrevDoc(currentDoc);
-      const localData = localStorage.getItem(`attributes-${currentDoc}`);
+      setPrevDocID(currentDocID);
+      const localData = localStorage.getItem(`attributes-${currentDocID}`);
       if (localData) {
         const parsedData = JSON.parse(localData);
         setAttributes(parsedData.attributes);
         setLastEdited(new Date(parsedData.lastEdited));
+        setCurrentDoc(parsedData.name);
         // Use parsedData.lastEdited as needed
       } else {
         setAttributes([]);
       }
     }
-  }, [currentDoc]);
+  }, [currentDocID]);
 
   const [isCreatingAttribute, setIsCreatingAttribute] = useState(false);
 
   useEffect(() => {
     // console.log("but here it is:", currentDoc);
     if (
-      currentDoc &&
-      attributes.length > 0 &&
-      currentDoc === prevDoc &&
+      currentDocID &&
+      // attributes.length > 0 &&
+      currentDocID === prevDocID &&
       edited
     ) {
       setLastEdited(new Date());
       const dataToSave = {
         attributes: attributes,
-        lastEdited: lastEdited, // Update last edited time
+        lastEdited: new Date(), // Update last edited time
+        name: currentDoc,
       };
       localStorage.setItem(
-        `attributes-${currentDoc}`,
+        `attributes-${currentDocID}`,
         JSON.stringify(dataToSave)
       );
-
+      setStorageChanged((prev) => prev + 1);
       setEdited(false);
 
       console.log("maybe now?");
     }
-  }, [attributes, currentDoc, lastEdited, edited]);
+  }, [attributes, currentDocID, lastEdited, edited, currentDoc]);
 
   const addNewAttribute = (name: string) => {
     const newAttribute: Attribute = {
@@ -262,6 +268,8 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     handleCreateAttribute,
     handleLevelNameChange,
     setEdited,
+    storageChanged,
+    setStorageChanged,
     // Add other functions here
   };
 

@@ -1,5 +1,4 @@
-
-// "use client";
+"use client";
 
 import { Header } from "../../../components/header";
 import styles from "../../../styles/page.module.css";
@@ -18,21 +17,29 @@ interface IServerProps {
 }
 
 function DocumentPage({ params }: IServerProps) {
-  const documentName = decodeURIComponent(params.document as string);
+  const documentID = decodeURIComponent(params.document as string);
+
   // console.log(documentName);
-  const { setCurrentDoc } = useContext(DocumentContext);
+  const { setCurrentDoc, setCurrentDocID, currentDoc } = useContext(DocumentContext);
 
   useEffect(() => {
+    const localData = localStorage.getItem(`attributes-${documentID}`);
+    const parsedData = localData ? JSON.parse(localData) : {};
+    const documentName = parsedData?.name;
     setCurrentDoc(documentName);
+  }, []);
+
+  useEffect(() => {
+    setCurrentDocID(documentID);
     // console.log("whatis happening", currentDoc)
-  }, [documentName]);
+  }, [documentID]);
 
   return (
     <>
       <Header></Header>
 
       <main className={styles.main}>
-        <Sidebar active={documentName} />
+        <Sidebar active={documentID} />
         <SurveyContainer />
       </main>
     </>

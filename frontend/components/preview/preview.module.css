@@ -17,10 +17,6 @@
 .cardContainer {
   display: flex;
   justify-content: flex-start;
-
-  /* margin-left: 20rem; */
-  /* margin-top: 4rem; */
-  /* padding: 1rem 3rem; */
   gap: 2rem;
 }
 

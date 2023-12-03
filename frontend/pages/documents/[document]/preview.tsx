@@ -20,9 +20,18 @@ interface IServerProps {
 }
 
 function PreviewPage({ params }: IServerProps) {
-  const documentName = decodeURIComponent(params.document as string);
+  const documentID = decodeURIComponent(params.document as string);
+  const localData = localStorage.getItem(`attributes-${documentID}`);
+  const parsedData = localData ? JSON.parse(localData) : {};
+  const documentName = parsedData?.name;
   // console.log(documentName);
-  const { setCurrentDoc } = useContext(DocumentContext);
+  const { setCurrentDoc, setCurrentDocID } = useContext(DocumentContext);
+
+  useEffect(() => {
+    setCurrentDoc(documentName);
+    setCurrentDocID(documentID);
+    // console.log("whatis happening", currentDoc)
+  }, [documentName]);
 
   const { attributes } = useAttributes();
 
@@ -37,12 +46,7 @@ function PreviewPage({ params }: IServerProps) {
       previews: previews,
     });
     console.log(previews);
-  };
-
-  useEffect(() => {
-    setCurrentDoc(documentName);
-    // console.log("whatis happening", currentDoc)
-  }, [documentName]);
+  };;
 
   useEffect(() => {
     previewData();
@@ -60,7 +64,7 @@ function PreviewPage({ params }: IServerProps) {
       <Header></Header>
 
       <main className={styles.main}>
-        <Sidebar active={documentName} />
+        <Sidebar active={documentID} />
         {/* <SurveyContainer /> */}
         {profiles ? <Preview {...profiles} setRefresh={setRefresh} /> : ""}
       </main>

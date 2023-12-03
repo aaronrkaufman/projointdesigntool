@@ -2,15 +2,16 @@ import styles from "./documents.module.css";
 import Link from "next/link";
 export interface IDocument {
   name: string;
-  key: number;
+  key: number | string;
 }
 
 interface IDoc extends IDocument {
   active: boolean;
+  id: string;
 }
 
-export const Document = ({ name, active }: IDoc) => {
-  const encodedName = encodeURIComponent(name);
+export const Document = ({ name, active,id }: IDoc) => {
+  const encodedName = encodeURIComponent(id);
 
   return (
     <li>

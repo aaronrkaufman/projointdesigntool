@@ -15,8 +15,9 @@ export const Documents = ({
       {documents.map((document) => (
         <Document
           name={document.name}
-          active={active == document.name}
+          active={active == document.key}
           key={document.key}
+          id={document.key as string}
         />
       ))}
       {/* <li>

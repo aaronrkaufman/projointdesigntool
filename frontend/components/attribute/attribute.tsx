@@ -136,6 +136,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                     className={styles.input}
                     key={index}
                     value={weight}
+                    onChange={() => {}}
                   ></input>
                 ))}
                 <li>{1.0}</li>

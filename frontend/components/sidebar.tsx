@@ -1,33 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Documents } from "./documents/documents";
 import styles from "./sidebar.module.css";
 import { IDocument } from "./documents/document";
 import { useRouter } from "next/router";
+import { v4 as uuidv4 } from "uuid";
+import { useAttributes } from "../context/attributes_context";
 
 export const Sidebar = ({ active }: { active: string }) => {
-  const [documents, setDocuments] = useState<IDocument[]>([
-    { name: "document", key: 0 },
-    { name: "immigrant survey", key: 1 },
-    { name: "3", key: 2 },
-  ]);
+  const [documents, setDocuments] = useState<IDocument[]>([]);
+  const { storageChanged, setStorageChanged } = useAttributes();
+
+  useEffect(() => {
+    // Function to load documents from localStorage
+    const loadDocuments = (): IDocument[] => {
+      const docs: IDocument[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("attributes-")) {
+          const item = localStorage.getItem(key);
+          if (item) {
+            const data = JSON.parse(item);
+            docs.push({
+              name: data.name,
+              key: key.substring(11), // assuming the key is in the format 'attributes-uniqueid'
+              // Include other document properties as needed
+            });
+          }
+        }
+      }
+      return docs;
+    };
+
+    setDocuments(loadDocuments());
+  }, [storageChanged]);
 
   const router = useRouter();
 
   const handleAddDoc = () => {
-    const hasUntitled = documents.some(
-      (element) => element.name === "Untitled"
-    );
-
-    if (!hasUntitled) {
-      setDocuments((prev) => {
-        const newDoc = { name: "Untitled", key: prev.length + 1 };
-        // Now navigate to the new document page
-        return [...prev, newDoc];
-      });
-      router.push(`/documents/${encodeURIComponent("Untitled")}`);
-    }
+    const uniqueId = uuidv4();
+    const dataToSave = {
+      attributes: [],
+      lastEdited: new Date(), // Update last edited time
+      name: "Untitled",
+    };
+    localStorage.setItem(`attributes-${uniqueId}`, JSON.stringify(dataToSave));
+    setStorageChanged(1);
+    router.push(`/documents/${encodeURIComponent(uniqueId)}`);
   };
 
   return (

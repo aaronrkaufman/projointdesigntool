@@ -209,8 +209,8 @@
   border-color: var(--addClr);
 }
 
-.levels li:last-child {
-  padding: 1rem 0 0.5rem 0;
+.levels li:nth-last-child(2) {
+  padding: 0rem 0 1rem 0;
 }
 
 .levelInfo {
