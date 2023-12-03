@@ -105,6 +105,6 @@ class SurveyPostTests(TestCase):
         
     def test_create_qualtrics(self):
         url = reverse("surveys:qualtrics")
-        response = self.client.post(url, self.payload, format="json")
+        response = self.client.post(url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 201)
 

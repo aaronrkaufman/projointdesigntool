@@ -8,7 +8,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
 from .models import Survey
 from .serializers import ExportJSSerializer, SurveySerializer
-import requests, os, random
+import requests, os, random, json
 
 
 # Create your views here.
@@ -697,11 +697,11 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js):
         bl = __GetFlow(surveyID, user_token)
         blockID = __CreateBlock(surveyID, bl, user_token)
         currText = __CreateHTML(i, num_attr, profiles)
-        currQ = __CreateQuestion(surveyID, currText, blockID, user_token, profiles, js)
+        currQ = __CreateQuestion(surveyID, currText, blockID, user_token, profiles, js,i)
     return surveyID
 
 
-def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js):
+def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js, i):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}/questions"
     querystring = {"blockId": blockID}
     headers = {
@@ -719,13 +719,21 @@ def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js):
     }
 
     # Define the payload to create a multiple-choice question within the specified block
-    payload = {
-        "QuestionText": question_text,
-        "QuestionType": "MC",
-        "Selector": "SAVR",
-        "Choices": answer_choices,
-        "QuestionJS": js,
-    }
+    if (i==0):
+        payload = {
+            "QuestionText": question_text,
+            "QuestionType": "MC",
+            "Selector": "SAVR",
+            "Choices": answer_choices,
+            "QuestionJS": js,
+        }
+    else:
+        payload = {
+            "QuestionText": question_text,
+            "QuestionType": "MC",
+            "Selector": "SAVR",
+            "Choices": answer_choices,
+        }
     response = requests.post(url, json=payload, headers=headers, params=querystring)
 
 
@@ -754,7 +762,9 @@ def __DownloadSurvey(surveyID, user_token):
         response = requests.get(url, headers=headers, params=querystring)
 
         if response.status_code == 200:
-            qsf_data = response.text  # QSF data in the response text
+            response_json = response.json()
+            qsf_json = response_json.get("result", {})
+            qsf_data = json.dumps(qsf_json)  # QSF data in the response text
 
             # Save the QSF data to a file named "survey.qsf"
             with open("survey.qsf", "w") as qsf_file:
