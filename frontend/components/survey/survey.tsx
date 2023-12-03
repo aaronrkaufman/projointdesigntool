@@ -20,12 +20,16 @@ const getTimeElapsed = (lastEdited: Date) => {
   if (elapsed < 3600000) return `${Math.round(elapsed / 60000)} minutes ago`;
   if (elapsed < 86400000) return `${Math.round(elapsed / 3600000)} hours ago`;
   // Add more conditions for days, months, years as needed
+  if (elapsed < 2629800000) return `${Math.round(elapsed / 86400000)} days ago`; // 30.44 days in milliseconds
+  if (elapsed < 31557600000) return `${Math.round(elapsed / 2629800000)} months ago`; // Average month in milliseconds (30.44 days)
+  return `${Math.round(elapsed / 31557600000)} years ago`; // Average year in milliseconds (365.25 days)
 };
 
 export const Survey: FC = () => {
   const { highlightedAttribute, setShowWeights, showWeights } =
     useContext(HighlightedContext);
   const {
+    setEdited,
     attributes,
     addLevelToAttribute,
     isCreatingAttribute,
@@ -69,6 +73,7 @@ export const Survey: FC = () => {
   const handleBlur = () => {
     setIsEditing(false);
     setLastEdited(new Date());
+    setEdited(true);
     // Here you can call a function to save the docName
     // saveDocName(docName);
   };

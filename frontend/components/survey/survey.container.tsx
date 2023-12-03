@@ -21,7 +21,7 @@ const reorder = (
 };
 
 export const SurveyContainer: FC = () => {
-  const { attributes, setAttributes } = useAttributes();
+  const { attributes, setAttributes, setEdited } = useAttributes();
 
   const onDragEnd = (result: any) => {
     const { source, destination, type } = result;
@@ -38,6 +38,7 @@ export const SurveyContainer: FC = () => {
         result.source.index,
         result.destination.index
       );
+      setEdited(true);
       setAttributes(reorderedItems);
     } else {
       const newAttributes = [...attributes];
@@ -57,10 +58,10 @@ export const SurveyContainer: FC = () => {
           movedLevel
         );
       }
-
-      // Update the state with the new attributes array
-
+      console.log("what?");
+      setEdited(true);
       setAttributes(newAttributes);
+      // Update the state with the new attributes array
     }
   };
 

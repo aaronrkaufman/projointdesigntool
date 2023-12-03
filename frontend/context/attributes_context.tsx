@@ -39,6 +39,7 @@ interface AttributeContextType {
     newName: string,
     levelIndex: number
   ) => void;
+  setEdited: (edited: boolean) => void;
   // Include other function signatures as needed
 }
 
@@ -260,6 +261,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     cancelNewAttribute,
     handleCreateAttribute,
     handleLevelNameChange,
+    setEdited,
     // Add other functions here
   };
 

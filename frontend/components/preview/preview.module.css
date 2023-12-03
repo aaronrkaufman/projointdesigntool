@@ -18,11 +18,12 @@
 }
 
 .attributes li {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .card,
 .cardSelected {
+  background-color: var(--whiteClr);
   border: 1px solid #ccc;
   padding: 1rem;
   border-radius: 0.5rem;
@@ -31,7 +32,9 @@
 }
 
 .cardSelected {
-  border-color: blue; /* Or use a class to change the background color */
+  border-color: var(
+    --lineClr
+  ); /* Or use a class to change the background color */
 }
 
 .cardContent {
@@ -48,7 +51,7 @@
 }
 
 .selectButton {
-  background-color: blue;
+  background-color: var(--headerClr);
   color: white;
   padding: 0.5rem 1rem;
   border: none;
