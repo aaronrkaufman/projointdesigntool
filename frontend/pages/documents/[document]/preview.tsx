@@ -28,6 +28,8 @@ function PreviewPage({ params }: IServerProps) {
 
   const [profiles, setProfiles] = useState<IPreview | null>(null);
 
+  const [refresh, setRefresh] = useState<boolean>(true);
+
   const previewData = async () => {
     const previews = await getPreview(attributes);
     setProfiles({
@@ -46,6 +48,13 @@ function PreviewPage({ params }: IServerProps) {
     previewData();
   }, [attributes]);
 
+  useEffect(() => {
+    if (refresh) {
+      previewData();
+      setRefresh(false);
+    }
+  }, [refresh]);
+
   return (
     <>
       <Header></Header>
@@ -53,7 +62,7 @@ function PreviewPage({ params }: IServerProps) {
       <main className={styles.main}>
         <Sidebar active={documentName} />
         {/* <SurveyContainer /> */}
-        {profiles ? <Preview {...profiles} /> : ""}
+        {profiles ? <Preview {...profiles} setRefresh={setRefresh} /> : ""}
       </main>
     </>
   );

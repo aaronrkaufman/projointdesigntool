@@ -107,7 +107,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
 
       console.log("maybe now?");
     }
-  }, [attributes, currentDoc, lastEdited]);
+  }, [attributes, currentDoc, lastEdited, edited]);
 
   const addNewAttribute = (name: string) => {
     const newAttribute: Attribute = {
