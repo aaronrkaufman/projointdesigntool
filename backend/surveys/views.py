@@ -1015,11 +1015,40 @@ def __createJS(
 
 
 @extend_schema(
-    request=ShortSurveySerializer,
+    request=SurveySerializer,
     responses={
-        status.HTTP_201_CREATED: ShortSurveySerializer,
-        status.HTTP_400_BAD_REQUEST: None,
-    },  # Specify the serializer for the 201 response
+        201: OpenApiResponse(
+            response="application/octet-stream",
+            description="Creating Qualtrics survey and exporting QSF file",
+            examples=[
+                OpenApiExample(
+                    name="CreateQualtricsExample",
+                    description="Successful creation of Qualtrics survey and export of survey QSF",
+                    value={
+                        "content_type": "application/octet-stream",
+                        "headers": {
+                            "Content-Disposition": 'attachment; filename="{filename}"'
+                        }             
+                    }
+                )
+            ]
+        ),
+        400: OpenApiResponse(
+            response="application/octet-stream",
+            description="Error in creating Qualtrics survey and exporting QSF file",
+            examples=[
+                OpenApiExample(
+                    name="CreateQualtricsErrorExample",
+                    summary="Bad Request Response",
+                    description="This response is returned when request to create Qualtrics survey and export QSF file is invalid",
+                    value={
+                        "error": "Invalid data provided.",
+                        "details": "Incomplete survey data"
+                    },
+                )
+            ]
+        )
+}, 
     description="Creating Qualtrics survey and exporting QSF file",
 )
 @api_view(["POST"])
@@ -1027,32 +1056,17 @@ def __createJS(
 def create_qualtrics(request):
     if request.method == "POST":
         attributes_list_dict = request.data.get("attributes", [])
-
-        # Optional
-        constraints = request.data.get("constraints", [])
-        restrictions = request.data.get("restrictions", [])
         filename = request.data.get("filename", "export survey")
         profiles = request.data.get("profiles", 2)
         tasks = request.data.get("tasks", 5)
-        randomize = request.data.get("randomize", 1)
-        noDuplicates = request.data.get("noDuplicates", 0)
-        random = request.data.get("random", 0)
+        jsname = _createFile(request)
 
         attributes, level_dict, probabilities = _refactorAttributes(
             attributes_list_dict
         )
-        js_text = __createJS(
-            level_dict,
-            attributes,
-            restrictions,
-            random,
-            tasks,
-            profiles,
-            randomize,
-            constraints,
-            noDuplicates,
-            probabilities,
-        )
+
+        with open(jsname, "r", encoding="utf-8") as file_js:
+            js_text = file_js.read()
 
         num_attr = len(attributes)
         user_token = "ZOxp1TYLxPH8dlBs1FogWM3UNdKsLTHVmUAB1Rfm"  # FIGURE OUT BETTER WAY TO STORE THIS
@@ -1060,5 +1074,6 @@ def create_qualtrics(request):
         created = __CreateSurvey(
             filename, user_token, tasks, num_attr, profiles, currText, js_text
         )
+       
         __DownloadSurvey(created, user_token)
         return _sendFileResponse("survey.qsf")

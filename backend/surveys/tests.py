@@ -129,7 +129,7 @@ class SurveyPostTests(TestCase):
             {"message": "Survey is empty."},
         )
 
-    # def test_create_qualtrics(self):
-    #     url = reverse("surveys:qualtrics")
-    #     response = self.client.post(url, self.payloadSuccess, format="json")
-    #     self.assertEqual(response.status_code, 201)
+    def test_create_qualtrics(self):
+        url = reverse("surveys:qualtrics")
+        response = self.client.post(url, self.payloadSuccess, format="json")
+        self.assertEqual(response.status_code, 201)
