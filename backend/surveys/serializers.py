@@ -22,7 +22,7 @@ class AttributeSerializer(serializers.Serializer):
     levels = LevelSerializer(many=True)
 
 
-class ExportJSSerializer(serializers.Serializer):
+class SurveySerializer(serializers.Serializer):
     attributes = AttributeSerializer(many=True, required=True)
     constraints = ConstraintSerializer()
     restrictions = serializers.ListField(
@@ -36,7 +36,7 @@ class ExportJSSerializer(serializers.Serializer):
     random = serializers.IntegerField(required=False, default=0)
 
 
-class SurveySerializer(serializers.ModelSerializer):
+class ShortSurveySerializer(serializers.ModelSerializer):
     attributes = AttributeSerializer(many=True, required=True)
     constraints = ConstraintSerializer()
 

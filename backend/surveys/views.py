@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
 from .models import Survey
-from .serializers import ExportJSSerializer, SurveySerializer
+from .serializers import SurveySerializer, ShortSurveySerializer
 import requests, os, random, json
 
 
@@ -393,7 +393,7 @@ def _sendFileResponse(file_path):
 
 
 @extend_schema(
-    request=ExportJSSerializer,
+    request=SurveySerializer,
     responses={
         201: OpenApiResponse(
             response="application/javascript",
@@ -528,7 +528,7 @@ def export_js(request):
 
 
 @extend_schema(
-    request=SurveySerializer,
+    request=ShortSurveySerializer,
     responses={
         status.HTTP_201_CREATED: OpenApiResponse(
             description="Saves the survey to user's profile",
@@ -562,7 +562,7 @@ def export_js(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def save_user_survey(request):
-    serializer = SurveySerializer(data=request.data, context={"request": request})
+    serializer = ShortSurveySerializer(data=request.data, context={"request": request})
     if serializer.is_valid():
         serializer.save()
         return Response(
@@ -573,17 +573,63 @@ def save_user_survey(request):
 
 @extend_schema(
     responses={
-        status.HTTP_200_OK: SurveySerializer(many=True),
-        status.HTTP_204_NO_CONTENT: None,
-    },  # No content for 204
-    description="Returns a list of the user's surveys in JSON format",
+        status.HTTP_200_OK: OpenApiResponse(
+            description="List of user's surveys",
+            response=ShortSurveySerializer,
+            examples=[
+                OpenApiExample(
+                    name="SurveyListExample",
+                    description="Example of a user having multiple surveys.",
+                    value=[
+                        {
+                            "id": 1,
+                            "profile": 1,
+                            "attributes": [
+                                {
+                                    "name": "asfasf",
+                                    "levels": [
+                                        {"name": "1", "weight": 0.5},
+                                        {"name": "2", "weight": 0.5},
+                                    ],
+                                },
+                                {
+                                    "name": "asf",
+                                    "levels": [
+                                        {"name": "3", "weight": 0.5},
+                                        {"name": "4", "weight": 0.5},
+                                    ],
+                                },
+                            ],
+                            "constraints": [],
+                        },
+                    ],
+                    response_only=True,
+                    status_codes=[str(status.HTTP_200_OK)],
+                )
+            ],
+        ),
+        status.HTTP_204_NO_CONTENT: OpenApiResponse(
+            description="No surveys found for the user",
+            response=None,
+            examples=[
+                OpenApiExample(
+                    name="NoSurveyExample",
+                    description="Example of a user having no surveys.",
+                    value={"message": "User has no surveys"},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_204_NO_CONTENT)],
+                )
+            ],
+        ),
+    },
+    description="Retrieves the list of surveys belonging to the user",
 )
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def list_user_surveys(request):
     surveys = Survey.objects.filter(profile=request.user)
     if surveys.exists():
-        serializer = SurveySerializer(surveys, many=True)
+        serializer = ShortSurveySerializer(surveys, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         return Response(
@@ -592,38 +638,88 @@ def list_user_surveys(request):
 
 
 @extend_schema(
-    request=ExportJSSerializer,
+    request=ShortSurveySerializer,
     responses={
-        status.HTTP_201_CREATED: SurveySerializer,
-        status.HTTP_400_BAD_REQUEST: None,
-    },  # Specify the serializer for the 201 response
-    description="Saves the survey to user's profile",
+        status.HTTP_201_CREATED: OpenApiResponse(
+            description="Preview of survey generated",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name="SurveyPreviewSuccess",
+                    description="A successful preview of survey answers.",
+                    value={
+                        "attributes": ["attribute1", "attribute2"],
+                        "previews": [
+                            ["a1n1", "a2n1"],
+                            ["a1n1", "a2n2"],
+                        ],
+                    },
+                    response_only=True,
+                    status_codes=[str(status.HTTP_201_CREATED)],
+                )
+            ],
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Bad Request, no survey data or invalid data provided",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name="SurveyPreviewFailEmpty",
+                    description="The survey data provided is empty.",
+                    value={"message": "Survey is empty."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+                OpenApiExample(
+                    name="SurveyPreviewFailInvalid",
+                    description="The survey data provided is invalid.",
+                    value={"message": "Invalid survey data."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+            ],
+        ),
+    },
+    description="Generates a preview of survey answers based on provided attributes",
 )
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 def preview_survey(request):
     try:
-        questions = request.data.get("attributes")
-        preview_sets = []
-        print(1)
+        answer = {"attributes": [], "previews": []}
+        attributes = request.data.get("attributes")
 
         for _ in range(2):  # Generate two sets of answers
             answer_set = []
-            for question in questions:
-                print(random.choice(question["levels"])["name"])
-                answer_set.append(random.choice(question["levels"])["name"])
-            # answer_set = tuple(
-            #     random.choice(question["levels"])["name"] for question in questions
-            # )
-            print(2)
-            preview_sets.append(answer_set)
+            for attribute in attributes:
+                if attribute:
+                    answer["attributes"].append(attribute)
+                    answer_set.append(random.choice(attribute["levels"])["name"])
+            if not answer_set:
+                return Response(
+                    {"message": "Survey is empty."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            answer["previews"].append(answer_set)
 
-        return Response({"previews": preview_sets}, status=status.HTTP_201_CREATED)
+        return Response(answer, status=status.HTTP_201_CREATED)
     except:
         return Response(
             {"message": "Invalid survey data."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+@extend_schema(
+    request=SurveySerializer,
+    responses={
+        status.HTTP_201_CREATED: ShortSurveySerializer,
+        status.HTTP_400_BAD_REQUEST: None,
+    },
+    description="Saves the survey to user's profile",
+)
+@api_view(["POST"])
+def csv_survey(request):
+    pass
 
 
 def __CreateHTML(i, num_attr, profiles):
@@ -697,7 +793,9 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js):
         bl = __GetFlow(surveyID, user_token)
         blockID = __CreateBlock(surveyID, bl, user_token)
         currText = __CreateHTML(i, num_attr, profiles)
-        currQ = __CreateQuestion(surveyID, currText, blockID, user_token, profiles, js,i)
+        currQ = __CreateQuestion(
+            surveyID, currText, blockID, user_token, profiles, js, i
+        )
     return surveyID
 
 
@@ -719,7 +817,7 @@ def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js, i):
     }
 
     # Define the payload to create a multiple-choice question within the specified block
-    if (i==0):
+    if i == 0:
         payload = {
             "QuestionText": question_text,
             "QuestionType": "MC",
@@ -854,9 +952,9 @@ def __createJS(
 
 
 @extend_schema(
-    request=SurveySerializer,
+    request=ShortSurveySerializer,
     responses={
-        status.HTTP_201_CREATED: SurveySerializer,
+        status.HTTP_201_CREATED: ShortSurveySerializer,
         status.HTTP_400_BAD_REQUEST: None,
     },  # Specify the serializer for the 201 response
     description="Creating Qualtrics survey and exporting QSF file",
