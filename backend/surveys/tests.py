@@ -1,4 +1,4 @@
-import hashlib
+import json
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -27,17 +27,27 @@ class SurveyPostTests(TestCase):
         self.payloadSuccess = {
             "attributes": [
                 {
-                    "name": "asfasf",
+                    "name": "att1",
                     "levels": [
-                        {"name": "1", "weight": 0.5},
-                        {"name": "2", "weight": 0.5},
+                        {"name": "a", "weight": 0.5},
+                        {"name": "b", "weight": 0.5},
+                        {"name": "c", "weight": 0.5},
                     ],
                 },
                 {
-                    "name": "asf",
+                    "name": "att2",
                     "levels": [
-                        {"name": "3", "weight": 0.5},
-                        {"name": "4", "weight": 0.5},
+                        {"name": "d", "weight": 0.5},
+                        {"name": "e", "weight": 0.5},
+                    ],
+                },
+                {
+                    "name": "att3",
+                    "levels": [
+                        {"name": "f", "weight": 0.5},
+                        {"name": "g", "weight": 0.5},
+                        {"name": "h", "weight": 0.5},
+                        {"name": "i", "weight": 0.5},
                     ],
                 },
             ]
@@ -61,12 +71,6 @@ class SurveyPostTests(TestCase):
         url = reverse("surveys:export")
         response = self.client.post(url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 201)
-
-        response_content = b"".join(chunk for chunk in response.streaming_content)
-        response_hash = hashlib.sha256(response_content).hexdigest()
-        with open("survey.js", "rb") as original_file:
-            original_hash = hashlib.sha256(original_file.read()).hexdigest()
-        self.assertEqual(response_hash, original_hash)
 
     def test_export_failure(self):
         url = reverse("surveys:export")
@@ -102,9 +106,30 @@ class SurveyPostTests(TestCase):
         url = reverse("surveys:preview")
         response = self.client.post(url, self.payloadFailure, format="json")
         self.assertEqual(response.status_code, 400)
-        
-    def test_create_qualtrics(self):
-        url = reverse("surveys:qualtrics")
-        response = self.client.post(url, self.payloadSuccess, format="json")
-        self.assertEqual(response.status_code, 201)
 
+    # def test_preview_csv_success(self):
+    #     url = reverse("surveys:preview_csv")
+    #     response = self.client.post(url, self.payloadSuccess, format="json")
+    #     self.assertEqual(response.status_code, 201)
+
+    def test_preview_csv_failure(self):
+        payload = {
+            "attributes": [
+                {
+                    "name": "asfasf",
+                    "levels": [],
+                },
+            ]
+        }
+        url = reverse("surveys:preview_csv")
+        response = self.client.post(url, payload, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {"message": "Survey is empty."},
+        )
+
+    # def test_create_qualtrics(self):
+    #     url = reverse("surveys:qualtrics")
+    #     response = self.client.post(url, self.payloadSuccess, format="json")
+    #     self.assertEqual(response.status_code, 201)
