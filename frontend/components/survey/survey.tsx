@@ -45,7 +45,7 @@ export const Survey: FC = () => {
   // Handle download of a file through export
   const [isLoading, setisLoading] = useState<boolean>(false);
 
-  const handleDownload = async (path: "qualtrics" | "export") => {
+  const handleDownload = async (path: "qualtrics" | "export" | "preview_csv") => {
     setisLoading(true);
     await downloadSurvey(attributes, path);
     setisLoading(false);
@@ -123,6 +123,10 @@ export const Survey: FC = () => {
         <Button
           text="Export to JS"
           onClick={() => handleDownload("export")}
+        ></Button>
+        <Button
+          text="Export to CSV"
+          onClick={() => handleDownload("preview_csv")}
         ></Button>
         <div>Last edited: {getTimeElapsed(lastEdited)}</div>
       </div>
