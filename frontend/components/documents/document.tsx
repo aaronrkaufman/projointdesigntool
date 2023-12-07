@@ -10,7 +10,7 @@ interface IDoc extends IDocument {
   id: string;
 }
 
-export const Document = ({ name, active,id }: IDoc) => {
+export const Document = ({ name, active, id }: IDoc) => {
   const encodedName = encodeURIComponent(id);
 
   return (
@@ -23,7 +23,10 @@ export const Document = ({ name, active,id }: IDoc) => {
               <Link href={`/documents/${encodedName}/preview`}>
                 <p>Preview</p>
               </Link>{" "}
-              <li>Settings</li> <li>Restrictions</li>
+              <li>Settings</li>{" "}
+              <Link href={`/documents/${encodedName}/restrictions`}>
+                <p>Restrictions</p>
+              </Link>{" "}
             </ul>
           )}
         </div>

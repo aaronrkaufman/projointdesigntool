@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 
 import { Header } from "../../../components/header";
 import styles from "../../../styles/page.module.css";
@@ -6,12 +6,10 @@ import { Sidebar } from "../../../components/sidebar";
 import { SurveyContainer } from "../../../components/survey/survey.container";
 import { IDocument } from "../../../components/documents/document";
 import { DocumentContext } from "../../../context/document_context";
-import { useContext, useEffect, useState } from "react";
-import Preview, { IPreview } from "../../../components/preview/preview";
+import { useContext, useEffect } from "react";
 
 import { GetServerSideProps } from "next";
-import { useAttributes } from "../../../context/attributes_context";
-import { getPreview } from "../../../services/api";
+import { Restrictions } from "../../../components/restrictions/restrictions";
 
 interface IServerProps {
   params: {
@@ -19,45 +17,24 @@ interface IServerProps {
   };
 }
 
-function PreviewPage({ params }: IServerProps) {
+function RestrictionsPage({ params }: IServerProps) {
   const documentID = decodeURIComponent(params.document as string);
-  const localData = localStorage.getItem(`attributes-${documentID}`);
-  const parsedData = localData ? JSON.parse(localData) : {};
-  const documentName = parsedData?.name;
+
   // console.log(documentName);
-  const { setCurrentDoc, setCurrentDocID } = useContext(DocumentContext);
+  const { setCurrentDoc, setCurrentDocID, currentDoc } =
+    useContext(DocumentContext);
 
   useEffect(() => {
+    const localData = localStorage.getItem(`attributes-${documentID}`);
+    const parsedData = localData ? JSON.parse(localData) : {};
+    const documentName = parsedData?.name;
     setCurrentDoc(documentName);
+  }, []);
+
+  useEffect(() => {
     setCurrentDocID(documentID);
     // console.log("whatis happening", currentDoc)
-  }, [documentName]);
-
-  const { attributes } = useAttributes();
-
-  const [profiles, setProfiles] = useState<IPreview | null>(null);
-
-  const [refresh, setRefresh] = useState<boolean>(true);
-
-  const previewData = async () => {
-    const previews = await getPreview(attributes);
-    setProfiles({
-      attributes: attributes.map((el) => el.name),
-      previews: previews,
-    });
-    console.log("previews:", previews);
-  };
-
-  useEffect(() => {
-    previewData();
-  }, [attributes]);
-
-  useEffect(() => {
-    if (refresh) {
-      previewData();
-      setRefresh(false);
-    }
-  }, [refresh]);
+  }, [documentID]);
 
   return (
     <>
@@ -65,8 +42,7 @@ function PreviewPage({ params }: IServerProps) {
 
       <main className={styles.main}>
         <Sidebar active={documentID} />
-        {/* <SurveyContainer /> */}
-        {profiles ? <Preview {...profiles} setRefresh={setRefresh} /> : ""}
+        <Restrictions />
       </main>
     </>
   );
@@ -94,4 +70,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default PreviewPage;
+export default RestrictionsPage;
