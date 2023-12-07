@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from rest_framework import status
 
 from rest_framework.response import Response
@@ -7,8 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
 from .models import Survey
-from .serializers import ExportJSSerializer, SurveySerializer
-import requests, os, random, json
+from .serializers import SurveySerializer, ShortSurveySerializer
+import requests, os, random, json, csv
 
 
 # Create your views here.
@@ -392,8 +392,95 @@ def _sendFileResponse(file_path):
     return response
 
 
+def _createFile(request):
+    # Convert parameters to types
+    attributes_list_dict = request.data.get("attributes", [])
+
+    # Optional
+    constraints = request.data.get("constraints", [])
+    restrictions = request.data.get("restrictions", [])
+    filename = request.data.get("filename", "survey.js")
+    profiles = request.data.get("profiles", 2)
+    tasks = request.data.get("tasks", 5)
+    randomize = request.data.get("randomize", 1)
+    noDuplicates = request.data.get("noDuplicates", 0)
+    random = request.data.get("random", 0)
+
+    # Split attributes(NEW DESIGN) to attributes and level_dict(OLD DESIGN)
+    attributes, level_dict, probabilities = _refactorAttributes(attributes_list_dict)
+
+    # attributes = _cleanAttributes(attributes, level_dict)
+    # constraints = _cleanConstraints(constraints)
+    if probabilities == {}:
+        probabilities = _clearProbabilities(level_dict)
+
+    """ Write into file """
+    with open(filename, "w", encoding="utf-8") as file_js:
+        file_js.write(temp_1)
+        file_js.write("\n\n")
+
+        file_js.write(_createArrayString(attributes, level_dict))
+        file_js.write(_createRestrictionString(restrictions))
+
+        if random == 1:
+            file_js.write(_createProbString(attributes, probabilities))
+        else:
+            file_js.write("var probabilityarray = {};\n\n")
+
+        file_js.write(
+            "// Indicator for whether weighted randomization should be enabled or not\n"
+        )
+        file_js.write("var weighted = " + str(random) + ";\n\n")
+        file_js.write("// K = Number of tasks displayed to the respondent\n")
+        file_js.write("var K = " + str(tasks) + ";\n\n")
+        file_js.write("// N = Number of profiles displayed in each task\n")
+        file_js.write("var N = " + str(profiles) + ";\n\n")
+        file_js.write("// num_attributes = Number of Attributes in the Array\n")
+        file_js.write("var num_attributes = featurearray.length;\n\n")
+        file_js.write("// Should duplicate profiles be rejected?\n")
+
+        file_js.write(
+            f"var noDuplicateProfiles = {'true' if noDuplicates else 'false'};\n"
+        )
+
+        if randomize == 1:
+            file_js.write("\n")
+
+            if len(constraints) > 0:
+                constString = "var attrconstraintarray = ["
+                for m in range(len(constraints)):
+                    const = constraints[m]
+                    constString = constString + "["
+                    for i in range(len(const)):
+                        entry = const[i]
+                        constString = constString + '"' + entry + '"'
+                        if i != len(const) - 1:
+                            constString = constString + ","
+                    if m != len(constraints) - 1:
+                        constString = constString + "],"
+                    else:
+                        constString = constString + "]"
+                constString = constString + "];\n\n"
+            else:
+                constString = "var attrconstraintarray = [];\n"
+
+            file_js.write(constString)
+            file_js.write("\n")
+            file_js.write(temp_2)
+        else:
+            file_js.write("\n")
+            file_js.write(temp_2_star)
+            file_js.write("\n")
+            file_js.write("var featureArrayNew = featurearray;\n\n")
+
+        file_js.write(temp_3)
+
+        file_js.close()
+    return filename
+
+
 @extend_schema(
-    request=ExportJSSerializer,
+    request=SurveySerializer,
     responses={
         201: OpenApiResponse(
             response="application/javascript",
@@ -427,108 +514,16 @@ def _sendFileResponse(file_path):
                 )
             ],
         ),
-    },  # You can specify a serializer for the response if needed
+    },
     description="Export survey to JS. Creates a file on the server and returns it to the user",
 )
 @api_view(["POST"])
 def export_js(request):
-    """
-    Export survey to JS
-    Creates a file on the server and returns it to the user
-
-    :attr:`attributes` -> List[Dict] Required\n
-    """
-    # Convert parameters to types
-    if request.method == "POST":
-        attributes_list_dict = request.data.get("attributes", [])
-
-        # Optional
-        constraints = request.data.get("constraints", [])
-        restrictions = request.data.get("restrictions", [])
-        filename = request.data.get("filename", "survey.js")
-        profiles = request.data.get("profiles", 2)
-        tasks = request.data.get("tasks", 5)
-        randomize = request.data.get("randomize", 1)
-        noDuplicates = request.data.get("noDuplicates", 0)
-        random = request.data.get("random", 0)
-
-        # Split attributes(NEW DESIGN) to attributes and level_dict(OLD DESIGN)
-        attributes, level_dict, probabilities = _refactorAttributes(
-            attributes_list_dict
-        )
-
-        # attributes = _cleanAttributes(attributes, level_dict)
-        # constraints = _cleanConstraints(constraints)
-        if probabilities == {}:
-            probabilities = _clearProbabilities(level_dict)
-
-        """ Write into file """
-        with open(filename, "w", encoding="utf-8") as file_js:
-            file_js.write(temp_1)
-            file_js.write("\n\n")
-
-            file_js.write(_createArrayString(attributes, level_dict))
-            file_js.write(_createRestrictionString(restrictions))
-
-            if random == 1:
-                file_js.write(_createProbString(attributes, probabilities))
-            else:
-                file_js.write("var probabilityarray = {};\n\n")
-
-            file_js.write(
-                "// Indicator for whether weighted randomization should be enabled or not\n"
-            )
-            file_js.write("var weighted = " + str(random) + ";\n\n")
-            file_js.write("// K = Number of tasks displayed to the respondent\n")
-            file_js.write("var K = " + str(tasks) + ";\n\n")
-            file_js.write("// N = Number of profiles displayed in each task\n")
-            file_js.write("var N = " + str(profiles) + ";\n\n")
-            file_js.write("// num_attributes = Number of Attributes in the Array\n")
-            file_js.write("var num_attributes = featurearray.length;\n\n")
-            file_js.write("// Should duplicate profiles be rejected?\n")
-
-            file_js.write(
-                f"var noDuplicateProfiles = {'true' if noDuplicates else 'false'};\n"
-            )
-
-            if randomize == 1:
-                file_js.write("\n")
-
-                if len(constraints) > 0:
-                    constString = "var attrconstraintarray = ["
-                    for m in range(len(constraints)):
-                        const = constraints[m]
-                        constString = constString + "["
-                        for i in range(len(const)):
-                            entry = const[i]
-                            constString = constString + '"' + entry + '"'
-                            if i != len(const) - 1:
-                                constString = constString + ","
-                        if m != len(constraints) - 1:
-                            constString = constString + "],"
-                        else:
-                            constString = constString + "]"
-                    constString = constString + "];\n\n"
-                else:
-                    constString = "var attrconstraintarray = [];\n"
-
-                file_js.write(constString)
-                file_js.write("\n")
-                file_js.write(temp_2)
-            else:
-                file_js.write("\n")
-                file_js.write(temp_2_star)
-                file_js.write("\n")
-                file_js.write("var featureArrayNew = featurearray;\n\n")
-
-            file_js.write(temp_3)
-
-            file_js.close()
-        return _sendFileResponse(filename)
+    return _sendFileResponse(_createFile(request))
 
 
 @extend_schema(
-    request=SurveySerializer,
+    request=ShortSurveySerializer,
     responses={
         status.HTTP_201_CREATED: OpenApiResponse(
             description="Saves the survey to user's profile",
@@ -562,7 +557,7 @@ def export_js(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def save_user_survey(request):
-    serializer = SurveySerializer(data=request.data, context={"request": request})
+    serializer = ShortSurveySerializer(data=request.data, context={"request": request})
     if serializer.is_valid():
         serializer.save()
         return Response(
@@ -573,17 +568,63 @@ def save_user_survey(request):
 
 @extend_schema(
     responses={
-        status.HTTP_200_OK: SurveySerializer(many=True),
-        status.HTTP_204_NO_CONTENT: None,
-    },  # No content for 204
-    description="Returns a list of the user's surveys in JSON format",
+        status.HTTP_200_OK: OpenApiResponse(
+            description="List of user's surveys",
+            response=ShortSurveySerializer,
+            examples=[
+                OpenApiExample(
+                    name="SurveyListExample",
+                    description="Example of a user having multiple surveys.",
+                    value=[
+                        {
+                            "id": 1,
+                            "profile": 1,
+                            "attributes": [
+                                {
+                                    "name": "asfasf",
+                                    "levels": [
+                                        {"name": "1", "weight": 0.5},
+                                        {"name": "2", "weight": 0.5},
+                                    ],
+                                },
+                                {
+                                    "name": "asf",
+                                    "levels": [
+                                        {"name": "3", "weight": 0.5},
+                                        {"name": "4", "weight": 0.5},
+                                    ],
+                                },
+                            ],
+                            "constraints": [],
+                        },
+                    ],
+                    response_only=True,
+                    status_codes=[str(status.HTTP_200_OK)],
+                )
+            ],
+        ),
+        status.HTTP_204_NO_CONTENT: OpenApiResponse(
+            description="No surveys found for the user",
+            response=None,
+            examples=[
+                OpenApiExample(
+                    name="NoSurveyExample",
+                    description="Example of a user having no surveys.",
+                    value={"message": "User has no surveys"},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_204_NO_CONTENT)],
+                )
+            ],
+        ),
+    },
+    description="Retrieves the list of surveys belonging to the user",
 )
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def list_user_surveys(request):
     surveys = Survey.objects.filter(profile=request.user)
     if surveys.exists():
-        serializer = SurveySerializer(surveys, many=True)
+        serializer = ShortSurveySerializer(surveys, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         return Response(
@@ -592,33 +633,151 @@ def list_user_surveys(request):
 
 
 @extend_schema(
-    request=ExportJSSerializer,
+    request=ShortSurveySerializer,
     responses={
-        status.HTTP_201_CREATED: SurveySerializer,
-        status.HTTP_400_BAD_REQUEST: None,
-    },  # Specify the serializer for the 201 response
-    description="Saves the survey to user's profile",
+        status.HTTP_201_CREATED: OpenApiResponse(
+            description="Preview of survey generated",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name="SurveyPreviewSuccess",
+                    description="A successful preview of survey answers.",
+                    value={
+                        "attributes": ["attribute1", "attribute2"],
+                        "previews": [
+                            ["a1n1", "a2n1"],
+                            ["a1n1", "a2n2"],
+                        ],
+                    },
+                    response_only=True,
+                    status_codes=[str(status.HTTP_201_CREATED)],
+                )
+            ],
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Bad Request, no survey data or invalid data provided",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name="SurveyPreviewFailEmpty",
+                    description="The survey data provided is empty.",
+                    value={"message": "Survey is empty."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+                OpenApiExample(
+                    name="SurveyPreviewFailInvalid",
+                    description="The survey data provided is invalid.",
+                    value={"message": "Invalid survey data."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+            ],
+        ),
+    },
+    description="Generates a preview of survey answers based on provided attributes",
 )
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 def preview_survey(request):
     try:
-        questions = request.data.get("attributes")
-        preview_sets = []
-        print(1)
+        answer = {"attributes": [], "previews": []}
+        attributes = request.data.get("attributes")
+
+        if all(not attribute["levels"] for attribute in attributes):
+            return Response(
+                {"message": "Survey is empty."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         for _ in range(2):  # Generate two sets of answers
             answer_set = []
-            for question in questions:
-                print(random.choice(question["levels"])["name"])
-                answer_set.append(random.choice(question["levels"])["name"])
-            # answer_set = tuple(
-            #     random.choice(question["levels"])["name"] for question in questions
-            # )
-            print(2)
-            preview_sets.append(answer_set)
+            for attribute in attributes:
+                if attribute:
+                    answer["attributes"].append(attribute)
+                    answer_set.append(random.choice(attribute["levels"])["name"])
 
-        return Response({"previews": preview_sets}, status=status.HTTP_201_CREATED)
+        return Response(answer, status=status.HTTP_201_CREATED)
+    except:
+        return Response(
+            {"message": "Invalid survey data."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+@extend_schema(
+    request=SurveySerializer,
+    responses={
+        status.HTTP_201_CREATED: OpenApiResponse(
+            response="text/csv",
+            description="A CSV file containing the preview of survey data.",
+            examples=[
+                OpenApiExample(
+                    name="PreviewCSVFileExample",
+                    summary="Exported Preview CSV File",
+                    description="A CSV file stream containing the preview of survey data.",
+                    value={
+                        "content_type": "text/csv",
+                        "headers": {
+                            "Content-Disposition": 'attachment; filename="preview.csv"'
+                        },
+                    },
+                    response_only=True,
+                    status_codes=[str(status.HTTP_201_CREATED)],
+                ),
+            ],
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Bad Request, no survey data or invalid data provided",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name="SurveyPreviewFailEmpty",
+                    description="The survey data provided is empty.",
+                    value={"message": "Survey is empty."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+                OpenApiExample(
+                    name="SurveyPreviewFailInvalid",
+                    description="The survey data provided is invalid.",
+                    value={"message": "Invalid survey data."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+            ],
+        ),
+    },
+    description="Generates and sends a CSV file based on provided attributes.",
+)
+@api_view(["POST"])
+def preview_csv(request):
+    try:
+        previews = []
+        attributes = request.data.get("attributes")
+        CSV_FILES_NUM = 500
+
+        if all(not attribute["levels"] for attribute in attributes):
+            return Response(
+                {"message": "Survey is empty."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        for i in range(CSV_FILES_NUM):
+            preview = [str(i + 1)]
+            for _ in range(2):
+                for attribute in attributes:
+                    if attribute:
+                        preview.append(random.choice(attribute["levels"])["name"])
+            previews.append(preview)
+
+        with open("profiles.csv", "w") as file:
+            writer = csv.writer(file)
+            writer.writerows(previews)
+
+        response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
+        response["Content-Disposition"] = 'attachment; filename="survey.csv"'
+
+        return response
     except:
         return Response(
             {"message": "Invalid survey data."},
@@ -697,7 +856,9 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js):
         bl = __GetFlow(surveyID, user_token)
         blockID = __CreateBlock(surveyID, bl, user_token)
         currText = __CreateHTML(i, num_attr, profiles)
-        currQ = __CreateQuestion(surveyID, currText, blockID, user_token, profiles, js,i)
+        currQ = __CreateQuestion(
+            surveyID, currText, blockID, user_token, profiles, js, i
+        )
     return surveyID
 
 
@@ -719,7 +880,7 @@ def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js, i):
     }
 
     # Define the payload to create a multiple-choice question within the specified block
-    if (i==0):
+    if i == 0:
         payload = {
             "QuestionText": question_text,
             "QuestionType": "MC",
@@ -856,9 +1017,38 @@ def __createJS(
 @extend_schema(
     request=SurveySerializer,
     responses={
-        status.HTTP_201_CREATED: SurveySerializer,
-        status.HTTP_400_BAD_REQUEST: None,
-    },  # Specify the serializer for the 201 response
+        201: OpenApiResponse(
+            response="application/octet-stream",
+            description="Creating Qualtrics survey and exporting QSF file",
+            examples=[
+                OpenApiExample(
+                    name="CreateQualtricsExample",
+                    description="Successful creation of Qualtrics survey and export of survey QSF",
+                    value={
+                        "content_type": "application/octet-stream",
+                        "headers": {
+                            "Content-Disposition": 'attachment; filename="{filename}"'
+                        }             
+                    }
+                )
+            ]
+        ),
+        400: OpenApiResponse(
+            response="application/octet-stream",
+            description="Error in creating Qualtrics survey and exporting QSF file",
+            examples=[
+                OpenApiExample(
+                    name="CreateQualtricsErrorExample",
+                    summary="Bad Request Response",
+                    description="This response is returned when request to create Qualtrics survey and export QSF file is invalid",
+                    value={
+                        "error": "Invalid data provided.",
+                        "details": "Incomplete survey data"
+                    },
+                )
+            ]
+        )
+}, 
     description="Creating Qualtrics survey and exporting QSF file",
 )
 @api_view(["POST"])
@@ -866,32 +1056,17 @@ def __createJS(
 def create_qualtrics(request):
     if request.method == "POST":
         attributes_list_dict = request.data.get("attributes", [])
-
-        # Optional
-        constraints = request.data.get("constraints", [])
-        restrictions = request.data.get("restrictions", [])
         filename = request.data.get("filename", "export survey")
         profiles = request.data.get("profiles", 2)
         tasks = request.data.get("tasks", 5)
-        randomize = request.data.get("randomize", 1)
-        noDuplicates = request.data.get("noDuplicates", 0)
-        random = request.data.get("random", 0)
+        jsname = _createFile(request)
 
         attributes, level_dict, probabilities = _refactorAttributes(
             attributes_list_dict
         )
-        js_text = __createJS(
-            level_dict,
-            attributes,
-            restrictions,
-            random,
-            tasks,
-            profiles,
-            randomize,
-            constraints,
-            noDuplicates,
-            probabilities,
-        )
+
+        with open(jsname, "r", encoding="utf-8") as file_js:
+            js_text = file_js.read()
 
         num_attr = len(attributes)
         user_token = "ZOxp1TYLxPH8dlBs1FogWM3UNdKsLTHVmUAB1Rfm"  # FIGURE OUT BETTER WAY TO STORE THIS
@@ -899,5 +1074,6 @@ def create_qualtrics(request):
         created = __CreateSurvey(
             filename, user_token, tasks, num_attr, profiles, currText, js_text
         )
+       
         __DownloadSurvey(created, user_token)
         return _sendFileResponse("survey.qsf")
