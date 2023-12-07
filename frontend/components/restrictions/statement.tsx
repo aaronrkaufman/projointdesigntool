@@ -1,37 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAttributes } from "../../context/attributes_context";
 import styles from "./restrictions.module.css";
 import CustomDropdown from "./dropdown";
 
-export const Statement = () => {
+interface IStatement {
+  part: "IF" | "THEN";
+}
+
+export const Statement: React.FC<IStatement> = ({ part }) => {
   // Define the state with TypeScript type
-  const [selectedValue, setSelectedValue] = useState<string>("");
-  const [selectedLvl, setSelectedLvl] = useState<string>("");
+  const [selectedAttr, setSelectedAttr] = useState<string>("select attribute");
+  const [selectedLvl, setSelectedLvl] = useState<string>("selece level");
+  const [sign, setSign] = useState<string>("=");
 
   const { attributes } = useAttributes();
 
-  // Handler function with TypeScript type for the event
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedValue(event.target.value);
-  };
+  useEffect(() => {
+    setSelectedLvl("select level");
+  }, [selectedAttr]);
 
   const getAttributeLevels = (attributeName: string) => {
     const index = attributes.findIndex((attr) => attr.name == attributeName);
-    return attributes[index].levels;
+    return attributes[index] ? attributes[index].levels : [];
   };
   return (
     <div className={styles.statement_container}>
       <div className={styles.statement}>
-        <p>IF</p>
+        <p>{part}</p>
         <CustomDropdown
+          value={selectedAttr}
           items={attributes.map((attr) => attr.name)}
-          setSelected={setSelectedValue}
+          setSelected={setSelectedAttr}
         />
-        <p>=</p>
         <CustomDropdown
+          sign={true}
+          value={sign}
+          items={["=", "!="]}
+          setSelected={setSign}
+        />
+        <CustomDropdown
+          value={selectedLvl}
           items={
-            selectedValue
-              ? getAttributeLevels(selectedValue).map((level) => level.name)
+            selectedAttr
+              ? getAttributeLevels(selectedAttr).map((level) => level.name)
               : []
           }
           setSelected={setSelectedLvl}

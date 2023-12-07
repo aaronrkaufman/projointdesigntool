@@ -20,7 +20,8 @@ export const Restrictions = () => {
           />
         </div>
         <div className={styles.right}>
-          <Statement />
+          <Statement part="IF" />
+          <Statement part="THEN" />
         </div>
       </div>
     </section>

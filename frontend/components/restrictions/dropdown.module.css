@@ -16,6 +16,13 @@
   font-size: 1rem;
 }
 
+.smaller {
+  width: 100%;
+  background-color: inherit;
+  border: 1px solid black;
+  color: var(--txtClr);
+}
+
 .dropdownButton:after {
   content: "▼";
   float: right;
