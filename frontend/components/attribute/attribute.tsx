@@ -15,6 +15,7 @@ import { HighlightedContext } from "../../context/highlighted";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import DragButton from "../drag_button";
 import { Level } from "../level/level";
+import { useAttributes } from "../../context/attributes_context";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -37,7 +38,6 @@ export const Attribute: FC<PropsAttributeComponent> = ({
   onChange,
   index,
 }) => {
-  const attributeRef = useRef<HTMLLIElement | null>(null);
   // console.log(attribute, index);
 
   useEffect(() => {
@@ -46,6 +46,8 @@ export const Attribute: FC<PropsAttributeComponent> = ({
 
   const { highlightedAttribute, setHighlightedAttribute, showWeights } =
     useContext(HighlightedContext);
+
+  const { deleteAttribute } = useAttributes();
 
   return (
     <Draggable
@@ -65,6 +67,16 @@ export const Attribute: FC<PropsAttributeComponent> = ({
             show && setHighlightedAttribute(attribute.key);
           }}
         >
+          <div className={styles.deleteHandle}>
+            <button
+              onClick={() => {
+                deleteAttribute(attribute.name);
+              }}
+              className={styles.deleteAttribute}
+            >
+              x
+            </button>
+          </div>
           <div className={styles.attribute_left}>
             <div className={`${styles.dragHandle} ${styles.dragAttribute}`}>
               <DragButton
@@ -102,7 +114,12 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                     ref={provided.innerRef}
                   >
                     {attribute.levels.map((level, index) => (
-                      <Level key={level.id} {...level} index={index} attributeName={attribute.name}></Level>
+                      <Level
+                        key={level.id}
+                        {...level}
+                        index={index}
+                        attributeName={attribute.name}
+                      ></Level>
                     ))}
                     {provided.placeholder}
                     <li>

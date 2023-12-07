@@ -27,6 +27,7 @@ interface AttributeContextType {
   addNewAttribute: (name: string) => void;
   addLevelToAttribute: (attributeName: string, newLevel: string) => void;
   deleteLevelFromAttribute: (attributeName: string, levelIndex: number) => void;
+  deleteAttribute: (attributeName: string) => void;
   updateWeight: (
     attributeKey: number,
     index: number,
@@ -124,6 +125,16 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     };
     setAttributes([...attributes, newAttribute]);
     setIsCreatingAttribute(false);
+    setEdited(true);
+  };
+
+  const deleteAttribute = (attributeName: string) => {
+    setAttributes((prevAttributes) => {
+      const newAttributes = prevAttributes.filter(
+        (attr, _) => attr.name !== attributeName
+      );
+      return newAttributes;
+    });
     setEdited(true);
   };
 
@@ -270,6 +281,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited,
     storageChanged,
     setStorageChanged,
+    deleteAttribute,
     // Add other functions here
   };
 
