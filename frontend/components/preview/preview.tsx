@@ -12,10 +12,6 @@ export interface IPreview {
 const Preview = ({ attributes, previews, setRefresh }: IPreview) => {
   const [selectedCar, setSelectedCar] = useState(null);
 
-  // const handleSelectCar = (index: any) => {
-  //   setSelectedCar(index);
-  // };
-  console.log("attrs:", attributes, previews);
 
   return (
     <section className={styles.section}>

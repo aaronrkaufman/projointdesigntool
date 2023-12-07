@@ -15,12 +15,12 @@ export const downloadSurvey = async (
 ): Promise<void> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
-    console.log(processedAttributes);
+    // console.log(processedAttributes);
     const response = await api.post(`/surveys/${path}/`, processedAttributes, {
       responseType: "blob",
     });
 
-    console.log(response);
+    // console.log(response);
 
     const filename =
       path === "qualtrics" ? "default-filename.qsf" : 
@@ -46,10 +46,10 @@ export const getPreview = async (
 ): Promise<string[][]> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
-    console.log(processedAttributes);
+    // console.log(processedAttributes);
     const response = await api.post("/surveys/preview/", processedAttributes);
 
-    console.log(response);
+    // console.log(response);
     return response.data.previews;
   } catch (error) {
     console.error("Error during file download", error);

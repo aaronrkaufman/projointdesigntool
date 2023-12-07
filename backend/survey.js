@@ -48,7 +48,7 @@ function weighted_randomize(prob_array, at_key)
 }
                     
 
-var featurearray = {"asf" : ["fasf","fas","fasf21"],"fasfsa" : ["vxzv","vew","vewwreqw"]};
+var featurearray = {"attr1" : ["level1","level2","level3","level4"],"attr2" : ["a2l1","a2l2","a2l3","a2l4"],"attr3" : ["check1","check2","check3","check4"],"attr5" : ["l1","l2","l3","l4"]};
 
 var restrictionarray = [];
 

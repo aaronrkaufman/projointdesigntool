@@ -10,7 +10,7 @@ import { useAttributes } from "../../context/attributes_context";
 import { DocumentContext } from "../../context/document_context";
 
 import { Droppable } from "react-beautiful-dnd";
-import { downloadSurvey } from "../../services/api";
+import ExportDropdown from "./export";
 
 const getTimeElapsed = (lastEdited: Date) => {
   const now = new Date();
@@ -41,15 +41,6 @@ export const Survey: FC = () => {
 
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
     useContext(DocumentContext);
-
-  // Handle download of a file through export
-  const [isLoading, setisLoading] = useState<boolean>(false);
-
-  const handleDownload = async (path: "qualtrics" | "export" | "preview_csv") => {
-    setisLoading(true);
-    await downloadSurvey(attributes, path);
-    setisLoading(false);
-  };
 
   // Handle name change
   const [isEditing, setIsEditing] = useState(false);
@@ -83,11 +74,6 @@ export const Survey: FC = () => {
 
   return (
     <section className={styles.survey}>
-      {isLoading && (
-        <div className={styles.loaderOverlay}>
-          <div className={styles.loadingText}>Loading...</div>
-        </div>
-      )}
       <div className={styles.top}>
         {isEditing ? (
           <input
@@ -116,18 +102,8 @@ export const Survey: FC = () => {
             onClick={() => setShowWeights(!showWeights)}
           ></Button>
         )}
-        <Button
-          text="Export to Qualtrics"
-          onClick={() => handleDownload("qualtrics")}
-        ></Button>
-        <Button
-          text="Export to JS"
-          onClick={() => handleDownload("export")}
-        ></Button>
-        <Button
-          text="Export to CSV"
-          onClick={() => handleDownload("preview_csv")}
-        ></Button>
+        <ExportDropdown />
+        {/* <CustomDropdown /> */}
         <div>Last edited: {getTimeElapsed(lastEdited)}</div>
       </div>
       <Droppable droppableId="droppable-attributes" type="group">

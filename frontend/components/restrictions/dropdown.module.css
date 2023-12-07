@@ -1,0 +1,60 @@
+/* CustomDropdown.module.css */
+.dropdown {
+  position: relative;
+  font-family: Arial, sans-serif;
+}
+
+.dropdownButton {
+  width: 10rem;
+  padding: 10px;
+  border: none;
+  background-color: var(--headerClr);
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.dropdownButton:after {
+  content: "▼";
+  float: right;
+}
+
+.dropdownContent {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #f9f9f9;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 4px;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+
+.dropdownContent li {
+  padding: 12px;
+  text-align: left;
+  background-color: #f2f2f2;
+  cursor: pointer;
+}
+
+.dropdownContent li:hover {
+  background-color: #ddd;
+}
+
+.dropdownContent li:not(:last-child) {
+  border-bottom: 1px solid #ddd;
+}
+
+/* When the dropdown is active/open */
+.dropdownContent.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}

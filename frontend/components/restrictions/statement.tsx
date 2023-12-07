@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useAttributes } from "../../context/attributes_context";
 import styles from "./restrictions.module.css";
+import CustomDropdown from "./dropdown";
 
 export const Statement = () => {
   // Define the state with TypeScript type
   const [selectedValue, setSelectedValue] = useState<string>("");
+  const [selectedLvl, setSelectedLvl] = useState<string>("");
 
   const { attributes } = useAttributes();
 
@@ -21,23 +23,19 @@ export const Statement = () => {
     <div className={styles.statement_container}>
       <div className={styles.statement}>
         <p>IF</p>
-        <select
-          className={styles.select}
-          value={selectedValue}
-          onChange={handleChange}
-        >
-          {attributes.map((attr) => (
-            <option value={attr.name}>{attr.name}</option>
-          ))}
-        </select>
+        <CustomDropdown
+          items={attributes.map((attr) => attr.name)}
+          setSelected={setSelectedValue}
+        />
         <p>=</p>
-        <select className={styles.select}>
-          {selectedValue
-            ? getAttributeLevels(selectedValue).map((level) => (
-                <option value={level.name}>{level.name}</option>
-              ))
-            : ""}
-        </select>
+        <CustomDropdown
+          items={
+            selectedValue
+              ? getAttributeLevels(selectedValue).map((level) => level.name)
+              : []
+          }
+          setSelected={setSelectedLvl}
+        />
       </div>
     </div>
   );

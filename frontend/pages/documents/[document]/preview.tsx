@@ -45,7 +45,7 @@ function PreviewPage({ params }: IServerProps) {
       attributes: attributes.map((el) => el.name),
       previews: previews,
     });
-    console.log("previews:", previews);
+    // console.log("previews:", previews);
   };
 
   useEffect(() => {
