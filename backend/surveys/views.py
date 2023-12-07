@@ -773,11 +773,10 @@ def preview_csv(request):
         with open("profiles.csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows(previews)
+        return _sendFileResponse("profiles.csv")
+        #response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
+        #response["Content-Disposition"] = 'attachment; filename="survey.csv"'
 
-        response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
-        response["Content-Disposition"] = 'attachment; filename="survey.csv"'
-
-        return response
     except:
         return Response(
             {"message": "Invalid survey data."},
