@@ -47,7 +47,31 @@ export const Attribute: FC<PropsAttributeComponent> = ({
   const { highlightedAttribute, setHighlightedAttribute, showWeights } =
     useContext(HighlightedContext);
 
-  const { deleteAttribute } = useAttributes();
+  const { deleteAttribute, handleAttributeNameChange } = useAttributes();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [attributeName, setAttributeName] = useState<string>(attribute.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAttributeName(e.target.value);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+
+    if (attributeName.trim() === "") {
+      deleteAttribute(index);
+    } else {
+      handleAttributeNameChange(attributeName, index);
+    }
+  };
 
   return (
     <Draggable
@@ -70,7 +94,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           <div className={styles.deleteHandle}>
             <button
               onClick={() => {
-                deleteAttribute(attribute.name);
+                deleteAttribute(index);
               }}
               className={styles.deleteAttribute}
             >
@@ -99,7 +123,25 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                 strokeWidth="2"
               />
             </svg>
-            <p>{attribute.name}</p>
+            <div
+              className={styles.atrributeInfo}
+              onClick={() => {
+                setIsEditing(true);
+              }}
+            >
+              {isEditing ? (
+                <input
+                  ref={inputRef}
+                  value={attributeName}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className={styles.input}
+                  // additional styling or attributes
+                />
+              ) : (
+                <p className={styles.levelName}>{attributeName}</p>
+              )}
+            </div>
           </div>
           <div className={styles.attribute_right}>
             {show ? (

@@ -27,7 +27,7 @@ interface AttributeContextType {
   addNewAttribute: (name: string) => void;
   addLevelToAttribute: (attributeName: string, newLevel: string) => void;
   deleteLevelFromAttribute: (attributeName: string, levelIndex: number) => void;
-  deleteAttribute: (attributeName: string) => void;
+  deleteAttribute: (index: number) => void;
   updateWeight: (
     attributeKey: number,
     index: number,
@@ -40,6 +40,7 @@ interface AttributeContextType {
     newName: string,
     levelIndex: number
   ) => void;
+  handleAttributeNameChange: (newName: string, index: number) => void;
   setEdited: (edited: boolean) => void;
   storageChanged: number;
   setStorageChanged: (storageChanged: number) => void;
@@ -128,11 +129,9 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited(true);
   };
 
-  const deleteAttribute = (attributeName: string) => {
+  const deleteAttribute = (index: number) => {
     setAttributes((prevAttributes) => {
-      const newAttributes = prevAttributes.filter(
-        (attr, _) => attr.name !== attributeName
-      );
+      const newAttributes = prevAttributes.filter((_, ind) => ind !== index);
       return newAttributes;
     });
     setEdited(true);
@@ -224,6 +223,18 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited(true);
   };
 
+  const handleAttributeNameChange = (newName: string, index: number) => {
+    setAttributes((prevAttributes) => {
+      return prevAttributes.map((attribute, ind) => {
+        if (ind === index) {
+          return { ...attribute, name: newName };
+        }
+        return attribute;
+      });
+    });
+    setEdited(true);
+  };
+
   const updateWeight = (
     attributeKey: number,
     index: number,
@@ -279,6 +290,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     handleCreateAttribute,
     handleLevelNameChange,
     setEdited,
+    handleAttributeNameChange,
     storageChanged,
     setStorageChanged,
     deleteAttribute,

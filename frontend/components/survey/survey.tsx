@@ -115,7 +115,7 @@ export const Survey: FC = () => {
           >
             {attributes.map((attribute, index) => (
               <AttributeContainer
-                key={index}
+                key={attribute.key}
                 attribute={attribute}
                 index={index}
                 addLevel={addLevelToAttribute}

@@ -39,6 +39,7 @@ export const SurveyContainer: FC = () => {
         result.destination.index
       );
       setEdited(true);
+      // console.log("what????", attributes, reorderedItems);
       setAttributes(reorderedItems);
     } else {
       const newAttributes = [...attributes];
@@ -58,7 +59,7 @@ export const SurveyContainer: FC = () => {
           movedLevel
         );
       }
-      console.log("what?");
+      // console.log("what?");
       setEdited(true);
       setAttributes(newAttributes);
       // Update the state with the new attributes array
