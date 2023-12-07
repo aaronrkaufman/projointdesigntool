@@ -693,9 +693,9 @@ def preview_survey(request):
             answer_set = []
             for attribute in attributes:
                 if attribute:
-                    answer["attributes"].append(attribute)
+                    answer["attributes"].append(attribute["name"])
                     answer_set.append(random.choice(attribute["levels"])["name"])
-
+            answer["previews"].append(answer_set)
         return Response(answer, status=status.HTTP_201_CREATED)
     except:
         return Response(
