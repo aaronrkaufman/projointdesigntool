@@ -16,8 +16,16 @@
   font-size: 1rem;
 }
 
+.small { 
+  width: 4rem;
+}
+
+.color {
+  background-color: var(--addClr);
+}
+
 .smaller {
-  width: 100%;
+  width: 4rem;
   background-color: inherit;
   border: 1px solid black;
   color: var(--txtClr);
@@ -35,7 +43,7 @@
   right: 0;
   background-color: #f9f9f9;
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-  z-index: 1;
+  z-index: 2;
   border-radius: 4px;
   overflow: hidden;
   opacity: 0;

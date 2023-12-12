@@ -44,6 +44,13 @@ interface AttributeContextType {
   setEdited: (edited: boolean) => void;
   storageChanged: number;
   setStorageChanged: (storageChanged: number) => void;
+  restrictions: string[];
+  addRestrictionToAttribute: (newRestriction: string) => void;
+  deleteRestrictionFromAttribute: (restrictionIndex: number) => void;
+  editRestrictionInAttribute: (
+    restrictionIndex: number,
+    newRestriction: string
+  ) => void;
   // Include other function signatures as needed
 }
 
@@ -73,6 +80,8 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   const [edited, setEdited] = useState<boolean>(false);
   const [storageChanged, setStorageChanged] = useState<number>(0);
 
+  const [restrictions, setRestrictions] = useState<string[]>([]);
+
   useEffect(() => {
     if (currentDocID && currentDocID !== prevDocID) {
       setEdited(false);
@@ -83,6 +92,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         setAttributes(parsedData.attributes);
         setLastEdited(new Date(parsedData.lastEdited));
         setCurrentDoc(parsedData.name);
+        setRestrictions(parsedData.restrictions ? parsedData.restrictions : []);
         // Use parsedData.lastEdited as needed
       } else {
         setAttributes([]);
@@ -105,6 +115,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         attributes: attributes,
         lastEdited: new Date(), // Update last edited time
         name: currentDoc,
+        restrictions: restrictions,
       };
       localStorage.setItem(
         `attributes-${currentDocID}`,
@@ -115,7 +126,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
 
       console.log("maybe now?");
     }
-  }, [attributes, currentDocID, lastEdited, edited, currentDoc]);
+  }, [attributes, currentDocID, lastEdited, edited, currentDoc, restrictions]);
 
   const addNewAttribute = (name: string) => {
     const newAttribute: Attribute = {
@@ -235,6 +246,38 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited(true);
   };
 
+  // Function to add a restriction to an attribute
+  const addRestrictionToAttribute = (newRestriction: string) => {
+    console.log(restrictions);
+    setRestrictions((prev) => [...prev, newRestriction]);
+
+    setEdited(true);
+  };
+
+  // Function to delete a restriction from an attribute
+  const deleteRestrictionFromAttribute = (restrictionIndex: number) => {
+    setRestrictions((prev) =>
+      prev.filter((_, index) => index !== restrictionIndex)
+    );
+    setEdited(true);
+  };
+
+  // Function to edit an existing restriction
+  const editRestrictionInAttribute = (
+    restrictionIndex: number,
+    newRestriction: string
+  ) => {
+    setRestrictions((prev) =>
+      prev.map((restr, index) => {
+        if (index === restrictionIndex) {
+          return newRestriction;
+        }
+        return restr;
+      })
+    );
+    setEdited(true);
+  };
+
   const updateWeight = (
     attributeKey: number,
     index: number,
@@ -294,6 +337,10 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     storageChanged,
     setStorageChanged,
     deleteAttribute,
+    restrictions,
+    addRestrictionToAttribute,
+    deleteRestrictionFromAttribute,
+    editRestrictionInAttribute,
     // Add other functions here
   };
 

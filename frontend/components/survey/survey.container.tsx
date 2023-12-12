@@ -5,6 +5,7 @@ import { useState } from "react";
 import { IAttribute } from "../attribute/attribute.container";
 import { HighlightedProvider } from "../../context/highlighted";
 import AttributeProvider, {
+  Attribute,
   useAttributes,
 } from "../../context/attributes_context";
 import { DragDropContext } from "react-beautiful-dnd";
@@ -40,7 +41,7 @@ export const SurveyContainer: FC = () => {
       );
       setEdited(true);
       // console.log("what????", attributes, reorderedItems);
-      setAttributes(reorderedItems);
+      setAttributes(reorderedItems as Attribute[]);
     } else {
       const newAttributes = [...attributes];
       // Find the attribute by droppableId, which should match the attribute's key

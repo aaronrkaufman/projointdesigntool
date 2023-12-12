@@ -15,7 +15,7 @@
 
 .statement_container {
   padding: 1rem;
-  border: 1px solid black;
+  /* border: 1px solid black; */
 }
 
 .statement {
@@ -30,4 +30,35 @@
   padding: 0.25rem 2rem;
   background-color: blue;
   border-radius: 0.25rem;
+}
+
+.part {
+  width: 4rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  background-color: var(--whiteClr);
+  padding: 1rem;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.statements {
+  border: 1px solid black;
+  border-radius: 0.5rem;
 }

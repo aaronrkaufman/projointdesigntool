@@ -5,16 +5,18 @@ interface IDropdown {
   items: string[];
   value: string;
   setSelected: (item: string) => void;
-
   sign?: boolean;
+  type?: string;
+  color?: boolean;
 }
 
 const CustomDropdown: React.FC<IDropdown> = ({
   items,
   setSelected,
-
+  type,
   sign,
   value,
+  color,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   //   const [selectedValue, setSelectedValue] = useState<string | number>(text);
@@ -46,7 +48,9 @@ const CustomDropdown: React.FC<IDropdown> = ({
   return (
     <div className={styles.dropdown} ref={dropdownRef}>
       <button
-        className={`${styles.dropdownButton} ${sign && styles.smaller}`}
+        className={`${styles.dropdownButton} ${type ? styles.small : ""} ${
+          sign && styles.smaller
+        } ${color ? styles.color : ""}`}
         onClick={toggleOpen}
       >
         {value}
