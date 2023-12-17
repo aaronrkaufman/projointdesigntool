@@ -29,9 +29,8 @@ class SurveyPostTests(TestCase):
                 {
                     "name": "att1",
                     "levels": [
-                        {"name": "a", "weight": 0.5},
                         {"name": "b", "weight": 0.5},
-                        {"name": "c", "weight": 0.5},
+                        {"name": "a", "weight": 0.5},
                     ],
                 },
                 {
@@ -44,17 +43,17 @@ class SurveyPostTests(TestCase):
                 {
                     "name": "att3",
                     "levels": [
-                        {"name": "f", "weight": 0.5},
-                        {"name": "g", "weight": 0.5},
-                        {"name": "h", "weight": 0.5},
-                        {"name": "i", "weight": 0.5},
+                        {"name": "f", "weight": 0.33},
+                        {"name": "g", "weight": 0.33},
+                        {"name": "h", "weight": 0.34},
                     ],
                 },
-            ]
+            ],
+            "restrictions" : [["att1", "=", "b", "att2", "!", "d"], ["att3", "=", "f", "att1", "!", "b"]]
         }
 
         self.payloadFailure = {
-            "error": [
+            "attributes": [
                 {
                     "name": "asfasf",
                 },
@@ -94,24 +93,15 @@ class SurveyPostTests(TestCase):
         response = self.client.post(url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 201)
 
-        questions = []
-        for question in self.payloadSuccess["attributes"]:
-            for answer in question["levels"]:
-                questions.append(answer["name"])
-        print()
-        print(response.json())
-        # How to assertEquality?
-        # self.assertContains(response.content, 201)
-
     def test_preview_survey_failure(self):
         url = reverse("surveys:preview")
         response = self.client.post(url, self.payloadFailure, format="json")
         self.assertEqual(response.status_code, 400)
 
-    # def test_preview_csv_success(self):
-    #     url = reverse("surveys:preview_csv")
-    #     response = self.client.post(url, self.payloadSuccess, format="json")
-    #     self.assertEqual(response.status_code, 201)
+    def test_preview_csv_success(self):
+        url = reverse("surveys:preview_csv")
+        response = self.client.post(url, self.payloadSuccess, format="json")
+        self.assertEqual(response.status_code, 201)
 
     def test_preview_csv_failure(self):
         payload = {
@@ -127,10 +117,10 @@ class SurveyPostTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
             response.json(),
-            {"message": "Survey is empty."},
+            {"Error": "Cannot export to JavaScript. Some attributes have no levels."},
         )
 
-    # def test_create_qualtrics(self):
-    #     url = reverse("surveys:qualtrics")
-    #     response = self.client.post(url, self.payloadSuccess, format="json")
-    #     self.assertEqual(response.status_code, 201)
+    # # def test_create_qualtrics(self):
+    # #     url = reverse("surveys:qualtrics")
+    # #     response = self.client.post(url, self.payloadSuccess, format="json")
+    # #     self.assertEqual(response.status_code, 201)
