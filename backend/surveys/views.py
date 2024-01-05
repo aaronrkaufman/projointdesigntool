@@ -680,10 +680,14 @@ def preview_csv(request):
         )
 
 
-def __CreateHTML(i, num_attr, profiles):
+def __CreateHTML(i, num_attr, profiles, qNum, noFlip):
+    if i==0:
+        text_out = "<span>Blank page</span>"
+        return text_out
+    i-=1
     top = (
         "<span>Question "
-        + str(i + 1)
+        + str(qNum + 1)
         + '</span>\n<br /><br />\n<span>Please carefully review the options detailed below, then please answer the questions.</span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?</span>\n<br />\n<div>\n<br />\n<table class="UserTable">\n<tbody>\n'
     )
 
@@ -708,7 +712,7 @@ def __CreateHTML(i, num_attr, profiles):
             + str(m + 1)
             + "}</strong></td>\n"
         )
-        for n in range(profiles):
+        for n in range(profiles) if noFlip==0 else range(profiles-1,-1,-1):
             rows[m] = (
                 rows[m]
                 + "<td style='text-align: center;'>${e://Field/F-"
@@ -741,16 +745,19 @@ def __CreateBlock(surveyID, bl, user_token):
     return response["result"]["BlockID"]
 
 
-def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js):
+def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, duplicates, repeatFlip):
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions"
     payload = {"SurveyName": name, "Language": "AR", "ProjectCategory": "CORE"}
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
     response = requests.request("POST", url, json=payload, headers=headers).json()
     surveyID = response["result"]["SurveyID"]
-    for i in range(task):
+    d1, d2 = duplicates
+    for i in range(task+1): 
         bl = __GetFlow(surveyID, user_token)
         blockID = __CreateBlock(surveyID, bl, user_token)
-        currText = __CreateHTML(i, num_attr, profiles)
+        currText = __CreateHTML(i, num_attr, profiles, i-1, 0)
+        if i==d2:
+            currText = __CreateHTML(d1, num_attr, profiles, i-1, repeatFlip)
         currQ = __CreateQuestion(
             surveyID, currText, blockID, user_token, profiles, js, i
         )
@@ -873,19 +880,24 @@ def create_qualtrics(request):
     filename = request.data.get("filename", "export survey")
     profiles = request.data.get("profiles", 2)
     tasks = request.data.get("tasks", 5)
-    
-    error, response = _checkAttributes(attributes)
-    if error:
-        return response
-    
+    duplicates = request.data.get("duplicates", [2,4])
+    repeatFlip = request.data.get("repeatFlip", 1)
+    resp = _checkAttributes(attributes)
+    if resp:
+        return resp
     jsname = _createFile(request)
 
     with open(jsname, "r", encoding="utf-8") as file_js:
         js_text = file_js.read()
-
+    js_text = "Qualtrics.SurveyEngine.addOnload(function(){" + js_text
+    js_text += "\n"
+    js_text += "});\nQualtrics.SurveyEngine.addOnReady(function(){\
+               \n/*Place your JavaScript here to run when the page is fully displayed*/\
+                });\nQualtrics.SurveyEngine.addOnUnload(function()\
+                {\n/*Place your JavaScript here to run when the page is unloaded*/});"
     user_token = "ZOxp1TYLxPH8dlBs1FogWM3UNdKsLTHVmUAB1Rfm"  # FIGURE OUT BETTER WAY TO STORE THIS
     created = __CreateSurvey(
-        filename, user_token, tasks, len(attributes), profiles, "", js_text
+        filename, user_token, tasks, len(attributes), profiles, "", js_text, duplicates, repeatFlip
     )
     
     __DownloadSurvey(created, user_token)

@@ -120,7 +120,7 @@ class SurveyPostTests(TestCase):
             {"Error": "Cannot export to JavaScript. Some attributes have no levels."},
         )
 
-    # # def test_create_qualtrics(self):
-    # #     url = reverse("surveys:qualtrics")
-    # #     response = self.client.post(url, self.payloadSuccess, format="json")
-    # #     self.assertEqual(response.status_code, 201)
+    def test_create_qualtrics(self):
+        url = reverse("surveys:qualtrics")
+        response = self.client.post(url, self.payloadSuccess, format="json")
+        self.assertEqual(response.status_code, 201)
