@@ -44,12 +44,13 @@ interface AttributeContextType {
   setEdited: (edited: boolean) => void;
   storageChanged: number;
   setStorageChanged: (storageChanged: number) => void;
-  restrictions: string[];
-  addRestrictionToAttribute: (newRestriction: string) => void;
+  // restrictions: string[];
+  restrictions: string[][][];
+  addRestrictionToAttribute: (newRestriction: string[][]) => void;
   deleteRestrictionFromAttribute: (restrictionIndex: number) => void;
   editRestrictionInAttribute: (
     restrictionIndex: number,
-    newRestriction: string
+    newRestriction: string[][]
   ) => void;
   // Include other function signatures as needed
 }
@@ -80,7 +81,8 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   const [edited, setEdited] = useState<boolean>(false);
   const [storageChanged, setStorageChanged] = useState<number>(0);
 
-  const [restrictions, setRestrictions] = useState<string[]>([]);
+  // const [restrictions, setRestrictions] = useState<string[]>([]);
+  const [restrictions, setRestrictions] = useState<string[][][]>([]);
 
   useEffect(() => {
     if (currentDocID && currentDocID !== prevDocID) {
@@ -247,7 +249,14 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   // Function to add a restriction to an attribute
-  const addRestrictionToAttribute = (newRestriction: string) => {
+  // const addRestrictionToAttribute = (newRestriction: string) => {
+  //   console.log(restrictions);
+  //   setRestrictions((prev) => [...prev, newRestriction]);
+
+  //   setEdited(true);
+  // };
+
+  const addRestrictionToAttribute = (newRestriction: string[][]) => {
     console.log(restrictions);
     setRestrictions((prev) => [...prev, newRestriction]);
 
@@ -265,7 +274,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   // Function to edit an existing restriction
   const editRestrictionInAttribute = (
     restrictionIndex: number,
-    newRestriction: string
+    newRestriction: string[][]
   ) => {
     setRestrictions((prev) =>
       prev.map((restr, index) => {

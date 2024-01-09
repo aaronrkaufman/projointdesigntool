@@ -19,3 +19,15 @@ export const preproccessAttributes = (attributes: Attribute[]) => {
     attributes: processedAttributes,
   };
 };
+
+export const preprocessRestrictions = (restrictions: string[][][]) => {
+  const processedRestrictions = restrictions.map((restriction) => {
+    const ifPart = restriction[0];
+    const thenPart = restriction[1];
+    return [...ifPart, ...thenPart];
+  });
+
+  return {
+    restrictions: processedRestrictions,
+  };
+};

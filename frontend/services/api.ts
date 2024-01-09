@@ -1,7 +1,7 @@
 // services/api.ts
 import axios from "axios";
 import { Attribute } from "../context/attributes_context";
-import { preproccessAttributes } from "./utils";
+import { preproccessAttributes, preprocessRestrictions } from "./utils";
 
 const api = axios.create({
   baseURL: "http://127.0.0.1:8000/api/",
@@ -23,10 +23,13 @@ export const downloadSurvey = async (
     // console.log(response);
 
     const filename =
-      path === "qualtrics" ? "default-filename.qsf" : 
-      path === "export" ? "survey.js":
-      path === "preview_csv" ? "survey.csv":
-      "survey.js";
+      path === "qualtrics"
+        ? "default-filename.qsf"
+        : path === "export"
+        ? "survey.js"
+        : path === "preview_csv"
+        ? "survey.csv"
+        : "survey.js";
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
@@ -42,12 +45,15 @@ export const downloadSurvey = async (
 };
 
 export const getPreview = async (
-  attributes: Attribute[]
+  attributes: Attribute[],
+  retstrictions: string[][][]
 ): Promise<string[][]> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
+    const processedRestrictions = preprocessRestrictions(retstrictions);
+    // console.log({ ...processedRestrictions, ...processedAttributes });
     // console.log(processedAttributes);
-    const response = await api.post("/surveys/preview/", processedAttributes);
+    const response = await api.post("/surveys/preview/", { ...processedRestrictions, ...processedAttributes });
 
     // console.log(response);
     return response.data.previews;

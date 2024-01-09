@@ -28,7 +28,7 @@ export const Statement: React.FC<IStatement> = ({
   // Define the state with TypeScript type
   const [selectedAttr, setSelectedAttr] = useState<string>("select attribute");
   const [selectedLvl, setSelectedLvl] = useState<string>("select level");
-  const [sign, setSign] = useState<string>("=");
+  const [sign, setSign] = useState<string>(statement.equals);
   const [proposition, setProposition] = useState<string>(statement.part);
 
   const { attributes } = useAttributes();
@@ -73,12 +73,14 @@ export const Statement: React.FC<IStatement> = ({
           setSelected={setSelectedAttr}
           color={selectedAttr == "select attribute" ? true : false}
         />
-        <CustomDropdown
+        {/* FOR NOW THIS */}
+        {sign}
+        {/* <CustomDropdown
           sign={true}
           value={sign}
           items={["=", "!="]}
           setSelected={setSign}
-        />
+        /> */}
         <CustomDropdown
           value={selectedLvl}
           items={

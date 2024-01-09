@@ -100,18 +100,32 @@ export const Restrictions = () => {
       return `${attribute} ${operator} ${level}`;
     };
 
-    // Process the 'if' statements
-    const ifPart = ifStatements.map(formatStatement).join(" or ");
+    const formatAgain = ({ attribute, level, equals }: any) => {
+      return [attribute, equals, level];
+    };
 
-    // Process the 'then' statements
-    const thenPart = elseStatements.map(formatStatement).join(" or ");
+    // Process the 'if' statements
+    // const ifPart = ifStatements.map(formatStatement).join(" or ");
+    const ifPart = ifStatements.map(formatAgain);
+    const thenPart = elseStatements.map(formatAgain);
+    // // Process the 'then' statements
+    // const thenPart = elseStatements.map(formatStatement).join(" or ");
 
     // Combine both parts
-    return `if ${ifPart}, then ${thenPart}`;
+    // return `if ${ifPart}, then ${thenPart}`;
+    return [...ifPart, ...thenPart];
+  };
+
+  const showRestrictions = (restriction: string[][]) => {
+    console.log(restriction);
+    return `if ${restriction[0].join(" ")}, then ${restriction[1].join(" ")}`;
   };
 
   const handleAddRestriction = () => {
-    const newRestriction = createRestrictionString();
+    // const statements = [ifStatements, elseStatements];
+    // console.log(statements);
+    const newRestriction: string[][] = createRestrictionString();
+    console.log(newRestriction);
     addRestrictionToAttribute(newRestriction);
   };
 
@@ -131,7 +145,9 @@ export const Restrictions = () => {
           </p>
           <ul className={styles.restrictions}>
             {restrictions &&
-              restrictions.map((restr) => <li key={restr}>{restr}</li>)}
+              restrictions.map((restr, index) => (
+                <li key={restr[0][index]}>{showRestrictions(restr)}</li>
+              ))}
           </ul>
         </div>
         <div className={styles.right}>
@@ -141,9 +157,9 @@ export const Restrictions = () => {
               statement={ifStatements[0]}
               index={0}
               changeStatement={changeIfStatement}
-              addStatement={addIfStatement}
+              // addStatement={addIfStatement}
             />
-            {ifStatements.map((item, index) => {
+            {/* {ifStatements.map((item, index) => {
               if (index === 0) return "";
               return (
                 <Statement
@@ -153,14 +169,14 @@ export const Restrictions = () => {
                   changeStatement={changeIfStatement}
                 />
               );
-            })}
+            })} */}
             <Statement
               statement={elseStatements[0]}
               index={0}
               changeStatement={changeElseStatement}
-              addStatement={addElseStatement}
+              // addStatement={addElseStatement}
             />
-            {elseStatements.map((item, index) => {
+            {/* {elseStatements.map((item, index) => {
               if (index === 0) return "";
               return (
                 <Statement
@@ -170,7 +186,7 @@ export const Restrictions = () => {
                   index={index}
                 />
               );
-            })}
+            })} */}
           </div>
           <Button
             text="Add a restriction statement"

@@ -33,14 +33,14 @@ function PreviewPage({ params }: IServerProps) {
     // console.log("whatis happening", currentDoc)
   }, [documentName]);
 
-  const { attributes } = useAttributes();
+  const { attributes, restrictions } = useAttributes();
 
   const [profiles, setProfiles] = useState<IPreview | null>(null);
 
   const [refresh, setRefresh] = useState<boolean>(true);
 
   const previewData = async () => {
-    const previews = await getPreview(attributes);
+    const previews = await getPreview(attributes, restrictions);
     setProfiles({
       attributes: attributes.map((el) => el.name),
       previews: previews,
