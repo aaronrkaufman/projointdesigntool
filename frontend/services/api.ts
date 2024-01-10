@@ -51,8 +51,7 @@ export const getPreview = async (
   try {
     const processedAttributes = preproccessAttributes(attributes);
     const processedRestrictions = preprocessRestrictions(retstrictions);
-    // console.log({ ...processedRestrictions, ...processedAttributes });
-    // console.log(processedAttributes);
+
     const response = await api.post("/surveys/preview/", { ...processedRestrictions, ...processedAttributes });
 
     // console.log(response);

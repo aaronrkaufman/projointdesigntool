@@ -3,6 +3,7 @@ import { Button } from "../button";
 import styles from "./restrictions.module.css";
 import { Statement } from "./statement";
 import { useAttributes } from "../../context/attributes_context";
+import { AddedRestriction } from "./added_restriction";
 
 export interface StatementProps {
   part: "if" | "then" | "&" | "OR";
@@ -93,6 +94,13 @@ export const Restrictions = () => {
     );
   };
 
+  const isRestrictionDone = () => {
+    const notDone = ({ attribute, level }: any) => {
+      return attribute == "select attribute" || level == "select level";
+    };
+    return ifStatements.some(notDone) || elseStatements.some(notDone);
+  };
+
   const createRestrictionString = () => {
     // Helper function to format a single statement
     const formatStatement = ({ attribute, level, equals }: any) => {
@@ -114,11 +122,6 @@ export const Restrictions = () => {
     // Combine both parts
     // return `if ${ifPart}, then ${thenPart}`;
     return [...ifPart, ...thenPart];
-  };
-
-  const showRestrictions = (restriction: string[][]) => {
-    console.log(restriction);
-    return `if ${restriction[0].join(" ")}, then ${restriction[1].join(" ")}`;
   };
 
   const handleAddRestriction = () => {
@@ -146,7 +149,7 @@ export const Restrictions = () => {
           <ul className={styles.restrictions}>
             {restrictions &&
               restrictions.map((restr, index) => (
-                <li key={restr[0][index]}>{showRestrictions(restr)}</li>
+                <AddedRestriction restriction={restr} index={index} key={restr[0][index]} />
               ))}
           </ul>
         </div>
@@ -190,6 +193,7 @@ export const Restrictions = () => {
           </div>
           <Button
             text="Add a restriction statement"
+            disabled={isRestrictionDone()}
             onClick={handleAddRestriction}
           />
         </div>
