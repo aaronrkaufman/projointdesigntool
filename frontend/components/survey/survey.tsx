@@ -82,7 +82,8 @@ export const Survey: FC = () => {
       console.log("Weights are valid and saved.");
       updateWeight(highlightedAttribute, currentWeights);
     } else {
-      console.log("Total weight must be close to 1.");
+      // TODO make something else
+      alert("Total weight must be close to 1.");
     }
   };
 
