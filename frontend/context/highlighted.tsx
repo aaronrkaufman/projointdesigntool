@@ -1,10 +1,12 @@
-import { ReactNode, createContext, useState } from "react";
+import { ReactNode, createContext, useEffect, useState } from "react";
 
 interface IHighlightedContext {
   highlightedAttribute: number;
   setHighlightedAttribute: (name: number) => void;
   showWeights: boolean;
   setShowWeights: (bool: boolean) => void;
+  currentWeights: number[];
+  setCurrentWeights: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export const HighlightedContext = createContext<IHighlightedContext>({
@@ -12,6 +14,8 @@ export const HighlightedContext = createContext<IHighlightedContext>({
   setHighlightedAttribute: () => {},
   showWeights: false,
   setShowWeights: () => {},
+  currentWeights: [],
+  setCurrentWeights: () => {},
 });
 
 interface IHighlightedProvider {
@@ -23,6 +27,11 @@ export const HighlightedProvider: React.FC<IHighlightedProvider> = ({
 }) => {
   const [highlightedAttribute, setHighlightedAttribute] = useState(-1);
   const [showWeights, setShowWeights] = useState(false);
+  const [currentWeights, setCurrentWeights] = useState<number[]>([]);
+
+  useEffect(() => {
+    setShowWeights(false);
+  }, [highlightedAttribute]);
 
   return (
     <HighlightedContext.Provider
@@ -31,6 +40,8 @@ export const HighlightedProvider: React.FC<IHighlightedProvider> = ({
         setHighlightedAttribute,
         showWeights,
         setShowWeights,
+        currentWeights,
+        setCurrentWeights,
       }}
     >
       {children}

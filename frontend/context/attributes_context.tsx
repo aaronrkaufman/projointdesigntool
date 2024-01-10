@@ -10,13 +10,13 @@ import { DocumentContext } from "./document_context";
 interface Level {
   name: string;
   id: number;
+  weight: number;
 }
 
 export interface Attribute {
   name: string;
   levels: Level[];
   key: number;
-  weights: number[];
 }
 
 interface AttributeContextType {
@@ -28,11 +28,7 @@ interface AttributeContextType {
   addLevelToAttribute: (attributeName: string, newLevel: string) => void;
   deleteLevelFromAttribute: (attributeName: string, levelIndex: number) => void;
   deleteAttribute: (index: number) => void;
-  updateWeight: (
-    attributeKey: number,
-    index: number,
-    newWeight: string
-  ) => void;
+  updateWeight: (attributeKey: number, newWeights: number[]) => void;
   cancelNewAttribute: () => void;
   handleCreateAttribute: () => void;
   handleLevelNameChange: (
@@ -130,18 +126,19 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [attributes, currentDocID, lastEdited, edited, currentDoc, restrictions]);
 
+  // TODO: Change keys so there is no possiblity of duplicate keys
   const addNewAttribute = (name: string) => {
     const newAttribute: Attribute = {
       name,
       levels: [],
       key: attributes.length,
-      weights: [],
     };
     setAttributes([...attributes, newAttribute]);
     setIsCreatingAttribute(false);
     setEdited(true);
   };
 
+  // TODO: Change keys so there is no possiblity of duplicate keys
   const deleteAttribute = (index: number) => {
     setAttributes((prevAttributes) => {
       const newAttributes = prevAttributes.filter((_, ind) => ind !== index);
@@ -158,13 +155,19 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         if (attribute.name === attributeName) {
           const newNumberOfLevels = attribute.levels.length + 1;
           const newWeight = parseFloat((1 / newNumberOfLevels).toFixed(2));
-          const newWeights = Array(newNumberOfLevels).fill(newWeight);
+          const newLevels = attribute.levels.map((lvl, index) => {
+            return { ...lvl, weight: newWeight, id: index + 1 };
+          });
           return {
             ...attribute,
-            weights: newWeights,
+
             levels: [
-              ...attribute.levels,
-              { name: newLevel, id: attribute.levels.length + 1 },
+              ...newLevels,
+              {
+                name: newLevel,
+                id: newLevels.length + 1,
+                weight: newWeight,
+              },
             ],
           };
         }
@@ -182,19 +185,22 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
       prevAttributes.map((attribute) => {
         if (attribute.name === attributeName) {
           // Remove the level at the specified index
-          const newLevels = attribute.levels.filter(
+          let newLevels = attribute.levels.filter(
             (_, index) => index !== levelIndex
           );
+
           const newNumberOfLevels = newLevels.length;
           const newWeight =
             newNumberOfLevels > 0
               ? parseFloat((1 / newNumberOfLevels).toFixed(2))
               : 0;
-          const newWeights = Array(newNumberOfLevels).fill(newWeight);
+
+          newLevels = newLevels.map((lvl, index) => {
+            return { ...lvl, weight: newWeight, id: index + 1 };
+          });
 
           return {
             ...attribute,
-            weights: newWeights,
             levels: newLevels,
           };
         }
@@ -287,46 +293,25 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited(true);
   };
 
-  const updateWeight = (
-    attributeKey: number,
-    index: number,
-    newWeight: string
-  ) => {
+  const updateWeight = (attributeKey: number, newWeights: number[]) => {
     setAttributes((prevAttributes) =>
       prevAttributes.map((attribute) => {
         if (attribute.key === attributeKey) {
-          const updatedWeights = [...attribute.weights];
-          const weightFloat = parseFloat(newWeight);
-          updatedWeights[index] = isNaN(weightFloat) ? 0 : weightFloat;
-
-          // This logic assumes you want to distribute the remaining weight equally
-          // It will need to be adjusted if you want a different distribution logic
-          const remainingWeight = 1 - weightFloat;
-          const sumOtherWeights = updatedWeights.reduce(
-            (sum, _, idx) => (idx !== index ? sum + updatedWeights[idx] : sum),
-            0
-          );
-          if (sumOtherWeights > 0) {
-            updatedWeights.forEach((_, idx) => {
-              if (idx !== index) {
-                updatedWeights[idx] = parseFloat(
-                  (
-                    (remainingWeight * updatedWeights[idx]) /
-                    sumOtherWeights
-                  ).toFixed(2)
-                );
-              }
-            });
-          }
+          // Map over levels and update their weights
+          const updatedLevels = attribute.levels.map((lvl, index) => ({
+            ...lvl,
+            weight: newWeights[index],
+          }));
 
           return {
             ...attribute,
-            weights: updatedWeights,
+            levels: updatedLevels,
           };
         }
-        return attribute;
+        return attribute; // Return the attribute unchanged if it's not the one being updated
       })
     );
+    setEdited(true);
   };
 
   const value: AttributeContextType = {

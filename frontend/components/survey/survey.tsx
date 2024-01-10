@@ -27,8 +27,9 @@ const getTimeElapsed = (lastEdited: Date) => {
 };
 
 export const Survey: FC = () => {
-  const { highlightedAttribute, setShowWeights, showWeights } =
+  const { highlightedAttribute, setShowWeights, showWeights, currentWeights } =
     useContext(HighlightedContext);
+
   const {
     setEdited,
     attributes,
@@ -37,6 +38,7 @@ export const Survey: FC = () => {
     addNewAttribute,
     cancelNewAttribute,
     handleCreateAttribute,
+    updateWeight,
   } = useAttributes();
 
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
@@ -72,6 +74,18 @@ export const Survey: FC = () => {
     setCurrentDoc(docName);
   };
 
+  const saveWeights = () => {
+    const totalWeight = currentWeights.reduce((acc, weight) => acc + weight, 0);
+
+    if (totalWeight >= 0.9 && totalWeight <= 1.1) {
+      // Save logic here
+      console.log("Weights are valid and saved.");
+      updateWeight(highlightedAttribute, currentWeights);
+    } else {
+      console.log("Total weight must be close to 1.");
+    }
+  };
+
   return (
     <section className={styles.survey}>
       <div className={styles.top}>
@@ -99,7 +113,11 @@ export const Survey: FC = () => {
         ) : (
           <Button
             text={showWeights ? "Save weights" : "Edit weights"}
-            onClick={() => setShowWeights(!showWeights)}
+            onClick={
+              showWeights
+                ? () => saveWeights()
+                : () => setShowWeights(!showWeights)
+            }
           ></Button>
         )}
         <ExportDropdown />

@@ -16,6 +16,7 @@ import { Draggable, Droppable } from "react-beautiful-dnd";
 import DragButton from "../drag_button";
 import { Level } from "../level/level";
 import { useAttributes } from "../../context/attributes_context";
+import { Weight } from "../level/weight";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -40,18 +41,28 @@ export const Attribute: FC<PropsAttributeComponent> = ({
 }) => {
   // console.log(attribute, index);
 
-  useEffect(() => {
-    !show && setHighlightedAttribute(-1);
-  }, [show]);
-
-  const { highlightedAttribute, setHighlightedAttribute, showWeights } =
-    useContext(HighlightedContext);
+  const {
+    highlightedAttribute,
+    setHighlightedAttribute,
+    showWeights,
+    currentWeights,
+    setCurrentWeights,
+  } = useContext(HighlightedContext);
 
   const { deleteAttribute, handleAttributeNameChange } = useAttributes();
 
   const [isEditing, setIsEditing] = useState(false);
   const [attributeName, setAttributeName] = useState<string>(attribute.name);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    !show && setHighlightedAttribute(-1);
+  }, [show]);
+
+  useEffect(() => {
+    highlightedAttribute === attribute.key &&
+      setCurrentWeights(attribute.levels.map((lvl) => lvl.weight));
+  }, [highlightedAttribute]);
 
   useEffect(() => {
     if (isEditing) {
@@ -71,6 +82,14 @@ export const Attribute: FC<PropsAttributeComponent> = ({
     } else {
       handleAttributeNameChange(attributeName, index);
     }
+  };
+
+  const handleWeightChange = (index: number, newWeight: number) => {
+    setCurrentWeights((prevWeights) => {
+      const newWeights = [...prevWeights];
+      newWeights[index] = newWeight;
+      return newWeights;
+    });
   };
 
   return (
@@ -190,15 +209,19 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           >
             {show && highlightedAttribute === attribute.key ? (
               <ul className={`${styles.weights}`}>
-                {attribute.weights.map((weight, index) => (
-                  <input
-                    className={styles.input}
+                {attribute.levels.map((lvl, index) => (
+                  <Weight
                     key={index}
-                    value={weight}
-                    onChange={() => {}}
-                  ></input>
+                    index={index}
+                    value={lvl.weight}
+                    onWeightChange={handleWeightChange}
+                  />
                 ))}
-                <li>{1.0}</li>
+                <li>
+                  {currentWeights
+                    .reduce((acc, weight) => acc + weight, 0)
+                    .toFixed(1)}
+                </li>
               </ul>
             ) : (
               ""

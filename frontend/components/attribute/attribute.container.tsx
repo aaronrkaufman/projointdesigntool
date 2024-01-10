@@ -6,14 +6,13 @@ import { HighlightedContext } from "../../context/highlighted";
 
 export interface ILevel {
   name: string;
-  weight?: number;
+  weight: number;
   id: number;
 }
 
 export interface IAttribute {
   name: string;
   key: number;
-  weights: number[];
   levels: ILevel[];
 }
 
@@ -94,7 +93,6 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
         attribute ?? {
           name: "",
           levels: [],
-          weights: [],
           key: 1,
         }
       }
