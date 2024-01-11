@@ -5,7 +5,7 @@ export const preproccessAttributes = (attributes: Attribute[]) => {
     // Combine the levels and weights into one array of objects
     const levels = attribute.levels.map((level, index) => ({
       name: level.name,
-      weight: attribute.weights[index] || 0, // Use the weight or default to 0 if not available
+      weight: level.weight || 0, // Use the weight or default to 0 if not available
     }));
 
     return {
