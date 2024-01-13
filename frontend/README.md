@@ -26,15 +26,15 @@ Currently implemented:
 - Adding levels locally
 - Changing the positions of attributes (Drag & Drop)
 - Changing the name of the document
-
-Needs to be implemented:
-
-- Adding new documents locally
-- Connect to backend
+- Adding new documents locally 
 - Editing the attribute (delete, change name)
 - Editing the levels (delete, change name)
 - Exporting (Qualtrics, Python)
-- Preview
+- Preview 
+- Restrictions 
+- Update weights
+
+
+Needs to be implemented:
+
 - Settings
-- Restrictions
-- Update weights (works, but some tweaks for correct work)
