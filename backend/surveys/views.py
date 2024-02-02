@@ -268,11 +268,9 @@ def _checkAttributes(attributes):
     return None
 
 
-
 def _cleanConstraints(constraints):
     # Drop any Null constraints
     return [constraint for constraint in constraints if constraint != []]
-
 
 
 def _createArrayOrProbString(attributes, isArray):
@@ -281,8 +279,6 @@ def _createArrayOrProbString(attributes, isArray):
         arrayString[attribute["name"]] = [level["name"] if isArray else level["weight"] for level in attribute["levels"]]
 
     return f"var {'featurearray' if isArray else 'probabilityarray'} = " + str(arrayString) + ";\n\n"
-
-
 
 
 def _sendFileResponse(file_path):
@@ -349,6 +345,63 @@ def _createFile(request):
 
         file_js.close()
     return filename
+
+
+def _createProfiles(profiles, attributes, restrictions):
+    profiles_list = []
+    for _ in range(profiles): 
+        restriction_broken = True
+        while restriction_broken:
+            levels = []
+            level_dict = {}
+            for attribute in attributes:
+                lvl = random.choice(attribute["levels"])["name"]
+                level_dict[attribute["name"]] = lvl
+                levels.append(lvl)
+            
+            # FORMAT: if att = lvl &&/|| ... then att =/!= lvl
+            # ["att1 = lvl && att2 = lvl then att3 != lvl"], [...]]
+            restriction_broken = False
+            # Check for restriction break
+            for restriction in restrictions:
+                # split if then statement
+                res = restriction.split("then")
+                if_strings = res[0].strip().split(" ")
+                then_statement = res[1].strip().split(" ")
+                
+                # and_statement: True - for only one statement || for multiple "AND" statements
+                # False: - for multiple "OR" statements
+                and_statement = True
+                if len(if_strings) > 3 and if_strings[3] == "||":
+                    and_statement = False
+                
+                if_statements = []
+                for i in range((len(if_strings) + 1) // 4):
+                    if_statements.append(if_strings[4 * i : 4 * i + 3])
+                
+                # if the "if statements" are true, then make check_then_statement True
+                check_then_statement = False
+                if and_statement:
+                    if all(lvl == level_dict[attr] for attr, _, lvl in if_statements):
+                        check_then_statement = True
+                else:
+                    if any(lvl == level_dict[attr] for attr, _, lvl in if_statements):
+                        check_then_statement = True
+                
+                
+                # if "then statement" is true, then restriction is broken
+                if check_then_statement:
+                    attr, op, lvl = then_statement
+                    if op == "==":
+                        if lvl != level_dict[attr]:
+                            restriction_broken = True
+                    else:
+                        if lvl == level_dict[attr]:
+                            restriction_broken = True
+                
+            if not restriction_broken:
+                profiles_list.append(levels)
+    return profiles_list
 
 
 @extend_schema(
@@ -559,24 +612,7 @@ def preview_survey(request):
         
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-
-        for _ in range(profiles): 
-            flag = True
-            while flag:
-                flag = False
-                answer_set = []
-                level_dict = {}
-                for attribute in attributes:
-                    lvl = random.choice(attribute["levels"])["name"]
-                    level_dict[attribute["name"]] = lvl
-                    answer_set.append(lvl)
-                # Check for restriction break
-                for restriction in restrictions:
-                    if restriction[2] == level_dict[restriction[0]] and restriction[5] == level_dict[restriction[3]]:
-                        flag = True
-                        break
-                if not flag:
-                    answer["previews"].append(answer_set)
+        answer["previews"] = _createProfiles(profiles, attributes, restrictions)
         answer["attributes"] = [attribute["name"] for attribute in attributes]
         return Response(answer, status=status.HTTP_201_CREATED)
     except:
@@ -640,32 +676,12 @@ def preview_csv(request):
         
         previews = []
         CSV_FILES_NUM = 500
-        
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
 
         for i in range(CSV_FILES_NUM):
-            preview = [str(i + 1)]
-            for _ in range(profiles): 
-                flag = True
-                while flag:
-                    flag = False
-                    levels = []
-                    level_dict = {}
-                    for attribute in attributes:
-                        lvl = random.choice(attribute["levels"])["name"]
-                        level_dict[attribute["name"]] = lvl
-                        levels.append(lvl)
-                    
-                    # Check for restriction break
-                    for restriction in restrictions:
-                        if restriction[2] == level_dict[restriction[0]] and restriction[5] == level_dict[restriction[3]]:
-                            flag = True
-                            break
-                    if not flag:
-                        preview += levels
-            previews.append(preview)
-
+            previews.append([i + 1, *[char for profile in _createProfiles(profiles, attributes, restrictions) for char in profile]])
+        
         with open("profiles.csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows(previews)

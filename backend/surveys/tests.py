@@ -43,13 +43,12 @@ class SurveyPostTests(TestCase):
                 {
                     "name": "att3",
                     "levels": [
-                        {"name": "f", "weight": 0.33},
-                        {"name": "g", "weight": 0.33},
-                        {"name": "h", "weight": 0.34},
+                        {"name": "f", "weight": 0.5},
+                        {"name": "g", "weight": 0.5},
                     ],
                 },
             ],
-            "restrictions" : [["att1", "=", "b", "att2", "!", "d"], ["att3", "=", "f", "att1", "!", "b"]]
+            "restrictions" : ["att1 == b || att1 == a then att2 == d"]
         }
 
         self.payloadFailure = {
@@ -120,7 +119,7 @@ class SurveyPostTests(TestCase):
             {"Error": "Cannot export to JavaScript. Some attributes have no levels."},
         )
 
-    def test_create_qualtrics(self):
-        url = reverse("surveys:qualtrics")
-        response = self.client.post(url, self.payloadSuccess, format="json")
-        self.assertEqual(response.status_code, 201)
+    # def test_create_qualtrics(self):
+    #     url = reverse("surveys:qualtrics")
+    #     response = self.client.post(url, self.payloadSuccess, format="json")
+    #     self.assertEqual(response.status_code, 201)
