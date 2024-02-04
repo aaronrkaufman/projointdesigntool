@@ -354,9 +354,7 @@ def _createFile(request):
                     else:
                         final_order.append(attributes_random[-1])
                         attributes_random.pop()
-                    print(i)
-                    
-                print("Final order:", final_order)
+
                 file_js.write("featureArrayKeys = " + str(final_order)) 
             file_js.write(temp_2)
         else:
