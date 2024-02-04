@@ -48,7 +48,8 @@ class SurveyPostTests(TestCase):
                     ],
                 },
             ],
-            "restrictions" : ["att1 == b || att1 == a then att2 == d"]
+            "restrictions" : ["att1 == b || att1 == a then att2 == d"],
+            "advanced" : {"att1":0, "att2":0, "att3":1}
         }
 
         self.payloadFailure = {
@@ -118,6 +119,15 @@ class SurveyPostTests(TestCase):
             response.json(),
             {"Error": "Cannot export to JavaScript. Some attributes have no levels."},
         )
+        
+    # def test_qsf_to_attributes_success(self):
+    #    qsf_path = "./test.qf"
+    #    with open(qsf_path, 'r') as qsf:
+    #        qsf_content = qsf.read()
+    #    url = reverse("surveys:qsf_to_attribute")
+    #    payload = {'qsf_content': qsf_content}
+    #    response = self.client.post(url, payload, format="json")
+    #    self.assertEqual(response.status_code, 201)
 
     # def test_create_qualtrics(self):
     #     url = reverse("surveys:qualtrics")

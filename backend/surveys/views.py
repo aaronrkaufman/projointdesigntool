@@ -70,7 +70,7 @@ var featureArrayKeys = Object.keys(featurearray);
 
 """
 
-temp_2 = """// Re-randomize the featurearray
+temp_2_randomize = """// Re-randomize the featurearray
 
 // Place the featurearray keys into a new array
 var featureArrayKeys = Object.keys(featurearray);
@@ -91,8 +91,9 @@ if (attrconstraintarray.length != 0){
 
 // Re-randomize the featurearray keys
 featureArrayKeys = shuffleArray(featureArrayKeys);
+"""
 
-// Re-insert the non-free attributes constrained by attrconstraintarray
+temp_2 =  """// Re-insert the non-free attributes constrained by attrconstraintarray
 if (attrconstraintarray.length != 0){
   for (const constraints of attrconstraintarray){
     if (constraints.length > 1){
@@ -309,6 +310,7 @@ def _createFile(request):
     randomize = request.data.get("randomize", 1)
     noDuplicates = request.data.get("noDuplicates", 0)
     random = request.data.get("random", 0)
+    advanced = request.data.get("advanced", {})
 
     resp = _checkAttributes(attributes)
     if resp:
@@ -336,6 +338,26 @@ def _createFile(request):
 
         if randomize == 1:
             file_js.write("var attrconstraintarray = "  + str(constraints) + ";\n\n")
+            file_js.write(temp_2_randomize)
+            if len(advanced) != 0: # Advanced randomization option (i.e. political party always first)
+                attributes_order = [key for key, value in advanced.items() if value != 0]
+                attributes_random = [key for key, value in advanced.items() if value == 0]
+                #random.shuffle(attributes_random)
+                
+                attributes_order.sort(key=lambda x: x[1])
+                final_order = []
+
+                for i in range(1, len(advanced)+1):
+                    if i in advanced.values():
+                        final_order.append(attributes_order[0])
+                        attributes_order.pop(0)
+                    else:
+                        final_order.append(attributes_random[-1])
+                        attributes_random.pop()
+                    print(i)
+                    
+                print("Final order:", final_order)
+                file_js.write("featureArrayKeys = " + str(final_order)) 
             file_js.write(temp_2)
         else:
             file_js.write(temp_2_star)
@@ -902,7 +924,7 @@ def create_qualtrics(request):
     if resp:
         return resp
     jsname = _createFile(request)
-
+    js_py = json.dumps(request.data)
     with open(jsname, "r", encoding="utf-8") as file_js:
         js_text = file_js.read()
     js_text = "Qualtrics.SurveyEngine.addOnload(function(){" + js_text
@@ -911,6 +933,7 @@ def create_qualtrics(request):
                \n/*Place your JavaScript here to run when the page is fully displayed*/\
                 });\nQualtrics.SurveyEngine.addOnUnload(function()\
                 {\n/*Place your JavaScript here to run when the page is unloaded*/});"
+    js_text = "//" + js_py + "\n"+ js_text
     user_token = "ZOxp1TYLxPH8dlBs1FogWM3UNdKsLTHVmUAB1Rfm"  # FIGURE OUT BETTER WAY TO STORE THIS
     created = __CreateSurvey(
         filename, user_token, tasks, len(attributes), profiles, "", js_text, duplicates, repeatFlip
@@ -918,3 +941,81 @@ def create_qualtrics(request):
     
     __DownloadSurvey(created, user_token)
     return _sendFileResponse("survey.qsf")
+
+
+@extend_schema(
+    request=None,
+    responses={
+        201: OpenApiResponse(
+            response="application/octet-stream",
+            description="Reversing QSF File into Attribute JSON",
+            examples=[
+                OpenApiExample(
+                    name="ReverseQualtricsExample",
+                    description="Successful Reversing QSF File into Attribute JSON",
+                    value={
+                        "attributes": [
+                            {
+                                "name": "att1",
+                                "levels": [
+                                    {"name": "b", "weight": 0.5},
+                                    {"name": "a", "weight": 0.5},
+                                ],
+                            },
+                            {
+                                "name": "att2",
+                                "levels": [
+                                    {"name": "d", "weight": 0.5},
+                                    {"name": "e", "weight": 0.5},
+                                ],
+                            },
+                            {
+                                "name": "att3",
+                                "levels": [
+                                    {"name": "f", "weight": 0.5},
+                                    {"name": "g", "weight": 0.5},
+                                ],
+                            },
+                        ],
+                        "restrictions" : ["att1 == b || att1 == a then att2 == d"]   
+
+                    }
+                )
+            ]
+        ),
+        400: OpenApiResponse(
+            response="application/octet-stream",
+            description="Error in Reversing QSF File into Attribute JSON",
+            examples=[
+                OpenApiExample(
+                    name="ReverseQualtricsErrorExample",
+                    summary="Bad Request Response",
+                    description="This response is returned when request to reverse QSF File is unsuccessful",
+                    value={
+                        "error": "Invalid QSF provided.",
+                        "details": "QSF is invalid. Make sure QSF from survey created from projoint is used."
+                    },
+                )
+            ]
+        )
+}, 
+    description="Reversing QSF File into Attribute JSON",
+)
+@api_view(["POST"])
+def qsf_to_attributes(request):
+    qsf_data = json.loads(request)
+    questions = qsf_data.get("SurveyElements")
+    flag = 1
+    for i in questions:
+        if i.get("PrimaryAttribute") == "QID1":
+            payload = i.get("Payload", {})
+            js = payload.get("QuestionJS")
+            attribute_comment = js.split("\n")[0]
+            if "\\" in attribute_comment:
+                attribute_comment.replace("\\","")
+                attribute_data = json.loads(attribute_comment)
+                flag = 0
+            break
+    if flag: # If QSF invalid, will return empty json
+        attribute_data = {}
+    return attribute_data
