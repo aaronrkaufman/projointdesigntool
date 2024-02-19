@@ -48,7 +48,8 @@ class SurveyPostTests(TestCase):
                     ],
                 },
             ],
-            "restrictions" : ["att1 == b || att1 == a then att2 == d"],
+            "restrictions" : ["att1;==;b;then;att2;==;d"],
+            "cross_restrictions" : ["prof1;att2;!=;d;then;prof2;att3;==;f"],
             "advanced" : {"att1":0, "att2":0, "att3":1}
         }
 

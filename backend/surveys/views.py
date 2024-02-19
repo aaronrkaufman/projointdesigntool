@@ -367,60 +367,88 @@ def _createFile(request):
     return filename
 
 
-def _createProfiles(profiles, attributes, restrictions):
-    profiles_list = []
-    for _ in range(profiles): 
+def _checkCrossProfileRestrictions(profiles_list, cross_restrictions):
+    # FORMAT -> prof1;att1;==;b;then;prof2;att2;==;d"
+    for restriction in cross_restrictions:
+        # split if then statement
+        res = restriction.split("then")
+        if_prof, if_attr, if_op, if_lvl, _ = res[0].strip().split(";")
+        _, then_prof, then_attr, then_op, then_lvl = res[1].strip().split(";")
+        
+        # Check if both ==/==, then as long as there is an isntance of this case, restriction is not broken
         restriction_broken = True
-        while restriction_broken:
-            levels = []
-            level_dict = {}
-            for attribute in attributes:
-                lvl = random.choice(attribute["levels"])["name"]
-                level_dict[attribute["name"]] = lvl
-                levels.append(lvl)
-            
-            # FORMAT: if att = lvl &&/|| ... then att =/!= lvl
-            # ["att1 = lvl && att2 = lvl then att3 != lvl"], [...]]
-            restriction_broken = False
-            # Check for restriction break
-            for restriction in restrictions:
-                # split if then statement
-                res = restriction.split("then")
-                if_strings = res[0].strip().split(" ")
-                then_statement = res[1].strip().split(" ")
-                
-                # and_statement: True - for only one statement || for multiple "AND" statements
-                # False: - for multiple "OR" statements
-                and_statement = True
-                if len(if_strings) > 3 and if_strings[3] == "||":
-                    and_statement = False
-                
-                if_statements = []
-                for i in range((len(if_strings) + 1) // 4):
-                    if_statements.append(if_strings[4 * i : 4 * i + 3])
-                
-                # if the "if statements" are true, then make check_then_statement True
-                check_then_statement = False
-                if and_statement:
-                    if all(lvl == level_dict[attr] for attr, _, lvl in if_statements):
-                        check_then_statement = True
-                else:
-                    if any(lvl == level_dict[attr] for attr, _, lvl in if_statements):
-                        check_then_statement = True
-                
-                
-                # if "then statement" is true, then restriction is broken
-                if check_then_statement:
-                    attr, op, lvl = then_statement
-                    if op == "==":
-                        if lvl != level_dict[attr]:
-                            restriction_broken = True
+        if if_op == "==" and then_op == "==":
+            if if_lvl in profiles_list[0] and then_lvl in profiles_list[1]:
+                restriction_broken = False
+            if if_lvl in profiles_list[1] and then_lvl in profiles_list[0]:
+                restriction_broken = False
+            return True if restriction_broken else False
+    
+        # Check other cases, such as ==/!=, !=/==
+        for i in range(2):
+            broken_profiles_matched = 0
+            if if_lvl in profiles_list[i] and if_op == "==" or if_lvl not in profiles_list[i] and if_op == "!=": 
+                broken_profiles_matched += 1
+            if then_lvl in profiles_list[1 - i] and then_op == "!=" or then_lvl not in profiles_list[1 - i] and then_op == "==": 
+                broken_profiles_matched += 1
+            if broken_profiles_matched == 2:
+                return True
+    return False
+
+def _createProfiles(profiles, attributes, restrictions, cross_restrictions):
+    cross_profile_restriction_broken = True
+    while cross_profile_restriction_broken:
+        profiles_list = []
+        for _ in range(profiles): 
+            restriction_broken = True
+            while restriction_broken:
+                levels = []
+                level_dict = {}
+                for attribute in attributes:
+                    lvl = random.choice(attribute["levels"])["name"]
+                    level_dict[attribute["name"]] = lvl
+                    levels.append(lvl)
+                # FORMAT: if att = lvl &&/|| ... then att =/!= lvl
+                # "att1;==;b;||;att1;==;a;then;att2;==;d"
+                restriction_broken = False
+                # Check for restriction break
+                for restriction in restrictions:
+                    # split if then statement
+                    res = restriction.split("then")
+                    if_strings = res[0].strip().split(";")
+                    if_strings.pop() # remove empty string
+                    then_statement = res[1].strip().split(";")
+                    then_statement.pop(0) # remove empty string
+                    # and_statement: True - for only one statement || for multiple "AND" statements
+                    # False: - for multiple "OR" statements
+                    and_statement = True
+                    if len(if_strings) > 3 and if_strings[3] == "||":
+                        and_statement = False
+                    
+                    if_statements = []
+                    for i in range((len(if_strings) + 1) // 4):
+                        if_statements.append(if_strings[4 * i : 4 * i + 3])
+                    # if the "if statements" are true, then make check_then_statement True
+                    check_then_statement = False
+                    if and_statement:
+                        if all(lvl == level_dict[attr] for attr, _, lvl in if_statements):
+                            check_then_statement = True
                     else:
-                        if lvl == level_dict[attr]:
-                            restriction_broken = True
-                
-            if not restriction_broken:
-                profiles_list.append(levels)
+                        if any(lvl == level_dict[attr] for attr, _, lvl in if_statements):
+                            check_then_statement = True
+                    
+                    # if "then statement" is true, then restriction is broken
+                    if check_then_statement:
+                        attr, op, lvl = then_statement
+                        if op == "==":
+                            if lvl != level_dict[attr]:
+                                restriction_broken = True
+                        else:
+                            if lvl == level_dict[attr]:
+                                restriction_broken = True
+                if not restriction_broken:
+                    profiles_list.append(levels)
+        cross_profile_restriction_broken = _checkCrossProfileRestrictions(profiles_list, cross_restrictions)
     return profiles_list
 
 
@@ -628,11 +656,12 @@ def preview_survey(request):
         answer = {"attributes": [], "previews": []}
         attributes = request.data.get("attributes")
         restrictions = request.data.get("restrictions", [])
+        cross_restrictions = request.data.get("cross_restrictions", [])
         profiles = request.data.get("profiles", 2)
         
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-        answer["previews"] = _createProfiles(profiles, attributes, restrictions)
+        answer["previews"] = _createProfiles(profiles, attributes, restrictions, cross_restrictions)
         answer["attributes"] = [attribute["name"] for attribute in attributes]
         return Response(answer, status=status.HTTP_201_CREATED)
     except:
@@ -692,15 +721,15 @@ def preview_csv(request):
     try:
         attributes = request.data.get("attributes")
         restrictions = request.data.get("restrictions", [])
+        cross_restrictions = request.data.get("cross_restrictions", [])
         profiles = request.data.get("profiles", 2)
         
         previews = []
         CSV_FILES_NUM = 500
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-
         for i in range(CSV_FILES_NUM):
-            previews.append([i + 1, *[char for profile in _createProfiles(profiles, attributes, restrictions) for char in profile]])
+            previews.append([i + 1, *[char for profile in _createProfiles(profiles, attributes, restrictions, cross_restrictions) for char in profile]])
         
         with open("profiles.csv", "w") as file:
             writer = csv.writer(file)
