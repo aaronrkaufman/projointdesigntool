@@ -1,3 +1,4 @@
+import { FileIcon, ThreeDots } from "../ui/icons";
 import styles from "./documents.module.css";
 import Link from "next/link";
 export interface IDocument {
@@ -17,7 +18,17 @@ export const Document = ({ name, active, id }: IDoc) => {
     <li>
       <Link href={`/documents/${encodedName}`}>
         <div className={`${active ? styles.active : ""} ${styles.container}`}>
-          <p>{name}</p>
+          <div className={styles.file_top}>
+            <div className={styles.file}>
+              <FileIcon
+                stroke={`${active ? "var(--dark-blue-h)" : "var(--blue-p)"}`}
+              />
+              <p>{name}</p>
+            </div>
+            <div className={`${active ? "" : styles.noshow} ${styles.dots}`}>
+              <ThreeDots />
+            </div>
+          </div>
           {active && (
             <ul className={styles.helpers}>
               <Link href={`/documents/${encodedName}/preview`}>

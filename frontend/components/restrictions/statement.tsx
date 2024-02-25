@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAttributes } from "../../context/attributes_context";
 import styles from "./restrictions.module.css";
 import CustomDropdown from "./dropdown";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import { StatementProps } from "./restrictions";
 
 interface IStatement {

@@ -1,8 +1,8 @@
 .sidebar {
-  width: 20rem;
+  width: 17.5rem;
   height: calc(100vh);
-  background-color: var(--whiteClr);
-  padding: 1rem 2rem;
+  background-color: var(--white);
+  padding: 1rem;
   position: fixed;
 }
 
@@ -10,6 +10,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.5rem;
+}
+
+.top h3 {
+  color: var(--dark-blue-h);
+  font-weight: 500;
+  font-size: 1.25rem;
 }
 
 .top button {
@@ -27,4 +34,15 @@
 .top button:hover {
   background-color: var(--lineClr);
   color: var(--whiteClr);
+}
+
+.line {
+  height: 2px;
+  display: block;
+  width: 2rem;
+  min-height: 2px;
+  min-width: 2rem;
+  margin: 0.5rem;
+
+  background-color: var(--line-gray);
 }

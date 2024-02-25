@@ -1,6 +1,5 @@
 "use client";
 
-import { Header } from "../../components/header";
 import styles from "../../styles/page.module.css";
 import { Sidebar } from "../../components/sidebar";
 import { SurveyContainer } from "../../components/survey/survey.container";
@@ -17,11 +16,8 @@ import { GetServerSideProps } from "next";
 // }
 
 function DocumentsPage() {
-
   return (
     <>
-      <Header></Header>
-
       <main className={styles.main}>
         <Sidebar active={"documentName"} />
         <SurveyContainer />

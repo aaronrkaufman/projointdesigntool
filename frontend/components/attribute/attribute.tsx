@@ -13,7 +13,7 @@ import styles from "../survey/survey.module.css";
 import { IAttribute } from "./attribute.container";
 import { HighlightedContext } from "../../context/highlighted";
 import { Draggable, Droppable } from "react-beautiful-dnd";
-import DragButton from "../drag_button";
+import DragButton from "../ui/drag_button";
 import { Level } from "../level/level";
 import { useAttributes } from "../../context/attributes_context";
 import { Weight } from "../level/weight";

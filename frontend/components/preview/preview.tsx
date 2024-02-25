@@ -1,7 +1,7 @@
 // CarSelection.tsx
 import React, { useState } from "react";
 import styles from "./preview.module.css"; // Make sure to create this CSS module
-import { Button } from "../button";
+import { Button } from "../ui/button";
 
 export interface IPreview {
   attributes: string[];

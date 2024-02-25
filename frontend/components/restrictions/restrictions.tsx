@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import styles from "./restrictions.module.css";
 import { Statement } from "./statement";
 import { useAttributes } from "../../context/attributes_context";
@@ -160,9 +160,9 @@ export const Restrictions = () => {
               statement={ifStatements[0]}
               index={0}
               changeStatement={changeIfStatement}
-              // addStatement={addIfStatement}
+              addStatement={addIfStatement}
             />
-            {/* {ifStatements.map((item, index) => {
+            {ifStatements.map((item, index) => {
               if (index === 0) return "";
               return (
                 <Statement
@@ -172,14 +172,14 @@ export const Restrictions = () => {
                   changeStatement={changeIfStatement}
                 />
               );
-            })} */}
+            })}
             <Statement
               statement={elseStatements[0]}
               index={0}
               changeStatement={changeElseStatement}
-              // addStatement={addElseStatement}
+              addStatement={addElseStatement}
             />
-            {/* {elseStatements.map((item, index) => {
+            {elseStatements.map((item, index) => {
               if (index === 0) return "";
               return (
                 <Statement
@@ -189,7 +189,7 @@ export const Restrictions = () => {
                   index={index}
                 />
               );
-            })} */}
+            })}
           </div>
           <Button
             text="Add a restriction statement"

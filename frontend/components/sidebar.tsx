@@ -7,6 +7,7 @@ import { IDocument } from "./documents/document";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 import { useAttributes } from "../context/attributes_context";
+import { FileAdd } from "./ui/icons";
 
 export const Sidebar = ({ active }: { active: string }) => {
   const [documents, setDocuments] = useState<IDocument[]>([]);
@@ -53,9 +54,11 @@ export const Sidebar = ({ active }: { active: string }) => {
   return (
     <div className={styles.sidebar}>
       <div className={styles.top}>
-        <h2>Documents</h2>
-        <button onClick={handleAddDoc}>+</button>
+        <h3>Projoint</h3>
+        {/* <button onClick={handleAddDoc}>+</button> */}
+        <FileAdd />
       </div>
+      <span className={styles.line}></span>
       <Documents documents={documents} active={active} />
     </div>
   );

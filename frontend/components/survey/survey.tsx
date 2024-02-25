@@ -2,9 +2,8 @@
 import React, { FC, useContext, useEffect, useRef, useState } from "react";
 import styles from "./survey.module.css";
 import { AddAttribute } from "./add_attribute";
-import { IAttribute } from "../attribute/attribute.container";
 import { AttributeContainer } from "../attribute/attribute.container";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import { HighlightedContext } from "../../context/highlighted";
 import { useAttributes } from "../../context/attributes_context";
 import { DocumentContext } from "../../context/document_context";
@@ -89,69 +88,71 @@ export const Survey: FC = () => {
 
   return (
     <section className={styles.survey}>
-      <div className={styles.top}>
-        {isEditing ? (
-          <input
-            ref={inputRef}
-            value={docName}
-            style={{ width: `${(docName.length + 1) * 14}px` }}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            className={styles.editableInput}
-            // additional styling or attributes
-          />
-        ) : (
-          <h2
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            {docName}
-          </h2>
-        )}
-        {highlightedAttribute === -1 ? (
-          ""
-        ) : (
-          <Button
-            text={showWeights ? "Save weights" : "Edit weights"}
-            onClick={
-              showWeights
-                ? () => saveWeights()
-                : () => setShowWeights(!showWeights)
-            }
-          ></Button>
-        )}
-        <ExportDropdown />
-        {/* <CustomDropdown /> */}
-        <div>Last edited: {getTimeElapsed(lastEdited)}</div>
+      <div className={styles.surveyContainer}>
+        <div className={styles.top}>
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              value={docName}
+              style={{ width: `${(docName.length + 1) * 14}px` }}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              className={styles.editableInput}
+              // additional styling or attributes
+            />
+          ) : (
+            <h2
+              onClick={() => {
+                setIsEditing(true);
+              }}
+            >
+              {docName}
+            </h2>
+          )}
+          {highlightedAttribute === -1 ? (
+            ""
+          ) : (
+            <Button
+              text={showWeights ? "Save weights" : "Edit weights"}
+              onClick={
+                showWeights
+                  ? () => saveWeights()
+                  : () => setShowWeights(!showWeights)
+              }
+            ></Button>
+          )}
+          <ExportDropdown />
+          {/* <CustomDropdown /> */}
+          <div>Last edited: {getTimeElapsed(lastEdited)}</div>
+        </div>
+        <Droppable droppableId="droppable-attributes" type="group">
+          {(provided) => (
+            <ul
+              className={styles.attributes}
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {attributes.map((attribute, index) => (
+                <AttributeContainer
+                  key={attribute.key}
+                  attribute={attribute}
+                  index={index}
+                  addLevel={addLevelToAttribute}
+                />
+              ))}
+              {provided.placeholder}
+              {isCreatingAttribute && (
+                <AttributeContainer
+                  isCreator
+                  addNewAttribute={addNewAttribute}
+                  cancelNewAttribute={cancelNewAttribute}
+                />
+              )}
+            </ul>
+          )}
+        </Droppable>
+        <AddAttribute onCreate={handleCreateAttribute} />
       </div>
-      <Droppable droppableId="droppable-attributes" type="group">
-        {(provided) => (
-          <ul
-            className={styles.attributes}
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-          >
-            {attributes.map((attribute, index) => (
-              <AttributeContainer
-                key={attribute.key}
-                attribute={attribute}
-                index={index}
-                addLevel={addLevelToAttribute}
-              />
-            ))}
-            {provided.placeholder}
-            {isCreatingAttribute && (
-              <AttributeContainer
-                isCreator
-                addNewAttribute={addNewAttribute}
-                cancelNewAttribute={cancelNewAttribute}
-              />
-            )}
-          </ul>
-        )}
-      </Droppable>
-      <AddAttribute onCreate={handleCreateAttribute} />
     </section>
   );
 };

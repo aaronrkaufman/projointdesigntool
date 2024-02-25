@@ -1,13 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 :root {
-  --bgClr: #f1f2f5;
-  --txtClr: #000000;
-  --whiteClr: #ffffff;
-  --dropdownClr: #415a77;
-  --headerClr: #3375b1;
-  --addClr: #767474;
-  --activeClr: #d1eff7;
-  --lineClr: #50b1d4;
+  --gray: #f1f2f5;
+  --white: #ffffff;
+  --blue: #0095ff;
+  --dark-blue-h: #103758;
+  --blue-p: #778c9f;
+  --active-blue: #d9efff;
+  --border-gray: #e8e9ef;
+  --line-gray: #c3ccd5;
+  --dark-blue-p: #4e6b83;
+  --red: #cd3737;
+  --light-blue: #f6f9fb;
+  --button: #4281db;
 }
 
 * {
@@ -22,7 +26,7 @@ html,
 body {
   max-width: 100vw;
   /* overflow-x: hidden; */
-  color: var(--txtClr);
+  color: var(--blue-p);
 }
 
 html {
@@ -36,7 +40,7 @@ body {
 }
 
 body {
-  background-color: var(--bgClr);
+  background-color: var(--gray);
 }
 
 a {
@@ -52,7 +56,7 @@ a {
 
 h2 {
   font-size: 1.5rem;
-  color: var(--txtClr);
+  color: var(--dark-blue-h);
 }
 
 ul {
