@@ -1,6 +1,7 @@
-import { FileIcon, ThreeDots } from "../ui/icons";
+import { FileIcon, LightTooltip, ThreeDots } from "../ui/icons";
 import styles from "./documents.module.css";
 import Link from "next/link";
+
 export interface IDocument {
   name: string;
   key: number | string;
@@ -13,7 +14,7 @@ interface IDoc extends IDocument {
 
 export const Document = ({ name, active, id }: IDoc) => {
   const encodedName = encodeURIComponent(id);
-
+  console.log(name);
   return (
     <li>
       <Link href={`/documents/${encodedName}`}>
@@ -26,7 +27,14 @@ export const Document = ({ name, active, id }: IDoc) => {
               <p>{name}</p>
             </div>
             <div className={`${active ? "" : styles.noshow} ${styles.dots}`}>
-              <ThreeDots />
+              <LightTooltip
+                disableInteractive
+                title="More"
+                arrow
+                placement="top"
+              >
+                <ThreeDots />
+              </LightTooltip>
             </div>
           </div>
           {active && (

@@ -4,14 +4,13 @@
 }
 
 .container {
-  /* font-weight: bold; */
-  /* margin-right: 2rem; */
   padding: 1rem 0.5rem;
   border-radius: 0.25rem;
 }
 
-.container p:hover {
+.container:hover {
   cursor: pointer;
+  background-color: var(--light-blue);
 }
 
 .list > li > button {
@@ -21,7 +20,7 @@
 
 .active {
   color: var(--dark-blue-h);
-  background-color: var(--active-blue);
+  background-color: var(--active-blue) !important; 
 }
 
 .helpers {
@@ -53,6 +52,7 @@
 .dots {
   display: flex;
   align-items: center;
+  height: 20px;
 }
 
 .noshow {
