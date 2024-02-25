@@ -1,4 +1,4 @@
-import { SVGProps, forwardRef } from "react";
+import { forwardRef } from "react";
 import {
   ClickAwayListener,
   Grow,
@@ -55,7 +55,10 @@ export const FileIcon = ({ stroke }: { stroke: string }) => {
   );
 };
 
-export const ThreeDots = forwardRef<HTMLDivElement>((props, ref) => {
+export const ThreeDots = forwardRef<
+  HTMLDivElement,
+  { onExport?: () => void; onDelete?: () => void }
+>(({ onExport, onDelete, ...props }, ref) => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
@@ -83,6 +86,16 @@ export const ThreeDots = forwardRef<HTMLDivElement>((props, ref) => {
     }
   }
 
+  const handleExport = () => {
+    handleToggle();
+    onExport && onExport();
+  };
+
+  const handleDelete = () => {
+    handleToggle();
+    onDelete && onDelete();
+  };
+
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = React.useRef(open);
   React.useEffect(() => {
@@ -105,35 +118,7 @@ export const ThreeDots = forwardRef<HTMLDivElement>((props, ref) => {
         {...props}
         onClick={handleToggle}
       >
-        <svg
-          width="16"
-          height="4"
-          viewBox="0 0 16 4"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M13 2C13 2.55228 13.4477 3 14 3C14.5523 3 15 2.55228 15 2C15 1.44772 14.5523 1 14 1C13.4477 1 13 1.44772 13 2Z"
-            stroke="#778C9F"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M7 2C7 2.55228 7.44772 3 8 3C8.55228 3 9 2.55228 9 2C9 1.44772 8.55228 1 8 1C7.44772 1 7 1.44772 7 2Z"
-            stroke="#778C9F"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M1 2C1 2.55228 1.44772 3 2 3C2.55228 3 3 2.55228 3 2C3 1.44772 2.55228 1 2 1C1.44772 1 1 1.44772 1 2Z"
-            stroke="#778C9F"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <ThreeDotsIcon />
       </div>
       <Popper
         open={open}
@@ -186,7 +171,7 @@ export const ThreeDots = forwardRef<HTMLDivElement>((props, ref) => {
                       fontWeight: "medium",
                       color: "var(--red)",
                     }}
-                    onClick={handleClose}
+                    onClick={handleDelete}
                   >
                     <DeleteIcon /> <p>Delete file</p>
                   </MenuItem>
@@ -248,6 +233,40 @@ export const DeleteIcon = () => {
       <path
         d="M8.77778 6.94444V12.3889M5.66667 6.94444V12.3889M2.55556 3.83333V13.0111C2.55556 13.8823 2.55556 14.3176 2.7251 14.6504C2.87424 14.943 3.11203 15.1815 3.40473 15.3306C3.73716 15.5 4.17255 15.5 5.04204 15.5H9.4024C10.2719 15.5 10.7067 15.5 11.0391 15.3306C11.3318 15.1815 11.5704 14.943 11.7195 14.6504C11.8889 14.3179 11.8889 13.883 11.8889 13.0135V3.83333M2.55556 3.83333H4.11111M2.55556 3.83333H1M4.11111 3.83333H10.3333M4.11111 3.83333C4.11111 3.10854 4.11111 2.74632 4.22952 2.46045C4.3874 2.07929 4.69003 1.77629 5.07118 1.61841C5.35705 1.5 5.71965 1.5 6.44444 1.5H8C8.7248 1.5 9.0872 1.5 9.37306 1.61841C9.75422 1.77629 10.057 2.07929 10.2148 2.46045C10.3333 2.74631 10.3333 3.10854 10.3333 3.83333M10.3333 3.83333H11.8889M11.8889 3.83333H13.4444"
         stroke="#CD3737"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+export const ThreeDotsIcon = () => {
+  return (
+    <svg
+      width="16"
+      height="4"
+      viewBox="0 0 16 4"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M13 2C13 2.55228 13.4477 3 14 3C14.5523 3 15 2.55228 15 2C15 1.44772 14.5523 1 14 1C13.4477 1 13 1.44772 13 2Z"
+        stroke="#778C9F"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M7 2C7 2.55228 7.44772 3 8 3C8.55228 3 9 2.55228 9 2C9 1.44772 8.55228 1 8 1C7.44772 1 7 1.44772 7 2Z"
+        stroke="#778C9F"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M1 2C1 2.55228 1.44772 3 2 3C2.55228 3 3 2.55228 3 2C3 1.44772 2.55228 1 2 1C1.44772 1 1 1.44772 1 2Z"
+        stroke="#778C9F"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

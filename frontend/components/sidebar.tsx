@@ -47,7 +47,7 @@ export const Sidebar = ({ active }: { active: string }) => {
       name: "Untitled",
     };
     localStorage.setItem(`attributes-${uniqueId}`, JSON.stringify(dataToSave));
-    setStorageChanged(1);
+    setStorageChanged((prev) => prev + 1);
     router.push(`/documents/${encodeURIComponent(uniqueId)}`);
   };
 

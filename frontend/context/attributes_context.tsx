@@ -39,7 +39,7 @@ interface AttributeContextType {
   handleAttributeNameChange: (newName: string, index: number) => void;
   setEdited: (edited: boolean) => void;
   storageChanged: number;
-  setStorageChanged: (storageChanged: number) => void;
+  setStorageChanged: React.Dispatch<React.SetStateAction<number>>;
   // restrictions: string[];
   restrictions: string[][][];
   addRestrictionToAttribute: (newRestriction: string[][]) => void;

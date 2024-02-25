@@ -1,3 +1,5 @@
+import { useRouter } from "next/router";
+import { useAttributes } from "../../context/attributes_context";
 import { FileIcon, LightTooltip, ThreeDots } from "../ui/icons";
 import styles from "./documents.module.css";
 import Link from "next/link";
@@ -14,7 +16,16 @@ interface IDoc extends IDocument {
 
 export const Document = ({ name, active, id }: IDoc) => {
   const encodedName = encodeURIComponent(id);
-  console.log(name);
+
+  const { setStorageChanged } = useAttributes();
+  const router = useRouter();
+
+  const handleDelete = () => {
+    console.log(`attributes-${id}`);
+    localStorage.removeItem(`attributes-${id}`);
+    setStorageChanged((prev) => prev + 1);
+    router.push(`/documents/document}`);
+  };
   return (
     <li>
       <Link href={`/documents/${encodedName}`}>
@@ -33,7 +44,7 @@ export const Document = ({ name, active, id }: IDoc) => {
                 arrow
                 placement="top"
               >
-                <ThreeDots />
+                <ThreeDots onDelete={handleDelete} />
               </LightTooltip>
             </div>
           </div>
