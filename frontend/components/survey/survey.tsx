@@ -32,12 +32,14 @@ export const Survey: FC = () => {
   const {
     setEdited,
     attributes,
+    instructions,
     addLevelToAttribute,
     isCreatingAttribute,
     addNewAttribute,
     cancelNewAttribute,
     handleCreateAttribute,
     updateWeight,
+    handleInstructions,
   } = useAttributes();
 
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
@@ -86,6 +88,13 @@ export const Survey: FC = () => {
     }
   };
 
+  const [description, setDescription] = useState<string>(
+    instructions.description
+  );
+  const [instructs, setInstructions] = useState<string>(
+    instructions.instructions
+  );
+
   return (
     <section className={styles.survey}>
       <div className={styles.surveyContainer}>
@@ -125,6 +134,17 @@ export const Survey: FC = () => {
           {/* <CustomDropdown /> */}
           <div>Last edited: {getTimeElapsed(lastEdited)}</div>
         </div>
+        <div>
+          {/* <p>Description</p> */}
+          <input
+            className={`${styles.input} ${styles.inputField}`}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            onBlur={() => handleInstructions(description, "description")}
+            placeholder="Enter your description here! Example: 'Here are two porfiles A and B'"
+          ></input>
+        </div>
+
         <Droppable droppableId="droppable-attributes" type="group">
           {(provided) => (
             <ul
@@ -151,7 +171,18 @@ export const Survey: FC = () => {
             </ul>
           )}
         </Droppable>
-        <AddAttribute onCreate={handleCreateAttribute} />
+        <AddAttribute onCreate={() => addNewAttribute("Untitled")} />
+
+        <div>
+          {/* <p>Instructions</p> */}
+          <input
+            className={`${styles.input} ${styles.inputField}`}
+            value={instructs}
+            onChange={(e) => setInstructions(e.target.value)}
+            onBlur={() => handleInstructions(instructs, "instructions")}
+            placeholder="Enter your instructions here! Example: 'Do you prefer A or B?'"
+          ></input>
+        </div>
       </div>
     </section>
   );

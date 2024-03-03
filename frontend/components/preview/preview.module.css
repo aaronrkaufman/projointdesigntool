@@ -1,23 +1,37 @@
 /* CarSelection.module.css */
 .section {
-  margin-left: 20rem;
-  margin-top: 4rem;
-  padding: 1rem 3rem;
+  margin-left: 17.5rem;
+  padding: 1.5rem 0rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  width: calc(100vw - 17.5rem);
+  /* gap: 2rem; */
+  align-items: center;
+}
+
+.sectionContainer {
+  max-width: 48rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .top {
   display: flex;
   gap: 2rem;
   align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-gray);
+  font-size: 1.25rem;
+  justify-content: space-between;
 }
 
 .cardContainer {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 1rem;
+
 }
 
 .attributes {
@@ -27,32 +41,35 @@
   gap: 2rem;
   flex-direction: column;
   /* align-items: flex-end; */
+  justify-content: flex-end;
 }
 
 .attributes li {
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .card,
 .cardSelected {
-  background-color: var(--whiteClr);
-  border: 1px solid #ccc;
+  background-color: var(--white);
+  /* border: 1px solid #ccc; */
   padding: 1rem;
   border-radius: 0.5rem;
-  width: 200px; /* Adjust width as necessary */
+  width: 100%; /* Adjust width as necessary */
   margin: 1rem 0;
+  
 }
 
-.cardSelected {
+/* .cardSelected {
   border-color: var(
     --lineClr
-  ); /* Or use a class to change the background color */
-}
+  ); 
+} */
 
 .cardContent {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  align-items: center;
 }
 
 .buttonContainer {
@@ -63,7 +80,7 @@
 }
 
 .selectButton {
-  background-color: var(--headerClr);
+  background-color: var(--white);
   color: white;
   padding: 0.5rem 1rem;
   border: none;
@@ -71,4 +88,15 @@
   cursor: pointer;
 }
 
+.profile_name {
+  color: var(--dark-blue-p);
+  font-weight: bold;
+}
+
 /* Additional styling as needed */
+
+
+.instructions {
+  color: var(--dark-blue-p);
+  font-weight: 600;
+}

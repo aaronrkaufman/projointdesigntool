@@ -32,7 +32,7 @@ function PreviewPage({ params }: IServerProps) {
     // console.log("whatis happening", currentDoc)
   }, [documentName]);
 
-  const { attributes, restrictions } = useAttributes();
+  const { attributes, restrictions, instructions } = useAttributes();
 
   const [profiles, setProfiles] = useState<IPreview | null>(null);
 
@@ -43,6 +43,7 @@ function PreviewPage({ params }: IServerProps) {
     setProfiles({
       attributes: attributes.map((el) => el.name),
       previews: previews,
+      instructions: instructions,
     });
     // console.log("previews:", previews);
   };
