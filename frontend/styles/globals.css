@@ -55,8 +55,9 @@ a {
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--dark-blue-h);
+  font-weight: 600;
 }
 
 ul {

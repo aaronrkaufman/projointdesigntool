@@ -59,6 +59,4 @@
   display: none;
 }
 
-.container:hover .dots {
-  display: flex;
-}
+

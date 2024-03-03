@@ -94,7 +94,7 @@ export const Survey: FC = () => {
             <input
               ref={inputRef}
               value={docName}
-              style={{ width: `${(docName.length + 1) * 14}px` }}
+              style={{ width: `${(docName.length + 1) * 9.75}px` }}
               onChange={handleInputChange}
               onBlur={handleBlur}
               className={styles.editableInput}
@@ -109,7 +109,7 @@ export const Survey: FC = () => {
               {docName}
             </h2>
           )}
-          {highlightedAttribute === -1 ? (
+          {/* {highlightedAttribute === -1 ? (
             ""
           ) : (
             <Button
@@ -120,8 +120,8 @@ export const Survey: FC = () => {
                   : () => setShowWeights(!showWeights)
               }
             ></Button>
-          )}
-          <ExportDropdown />
+          )} */}
+          {/* <ExportDropdown /> */}
           {/* <CustomDropdown /> */}
           <div>Last edited: {getTimeElapsed(lastEdited)}</div>
         </div>
@@ -141,13 +141,13 @@ export const Survey: FC = () => {
                 />
               ))}
               {provided.placeholder}
-              {isCreatingAttribute && (
+              {/* {isCreatingAttribute && (
                 <AttributeContainer
                   isCreator
                   addNewAttribute={addNewAttribute}
                   cancelNewAttribute={cancelNewAttribute}
                 />
-              )}
+              )} */}
             </ul>
           )}
         </Droppable>

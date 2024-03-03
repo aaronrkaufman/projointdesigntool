@@ -17,6 +17,7 @@ import DragButton from "../ui/drag_button";
 import { Level } from "../level/level";
 import { useAttributes } from "../../context/attributes_context";
 import { Weight } from "../level/weight";
+import { DeleteTip, LightTooltip } from "../ui/icons";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -110,16 +111,25 @@ export const Attribute: FC<PropsAttributeComponent> = ({
             show && setHighlightedAttribute(attribute.key);
           }}
         >
-          <div className={styles.deleteHandle}>
-            <button
-              onClick={() => {
-                deleteAttribute(index);
-              }}
-              className={styles.deleteAttribute}
-            >
-              x
-            </button>
-          </div>
+          {highlightedAttribute === attribute.key && (
+            <div className={styles.deleteHandle}>
+              <button
+                onClick={() => {
+                  deleteAttribute(index);
+                }}
+                className={styles.deleteAttribute}
+              >
+                <LightTooltip
+                  disableInteractive
+                  title="Delete Attribute"
+                  arrow
+                  placement="right"
+                >
+                  <DeleteTip />
+                </LightTooltip>
+              </button>
+            </div>
+          )}
           <div className={styles.attribute_left}>
             <div className={`${styles.dragHandle} ${styles.dragAttribute}`}>
               <DragButton
@@ -199,7 +209,9 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                 )}
               </Droppable>
             ) : (
-              <p>{attribute.levels.length} levels</p>
+              <div className={styles.levels_info} onClick={onShow}>
+                <p>{attribute.levels.length} levels</p>
+              </div>
             )}
           </div>
           <div
