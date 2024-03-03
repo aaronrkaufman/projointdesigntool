@@ -20,6 +20,11 @@ export const Document = ({ name, active, id }: IDoc) => {
   const { setStorageChanged } = useAttributes();
   const router = useRouter();
 
+  const isPath = (path: string) => {
+    console.log(router.asPath, router.asPath.includes(path))
+    return router.asPath.includes(path);
+  };
+
   const handleDelete = () => {
     console.log(`attributes-${id}`);
     localStorage.removeItem(`attributes-${id}`);
@@ -51,7 +56,9 @@ export const Document = ({ name, active, id }: IDoc) => {
           {active && (
             <ul className={styles.helpers}>
               <Link href={`/documents/${encodedName}/preview`}>
-                <p>Preview</p>
+                <p className={isPath("/preview") ? styles.activeLink : ""}>
+                  Preview
+                </p>
               </Link>{" "}
               <li>Settings</li>{" "}
               <Link href={`/documents/${encodedName}/restrictions`}>
