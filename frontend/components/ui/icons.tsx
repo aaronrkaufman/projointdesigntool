@@ -221,6 +221,55 @@ export const ExportIcon = () => {
   );
 };
 
+export const PlusIcon = ({ stroke }: { stroke: string }) => {
+  return (
+    <svg
+      width="14"
+      height="15"
+      viewBox="0 0 14 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 7.5H7M7 7.5H13M7 7.5V13.5M7 7.5V1.5"
+        stroke={stroke}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+export const ExpandIcon = ({
+  expand,
+  onClick,
+  size,
+}: {
+  expand: boolean;
+  onClick?: () => void;
+  size: number;
+}) => {
+  return (
+    <svg
+      width={10 * size}
+      height={7 * size}
+      viewBox="0 0 10 7"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      onClick={onClick}
+    >
+      <path
+        d={expand ? "M9 1.5L5 5.5L1 1.5" : "M1 5L5 1L9 5"}
+        stroke="#778C9F"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
 export const ThreeDotsIcon = () => {
   return (
     <svg

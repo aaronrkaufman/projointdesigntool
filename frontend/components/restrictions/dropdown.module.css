@@ -8,20 +8,20 @@
   width: 10rem;
   padding: 10px;
   border: none;
-  background-color: var(--headerClr);
-  color: white;
+  /* background-color: var(--headerClr); */
+  color: var(--gray);
   cursor: pointer;
   border-radius: 4px;
   text-align: left;
   font-size: 1rem;
 }
 
-.small { 
+.small {
   width: 4rem;
 }
 
 .color {
-  background-color: var(--addClr);
+  background-color: none;
 }
 
 .smaller {

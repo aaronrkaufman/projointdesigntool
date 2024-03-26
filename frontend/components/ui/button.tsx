@@ -1,9 +1,11 @@
+import { ReactNode } from "react";
 import styles from "./button.module.css";
 
 interface IButton {
   text: string;
   onClick: () => void;
   disabled?: boolean;
+  icon?: ReactNode;
 }
 
 export const Button = (props: IButton) => {
@@ -13,7 +15,7 @@ export const Button = (props: IButton) => {
       className={styles.btn}
       onClick={props.onClick}
     >
-      {props.text}
+      {props.icon} {props.text}
     </button>
   );
 };

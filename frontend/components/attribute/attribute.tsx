@@ -17,7 +17,7 @@ import DragButton from "../ui/drag_button";
 import { Level } from "../level/level";
 import { useAttributes } from "../../context/attributes_context";
 import { Weight } from "../level/weight";
-import { DeleteTip, LightTooltip } from "../ui/icons";
+import { DeleteTip, ExpandIcon, LightTooltip } from "../ui/icons";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -137,21 +137,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                 {...provided.dragHandleProps}
               />
             </div>
-            <svg
-              onClick={onShow}
-              width="18"
-              height="11"
-              viewBox="0 0 18 11"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{ transform: show ? "rotate(-180deg)" : "rotate(0deg)" }}
-            >
-              <path
-                d="M1 1.5C1 1.5 7.31579 9.5 9 9.5C10.6842 9.5 17 1.5 17 1.5"
-                stroke="#415A77"
-                strokeWidth="2"
-              />
-            </svg>
+            <ExpandIcon expand={!show} onClick={onShow} size={1.25} />
             <div
               className={styles.atrributeInfo}
               onClick={() => {

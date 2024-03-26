@@ -10,7 +10,7 @@ interface IStatement {
   statement: StatementProps;
   index: number;
   addStatement?: () => void;
-  changeStatement?: (
+  changeStatement: (
     index: number,
     attributeName?: any,
     levelName?: any,
@@ -18,6 +18,10 @@ interface IStatement {
     part?: any
   ) => void;
 }
+
+const capitalize = (value: string) => {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};
 
 export const Statement: React.FC<IStatement> = ({
   statement,
@@ -48,7 +52,6 @@ export const Statement: React.FC<IStatement> = ({
     }
   }, [selectedAttr, selectedLvl, sign, proposition]);
 
-
   const getAttributeLevels = (attributeName: string) => {
     const index = attributes.findIndex((attr) => attr.name == attributeName);
     return attributes[index] ? attributes[index].levels : [];
@@ -57,7 +60,7 @@ export const Statement: React.FC<IStatement> = ({
     <div className={styles.statement_container}>
       <div className={styles.statement}>
         {statement.part == "if" || statement.part == "then" ? (
-          <p className={styles.part}>{statement.part.toUpperCase()}</p>
+          <p className={styles.part}>{capitalize(statement.part)}</p>
         ) : (
           <CustomDropdown
             value={proposition}

@@ -4,6 +4,7 @@ import styles from "./restrictions.module.css";
 import { Statement } from "./statement";
 import { useAttributes } from "../../context/attributes_context";
 import { AddedRestriction } from "./added_restriction";
+import { PlusIcon } from "../ui/icons";
 
 export interface StatementProps {
   part: "if" | "then" | "&" | "OR";
@@ -136,66 +137,71 @@ export const Restrictions = () => {
 
   return (
     <section className={styles.section}>
-      <div className={styles.top}>
-        <h2>Restrictions</h2>
-      </div>
-      <div className={styles.container}>
-        <div className={styles.left}>
-          <p>
-            {
-              "List of attribute-level pairs that can’t be together in a profile"
-            }
-          </p>
-          <ul className={styles.restrictions}>
-            {restrictions &&
-              restrictions.map((restr, index) => (
-                <AddedRestriction restriction={restr} index={index} key={restr[0][index]} />
-              ))}
-          </ul>
+      <div className={styles.sectionContainer}>
+        <div className={styles.top}>
+          <h2>Restrictions</h2>
         </div>
-        <div className={styles.right}>
-          <p>Enter New Restriction Statement</p>
-          <div className={styles.statements}>
-            <Statement
-              statement={ifStatements[0]}
-              index={0}
-              changeStatement={changeIfStatement}
-              addStatement={addIfStatement}
-            />
-            {ifStatements.map((item, index) => {
-              if (index === 0) return "";
-              return (
-                <Statement
-                  key={index}
-                  statement={item}
-                  index={index}
-                  changeStatement={changeIfStatement}
-                />
-              );
-            })}
-            <Statement
-              statement={elseStatements[0]}
-              index={0}
-              changeStatement={changeElseStatement}
-              addStatement={addElseStatement}
-            />
-            {elseStatements.map((item, index) => {
-              if (index === 0) return "";
-              return (
-                <Statement
-                  changeStatement={changeElseStatement}
-                  key={index}
-                  statement={item}
-                  index={index}
-                />
-              );
-            })}
+        <p>List of attribute-level pairs that can’t be together in a profile</p>
+        <div className={styles.container}>
+          <div className={styles.left}>
+            <ul className={styles.restrictions}>
+              {restrictions &&
+                restrictions.map((restr, index) => (
+                  <AddedRestriction
+                    restriction={restr}
+                    index={index}
+                    key={restr[0][index]}
+                  />
+                ))}
+            </ul>
           </div>
-          <Button
-            text="Add a restriction statement"
-            disabled={isRestrictionDone()}
-            onClick={handleAddRestriction}
-          />
+          <div className={styles.right}>
+            <p>Enter New Restriction Statement</p>
+            <div className={styles.statements}>
+              <Statement
+                statement={ifStatements[0]}
+                index={0}
+                changeStatement={changeIfStatement}
+                addStatement={addIfStatement}
+              />
+              {ifStatements.map((item, index) => {
+                if (index === 0) return "";
+                return (
+                  <Statement
+                    key={index}
+                    statement={item}
+                    index={index}
+                    changeStatement={changeIfStatement}
+                  />
+                );
+              })}
+              <Statement
+                statement={elseStatements[0]}
+                index={0}
+                changeStatement={changeElseStatement}
+                addStatement={addElseStatement}
+              />
+              {elseStatements.map((item, index) => {
+                if (index === 0) return "";
+                return (
+                  <Statement
+                    changeStatement={changeElseStatement}
+                    key={index}
+                    statement={item}
+                    index={index}
+                  />
+                );
+              })}
+            </div>
+            <div>
+              <Button
+                icon={<PlusIcon stroke="white" />}
+                text="Add a restriction statement"
+                disabled={isRestrictionDone()}
+                onClick={handleAddRestriction}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>

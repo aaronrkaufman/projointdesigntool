@@ -6,4 +6,7 @@
   padding: 0.5rem;
   font-weight: bold;
   font-size: 1rem;
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
 }
