@@ -89,10 +89,10 @@ export const Survey: FC = () => {
   };
 
   const [description, setDescription] = useState<string>(
-    instructions.description
+    instructions ? instructions.description : ""
   );
   const [instructs, setInstructions] = useState<string>(
-    instructions.instructions
+    instructions ? instructions.instructions : ""
   );
 
   return (

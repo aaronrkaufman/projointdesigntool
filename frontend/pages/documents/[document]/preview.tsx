@@ -20,17 +20,20 @@ interface IServerProps {
 
 function PreviewPage({ params }: IServerProps) {
   const documentID = decodeURIComponent(params.document as string);
-  const localData = localStorage.getItem(`attributes-${documentID}`);
-  const parsedData = localData ? JSON.parse(localData) : {};
-  const documentName = parsedData?.name;
   // console.log(documentName);
   const { setCurrentDoc, setCurrentDocID } = useContext(DocumentContext);
 
   useEffect(() => {
+    const localData = localStorage.getItem(`attributes-${documentID}`);
+    const parsedData = localData ? JSON.parse(localData) : {};
+    const documentName = parsedData?.name;
     setCurrentDoc(documentName);
+  }, []);
+
+  useEffect(() => {
     setCurrentDocID(documentID);
     // console.log("whatis happening", currentDoc)
-  }, [documentName]);
+  }, [documentID]);
 
   const { attributes, restrictions, instructions } = useAttributes();
 
