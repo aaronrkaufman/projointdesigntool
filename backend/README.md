@@ -13,32 +13,32 @@ Before you begin, ensure you have the following installed on your system:
 
 1. Clone the repository to your local machine:
 
-```
+```bash
 git clone https://github.com/aaronrkaufman/projointdesigntool.git
 cd projoint
 ```
 
 2. Create a virtual environment:
 
-```
+```bash
 python3 -m venv venv
 ```
 
 3. Activate the virtual environment (for Linux/macOS):
 
-```
+```bash
 source venv/bin/activate
 ```
 
 4. Install project dependencies:
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
 5. Apply database migrations:
 
-```
+```bash
 python3 manage.py makemigrations
 python3 manage.py migrate
 ```
@@ -47,7 +47,7 @@ python3 manage.py migrate
 
 If you have added any new libraries, run this command to update the requirements specifications
 
-```
+```bash
 pip freeze > requirements.txt
 ```
 
@@ -55,7 +55,7 @@ pip freeze > requirements.txt
 
 To create a superuser for accessing the Django admin interface and managing the application:
 
-```
+```bash
 python manage.py createsuperuser
 ```
 
@@ -71,30 +71,10 @@ python3 manage.py runserver
 
 ## API Documentation
 
-### User Registration
+Documentation exists at
 
-Register a new user:
-
-```bash
-curl -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "password": "testpassword", "email": "test@example.com"}' http://localhost:8000/api/profiles/register/
 ```
-
-### User Login
-
-Log in with existing user credentials:
-
-```bash
-curl -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "password": "testpassword"}' http://localhost:8000/api/profiles/login/
-```
-
-It returns `token` on successful login.
-
-### User Logout
-
-Log out a user using their authentication token:
-
-```bash
-curl -X POST -H "Authorization: Token YOUR_AUTH_TOKEN" http://localhost:8000/api/profiles/logout/
+http://127.0.0.1:8000/api/swagger-ui/
 ```
 
 ## Testing APIs
@@ -109,4 +89,21 @@ for example
 
 ```bash
 python3 manage.py test surveys
+```
+
+## Markdown Pages
+
+To load the pages
+
+```bash
+python3 manage.py loaddata markdown_pages.json
+```
+
+To upload the pages
+
+```bash
+python3 manage.py dumpdata dmd_app.MarkdownContent > markdown_pages.json
+git add markdown_pages.json
+git commit -m "docs: Add markdown pages data"
+git push
 ```
