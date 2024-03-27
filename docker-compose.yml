@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  backend:
+    container_name: backend
+    build: backend
+    command: gunicorn projoint.wsgi:application --timeout 120 --bind 0.0.0.0:8000
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    ports:
+      - 8000:8000
+
+  frontend:
+    container_name: frontend
+    build: frontend
+    volumes:
+      - node_modules:/app/node_modules
+    ports:
+      - 3000:3000
+
+  nginx:
+    container_name: nginx
+    build: nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  static_volume:
+  media_volume:
+  node_modules:
