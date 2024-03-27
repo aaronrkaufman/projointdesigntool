@@ -59,13 +59,17 @@ export const Document = ({ name, active, id }: IDoc) => {
                 <p className={isPath("/preview") ? styles.activeLink : ""}>
                   Preview
                 </p>
-              </Link>{" "}
-              <li>Settings</li>{" "}
+              </Link>
+              <Link href={`/documents/${encodedName}/settings`}>
+                <p className={isPath("/settings") ? styles.activeLink : ""}>
+                  Settings
+                </p>
+              </Link>
               <Link href={`/documents/${encodedName}/restrictions`}>
                 <p className={isPath("/restrictions") ? styles.activeLink : ""}>
                   Restrictions
                 </p>
-              </Link>{" "}
+              </Link>
             </ul>
           )}
         </div>

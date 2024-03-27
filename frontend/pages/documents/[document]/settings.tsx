@@ -9,6 +9,7 @@ import Preview, { IPreview } from "../../../components/preview/preview";
 import { GetServerSideProps } from "next";
 import { useAttributes } from "../../../context/attributes_context";
 import { getPreview } from "../../../services/api";
+import { Settings } from "../../../components/settings/settings";
 
 interface IServerProps {
   params: {
@@ -16,7 +17,7 @@ interface IServerProps {
   };
 }
 
-function PreviewPage({ params }: IServerProps) {
+function SettingsPage({ params }: IServerProps) {
   const documentID = decodeURIComponent(params.document as string);
   // console.log(documentName);
   const { setCurrentDoc, setCurrentDocID } = useContext(DocumentContext);
@@ -33,40 +34,11 @@ function PreviewPage({ params }: IServerProps) {
     // console.log("whatis happening", currentDoc)
   }, [documentID]);
 
-  const { attributes, restrictions, instructions } = useAttributes();
-
-  const [profiles, setProfiles] = useState<IPreview | null>(null);
-
-  const [refresh, setRefresh] = useState<boolean>(true);
-
-  const previewData = async () => {
-    // const previews = await getPreview(attributes, restrictions);
-    const previews = await getPreview(attributes);
-    setProfiles({
-      attributes: attributes.map((el) => el.name),
-      previews: previews,
-      instructions: instructions,
-    });
-    // console.log("previews:", previews);
-  };
-
-  useEffect(() => {
-    previewData();
-  }, [attributes]);
-
-  useEffect(() => {
-    if (refresh) {
-      previewData();
-      setRefresh(false);
-    }
-  }, [refresh]);
-
   return (
     <>
       <main className={styles.main}>
         <Sidebar active={documentID} />
-        {/* <SurveyContainer /> */}
-        {profiles ? <Preview {...profiles} setRefresh={setRefresh} /> : ""}
+        <Settings />
       </main>
     </>
   );
@@ -94,4 +66,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default PreviewPage;
+export default SettingsPage;
