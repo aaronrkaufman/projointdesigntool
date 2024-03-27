@@ -78,6 +78,10 @@ export const Restrictions = () => {
     }
   };
 
+  const handleRestrictions = (id: string) => {
+    setNewRestrictions((prev) => prev.filter((r) => r.id !== id));
+  };
+
   return (
     <section className={styles.section}>
       <div className={styles.sectionContainer}>
@@ -91,10 +95,11 @@ export const Restrictions = () => {
               {newRestrictions &&
                 newRestrictions.map((restr, index) => (
                   <Restriction
-                    key={index}
+                    key={restr.id}
                     {...restr}
                     handleUpdate={handleUpdate}
                     saveRestriction={handleSave}
+                    handleRestrictions={handleRestrictions}
                   />
                 ))}
             </ul>

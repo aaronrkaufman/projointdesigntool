@@ -67,7 +67,7 @@ interface AttributeContextType {
   restrictions: RestrictionProps[];
   saveRestriction: (restriction: RestrictionProps) => void;
   // addRestrictionToAttribute: (newRestriction: RestrictionProps) => void;
-  // deleteRestrictionFromAttribute: (restrictionIndex: number) => void;
+  deleteRestriction: (restrictionId: string) => void;
   // editRestrictionInAttribute: (
   //   restrictionIndex: number,
   //   newRestriction: RestrictionProps
@@ -343,12 +343,19 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   // };
 
   // // Function to delete a restriction from an attribute
-  // const deleteRestrictionFromAttribute = (restrictionIndex: number) => {
-  //   setRestrictions((prev) =>
-  //     prev.filter((_, index) => index !== restrictionIndex)
-  //   );
-  //   setEdited(true);
-  // };
+  const deleteRestriction = (restrictionID: string) => {
+    setRestrictions((prev) => {
+      const index = prev.findIndex((r) => r.id === restrictionID);
+      if (index !== -1) {
+        // Update existing restriction
+        return prev.filter((r) => r.id !== restrictionID);
+      } else {
+        return [...prev];
+      }
+    });
+
+    setEdited(true);
+  };
 
   // // Function to edit an existing restriction
   // const editRestrictionInAttribute = (
@@ -407,8 +414,9 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     deleteAttribute,
     restrictions,
     saveRestriction,
+    deleteRestriction,
     // addRestrictionToAttribute,
-    // deleteRestrictionFromAttribute,
+
     // editRestrictionInAttribute,
     instructions,
     // Add other functions here

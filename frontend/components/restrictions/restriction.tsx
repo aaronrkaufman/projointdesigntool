@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PlusIcon } from "../ui/icons";
+import { DeleteTip, PlusIcon } from "../ui/icons";
 import { StatementProps } from "./restrictions";
 import { Statement } from "./statement";
 import { v4 as uuidv4 } from "uuid";
@@ -16,8 +16,16 @@ export const Restriction: React.FC<
   RestrictionProps & {
     saveRestriction: (restriction: RestrictionProps) => void;
     handleUpdate: (change: boolean) => void;
+    handleRestrictions: (id: string) => void;
   }
-> = ({ ifStates, elseStates, id, saveRestriction, handleUpdate }) => {
+> = ({
+  ifStates,
+  elseStates,
+  id,
+  saveRestriction,
+  handleUpdate,
+  handleRestrictions,
+}) => {
   const [ifStatements, setIfStatements] = useState<StatementProps[]>(ifStates);
   const [elseStatements, setElseStatements] =
     useState<StatementProps[]>(elseStates);
@@ -118,8 +126,20 @@ export const Restriction: React.FC<
     }
   }, [ifStatements, elseStatements]);
 
+  const { deleteRestriction } = useAttributes();
+
+  const handleDeleteRestriction = () => {
+    if (!isRestrictionDone()) {
+      handleRestrictions(id);
+      deleteRestriction(id);
+    } else {
+      handleRestrictions(id);
+      handleUpdate(true);
+    }
+  };
+
   return (
-    <div>
+    <div className={styles.restrictionContainer}>
       <div className={styles.statements}>
         <div className={styles.ifStatements}>
           <Statement
@@ -165,6 +185,9 @@ export const Restriction: React.FC<
             <PlusIcon stroke={`var(--blue)`} /> Add condition
           </div>
         </div>
+      </div>
+      <div className={styles.svg} onClick={handleDeleteRestriction}>
+        <DeleteTip />
       </div>
     </div>
   );
