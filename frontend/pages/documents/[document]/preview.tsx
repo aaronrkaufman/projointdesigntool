@@ -42,7 +42,8 @@ function PreviewPage({ params }: IServerProps) {
   const [refresh, setRefresh] = useState<boolean>(true);
 
   const previewData = async () => {
-    const previews = await getPreview(attributes, restrictions);
+    // const previews = await getPreview(attributes, restrictions);
+    const previews = await getPreview(attributes);
     setProfiles({
       attributes: attributes.map((el) => el.name),
       previews: previews,

@@ -4,12 +4,13 @@ import styles from "./restrictions.module.css";
 import CustomDropdown from "./dropdown";
 import { Button } from "../ui/button";
 import { StatementProps } from "./restrictions";
+import { XIcon } from "../ui/icons";
 
 interface IStatement {
   // part: "IF" | "THEN" | "AND";
   statement: StatementProps;
   index: number;
-  addStatement?: () => void;
+
   changeStatement: (
     index: number,
     attributeName?: any,
@@ -17,6 +18,7 @@ interface IStatement {
     propositionName?: any,
     part?: any
   ) => void;
+  deleteStatement?: (attributeIndex: number) => void;
 }
 
 const capitalize = (value: string) => {
@@ -27,18 +29,20 @@ export const Statement: React.FC<IStatement> = ({
   statement,
   changeStatement,
   index,
-  addStatement,
+  deleteStatement,
 }) => {
   // Define the state with TypeScript type
-  const [selectedAttr, setSelectedAttr] = useState<string>("select attribute");
-  const [selectedLvl, setSelectedLvl] = useState<string>("select level");
-  const [sign, setSign] = useState<string>(statement.equals);
+  const [selectedAttr, setSelectedAttr] = useState<string>(statement.attribute);
+  const [selectedLvl, setSelectedLvl] = useState<string>(statement.level);
+  const [sign, setSign] = useState<boolean>(statement.equals);
   const [proposition, setProposition] = useState<string>(statement.part);
 
   const { attributes } = useAttributes();
 
   useEffect(() => {
-    setSelectedLvl("select level");
+    if (selectedAttr != statement.attribute) {
+      setSelectedLvl("select level");
+    }
   }, [selectedAttr]);
 
   useEffect(() => {
@@ -52,6 +56,10 @@ export const Statement: React.FC<IStatement> = ({
     }
   }, [selectedAttr, selectedLvl, sign, proposition]);
 
+  const setBoolSign = (value: string) => {
+    setSign(value == "Equals");
+  };
+
   const getAttributeLevels = (attributeName: string) => {
     const index = attributes.findIndex((attr) => attr.name == attributeName);
     return attributes[index] ? attributes[index].levels : [];
@@ -63,29 +71,28 @@ export const Statement: React.FC<IStatement> = ({
           <p className={styles.part}>{capitalize(statement.part)}</p>
         ) : (
           <CustomDropdown
-            value={proposition}
+            value={capitalize(proposition)}
             type="small"
             sign={true}
-            items={["&", "OR"]}
+            items={["And", "Or"]}
             setSelected={setProposition}
           />
         )}
         <CustomDropdown
-          value={selectedAttr}
+          value={capitalize(selectedAttr)}
           items={attributes.map((attr) => attr.name)}
           setSelected={setSelectedAttr}
           color={selectedAttr == "select attribute" ? true : false}
         />
-        {/* FOR NOW THIS */}
-        {sign}
-        {/* <CustomDropdown
-          sign={true}
-          value={sign}
-          items={["=", "!="]}
-          setSelected={setSign}
-        /> */}
         <CustomDropdown
-          value={selectedLvl}
+          sign={true}
+          value={sign ? "Equals" : "Does not equal"}
+          items={["Equals", "Does not equal"]}
+          setSelected={setBoolSign}
+          color={false}
+        />
+        <CustomDropdown
+          value={capitalize(selectedLvl)}
           items={
             selectedAttr
               ? getAttributeLevels(selectedAttr).map((level) => level.name)
@@ -94,7 +101,12 @@ export const Statement: React.FC<IStatement> = ({
           setSelected={setSelectedLvl}
           color={selectedLvl == "select level" ? true : false}
         />
-        {addStatement ? <Button text="+" onClick={addStatement} /> : ""}
+
+        {deleteStatement ? (
+          <XIcon onClick={() => deleteStatement(index)} />
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );

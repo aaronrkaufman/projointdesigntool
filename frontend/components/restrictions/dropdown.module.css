@@ -5,44 +5,30 @@
 }
 
 .dropdownButton {
-  width: 10rem;
+  /* width: 10rem; */
   padding: 10px;
-  border: none;
-  /* background-color: var(--headerClr); */
-  color: var(--gray);
+  border: 1px solid var(--dark-blue-h);
+  background-color: var(--light-blue);
+  color: var(--blue-p);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   text-align: left;
   font-size: 1rem;
-}
-
-.small {
-  width: 4rem;
-}
-
-.color {
-  background-color: none;
-}
-
-.smaller {
-  width: 4rem;
-  background-color: inherit;
-  border: 1px solid black;
-  color: var(--txtClr);
-}
-
-.dropdownButton:after {
-  content: "▼";
-  float: right;
+  font-weight: 500;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .dropdownContent {
   position: absolute;
+  width: 10rem;
+  /* for now 10 rem, next we will have to do something else */
   top: 100%;
   left: 0;
   right: 0;
-  background-color: #f9f9f9;
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  background-color: var(--white);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
   z-index: 2;
   border-radius: 4px;
   overflow: hidden;
@@ -52,15 +38,19 @@
   transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
 }
 
+.color {
+  color: var(--dark-blue-h);
+}
+
 .dropdownContent li {
   padding: 12px;
   text-align: left;
-  background-color: #f2f2f2;
+  background-color: var(--white);
   cursor: pointer;
 }
 
 .dropdownContent li:hover {
-  background-color: #ddd;
+  background-color: var(--gray);
 }
 
 .dropdownContent li:not(:last-child) {

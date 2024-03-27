@@ -29,7 +29,9 @@ const Preview = ({
             onClick={() => setRefresh && setRefresh(true)}
           />
         </div>
-        <div className={styles.instructions}>{instructions.description}</div>
+        <div className={styles.instructions}>
+          {instructions && instructions.description}
+        </div>
         <div className={styles.cardContainer}>
           <ul className={styles.attributes}>
             {attributes.map((attribute) => (
@@ -60,7 +62,9 @@ const Preview = ({
             </div>
           ))}
         </div>
-        <div className={styles.instructions}>{instructions.instructions}</div>
+        <div className={styles.instructions}>
+          {instructions && instructions.instructions}
+        </div>
       </div>
     </section>
   );

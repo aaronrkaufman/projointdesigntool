@@ -45,14 +45,17 @@ export const downloadSurvey = async (
 };
 
 export const getPreview = async (
-  attributes: Attribute[],
-  retstrictions: string[][][]
+  attributes: Attribute[]
+  // retstrictions: string[][][]
 ): Promise<string[][]> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
-    const processedRestrictions = preprocessRestrictions(retstrictions);
+    const processedRestrictions = preprocessRestrictions([]);
 
-    const response = await api.post("/surveys/preview/", { ...processedRestrictions, ...processedAttributes });
+    const response = await api.post("/surveys/preview/", {
+      ...processedRestrictions,
+      ...processedAttributes,
+    });
 
     // console.log(response);
     return response.data.previews;

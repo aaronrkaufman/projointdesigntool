@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "../survey/survey.module.css"; // Adjust the styles accordingly
+import { ExpandIcon } from "../ui/icons";
 
 interface Props {
   addNewAttribute: (name: string) => void;
@@ -39,19 +40,7 @@ export const AttributeCreator: React.FC<Props> = ({
   return (
     <li className={styles.attribute}>
       <div className={styles.attribute_left}>
-        <svg
-          width="18"
-          height="11"
-          viewBox="0 0 18 11"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M1 1.5C1 1.5 7.31579 9.5 9 9.5C10.6842 9.5 17 1.5 17 1.5"
-            stroke="#415A77"
-            strokeWidth="2"
-          />
-        </svg>
+        <ExpandIcon expand={true} size={1.25} />
         <input
           autoFocus
           placeholder="Attribute Name"
