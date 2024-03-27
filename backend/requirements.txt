@@ -10,6 +10,7 @@ idna==3.6
 inflection==0.5.1
 jsonschema==4.19.2
 jsonschema-specifications==2023.7.1
+Markdown==3.6
 packaging==23.2
 pytz==2023.3.post1
 PyYAML==6.0.1

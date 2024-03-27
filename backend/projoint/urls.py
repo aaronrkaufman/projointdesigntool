@@ -22,6 +22,8 @@ from drf_spectacular.views import (
     # SpectacularRedocView,
 )
 
+from dmd_app.views import markdown_content_view
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/profiles/", include("profiles.urls")),
@@ -34,9 +36,9 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
-    # path(
-    #     "api/schema/redoc/",
-    #     SpectacularRedocView.as_view(url_name="schema"),
-    #     name="redoc",
-    # ),
+    path(
+        "docs/<slug:slug>/",
+        markdown_content_view,
+        name="docs",
+    ),
 ]
