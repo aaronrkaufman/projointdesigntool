@@ -1,15 +1,15 @@
 // "use client";
 
-import styles from "../../../styles/page.module.css";
-import { Sidebar } from "../../../components/sidebar";
-import { DocumentContext } from "../../../context/document_context";
+import styles from "../../styles/page.module.css";
+import { Sidebar } from "../../components/sidebar";
+import { DocumentContext } from "../../context/document_context";
 import { useContext, useEffect, useState } from "react";
-import Preview, { IPreview } from "../../../components/preview/preview";
+import Preview, { IPreview } from "../../components/preview/preview";
 
 import { GetServerSideProps } from "next";
-import { useAttributes } from "../../../context/attributes_context";
-import { getPreview } from "../../../services/api";
-import { Settings } from "../../../components/settings/settings";
+import { useAttributes } from "../../context/attributes_context";
+import { getPreview } from "../../services/api";
+import { Settings } from "../../components/settings/settings";
 
 interface IServerProps {
   params: {

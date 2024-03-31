@@ -29,11 +29,11 @@ export const Document = ({ name, active, id }: IDoc) => {
     console.log(`attributes-${id}`);
     localStorage.removeItem(`attributes-${id}`);
     setStorageChanged((prev) => prev + 1);
-    router.push(`/documents/document}`);
+    router.push(`/document}`);
   };
   return (
     <li>
-      <Link href={`/documents/${encodedName}`}>
+      <Link href={`/${encodedName}`}>
         <div className={`${active ? styles.active : ""} ${styles.container}`}>
           <div className={styles.file_top}>
             <div className={styles.file}>
@@ -55,17 +55,17 @@ export const Document = ({ name, active, id }: IDoc) => {
           </div>
           {active && (
             <ul className={styles.helpers}>
-              <Link href={`/documents/${encodedName}/preview`}>
+              <Link href={`/${encodedName}/preview`}>
                 <p className={isPath("/preview") ? styles.activeLink : ""}>
                   Preview
                 </p>
               </Link>
-              <Link href={`/documents/${encodedName}/settings`}>
+              <Link href={`/${encodedName}/settings`}>
                 <p className={isPath("/settings") ? styles.activeLink : ""}>
                   Settings
                 </p>
               </Link>
-              <Link href={`/documents/${encodedName}/restrictions`}>
+              <Link href={`/${encodedName}/restrictions`}>
                 <p className={isPath("/restrictions") ? styles.activeLink : ""}>
                   Restrictions
                 </p>

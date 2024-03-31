@@ -1,14 +1,14 @@
 "use client";
 
-import styles from "../../../styles/page.module.css";
-import { Sidebar } from "../../../components/sidebar";
-import { SurveyContainer } from "../../../components/survey/survey.container";
-import { IDocument } from "../../../components/documents/document";
-import { DocumentContext } from "../../../context/document_context";
+import styles from "../../styles/page.module.css";
+import { Sidebar } from "../../components/sidebar";
+import { SurveyContainer } from "../../components/survey/survey.container";
+import { IDocument } from "../../components/documents/document";
+import { DocumentContext } from "../../context/document_context";
 import { useContext, useEffect } from "react";
 
 import { GetServerSideProps } from "next";
-import { Restrictions } from "../../../components/restrictions/restrictions";
+import { Restrictions } from "../../components/restrictions/restrictions";
 
 interface IServerProps {
   params: {
