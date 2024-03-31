@@ -1,9 +1,12 @@
 .btn {
   z-index: 1;
-  background-color: var(--headerClr);
+  background-color: var(--blue);
   border: none;
   border-radius: 0.25rem;
   padding: 0.5rem;
   font-weight: bold;
   font-size: 1rem;
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
 }

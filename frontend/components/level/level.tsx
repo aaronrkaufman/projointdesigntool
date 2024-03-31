@@ -2,7 +2,7 @@ import styles from "../survey/survey.module.css";
 
 import { ILevel } from "../attribute/attribute.container";
 import { Draggable } from "react-beautiful-dnd";
-import DragButton from "../drag_button";
+import DragButton from "../ui/drag_button";
 import { useState, useRef, useEffect } from "react";
 import { useAttributes } from "../../context/attributes_context";
 
@@ -76,14 +76,14 @@ export const Level = ({ name, index, id, attributeName }: ILevelComponent) => {
             ) : (
               <p className={styles.levelName}>{levelName}</p>
             )}
-            <p
+            {/* <p
               onClick={() => {
                 deleteLevelFromAttribute(attributeName, index);
               }}
               className={styles.deleteLevel}
             >
               x
-            </p>
+            </p> */}
           </div>
         </li>
       )}

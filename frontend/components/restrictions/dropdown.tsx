@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./dropdown.module.css"; // Import your styles here
+import { ExpandIcon } from "../ui/icons";
 
 interface IDropdown {
   items: string[];
@@ -48,12 +49,11 @@ const CustomDropdown: React.FC<IDropdown> = ({
   return (
     <div className={styles.dropdown} ref={dropdownRef}>
       <button
-        className={`${styles.dropdownButton} ${type ? styles.small : ""} ${
-          sign && styles.smaller
-        } ${color ? styles.color : ""}`}
+        className={`${styles.dropdownButton} ${!color && styles.color}`}
         onClick={toggleOpen}
       >
         {value}
+        <ExpandIcon expand={true} size={1.25} />
       </button>
       {isOpen && (
         <ul className={`${styles.dropdownContent} ${styles.active}`}>

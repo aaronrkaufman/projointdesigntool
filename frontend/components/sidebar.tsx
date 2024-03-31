@@ -7,6 +7,7 @@ import { IDocument } from "./documents/document";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 import { useAttributes } from "../context/attributes_context";
+import { FileAdd, LightTooltip } from "./ui/icons";
 
 export const Sidebar = ({ active }: { active: string }) => {
   const [documents, setDocuments] = useState<IDocument[]>([]);
@@ -46,16 +47,25 @@ export const Sidebar = ({ active }: { active: string }) => {
       name: "Untitled",
     };
     localStorage.setItem(`attributes-${uniqueId}`, JSON.stringify(dataToSave));
-    setStorageChanged(1);
+    setStorageChanged((prev) => prev + 1);
     router.push(`/documents/${encodeURIComponent(uniqueId)}`);
   };
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.top}>
-        <h2>Documents</h2>
-        <button onClick={handleAddDoc}>+</button>
+      <div className={styles.top} onClick={handleAddDoc}>
+        <h3>Projoint</h3>
+        {/* <button onClick={handleAddDoc}>+</button> */}
+        <LightTooltip
+          disableInteractive
+          title="New file"
+          arrow
+          placement="right"
+        >
+          <FileAdd />
+        </LightTooltip>
       </div>
+      <span className={styles.line}></span>
       <Documents documents={documents} active={active} />
     </div>
   );

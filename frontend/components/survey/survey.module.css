@@ -1,10 +1,19 @@
 .survey {
-  margin-left: 20rem;
-  margin-top: 4rem;
-  padding: 1rem 3rem;
+  margin-left: 17.5rem;
+  padding: 1.5rem 0rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  /* gap: 2rem; */
+  width: calc(100vw - 17.5rem);
+  align-items: center;
+}
+
+.surveyContainer {
+  max-width: 48rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .loaderOverlay {
@@ -30,14 +39,16 @@
   display: flex;
   gap: 2rem;
   align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-gray);
 }
 
 .top input {
-  font-size: 1.5rem;
-  color: var(--txtClr);
+  font-size: 1.25rem;
+  color: var(--dark-blue-p);
   background: none;
   font-weight: bold;
-  border: 1px solid black;
+  border: 1px solid var(--border-gray);
   border-radius: 0.25rem;
   outline: none;
   width: max-content;
@@ -47,7 +58,7 @@
   position: absolute;
   height: 1px;
   width: 100%;
-  background-color: var(--lineClr);
+  background-color: var(--blue);
   top: 50%;
 }
 
@@ -60,7 +71,7 @@
 
 .btn {
   z-index: 1;
-  background-color: var(--headerClr);
+  background-color: var(--blue);
   border: none;
   border-radius: 0.25rem;
   padding: 0.5rem;
@@ -74,9 +85,9 @@
 }
 
 .attribute {
-  background-color: var(--whiteClr);
+  background-color: var(--white);
   display: flex;
-  font-weight: bold;
+  font-weight: 600;
   height: fit-content;
   transition: height 1s ease-in-out;
   position: relative;
@@ -94,14 +105,14 @@
   position: absolute;
   right: -2.25rem;
   top: 0;
-  visibility: hidden;
+  /* visibility: hidden; */
 }
 
 .deleteAttribute {
   background: none;
   outline: none;
   border: none;
-  color: black;
+  color: var(--blue);
   font-size: 1.25rem;
   padding: 0.75rem 1rem 1rem 1rem;
 }
@@ -110,16 +121,16 @@
   visibility: visible;
 }
 
-.attribute:hover .deleteHandle {
+/* .attribute:hover .deleteHandle {
   visibility: visible;
-}
+} */
 
 .attribute_left {
   display: flex;
   gap: 0.5rem;
   align-items: center;
   width: calc((100% - 4rem) / 2);
-  padding: 1rem 1.5rem;
+  padding: 1.5rem;
   height: fit-content;
   position: relative;
 }
@@ -128,16 +139,29 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-left: 1px solid var(--bgClr);
+  border-left: 1px solid var(--border-gray);
   height: fit-content;
   transition: height 1s ease-in-out;
   overflow: hidden;
   width: calc((100% - 4rem) / 2);
 }
 
+.attribute_left svg:hover {
+  cursor: pointer;
+}
+
+.levels_info {
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+}
+
+.levels_info:hover {
+  cursor: pointer;
+}
+
 .attribute_right p {
-  color: var(--addClr);
+  color: var(--blue);
   font-weight: 300;
 }
 
@@ -146,13 +170,21 @@
   flex-direction: column;
   /* gap: 1.5rem; */
   width: 100%;
+  padding: 1.5rem;
 }
 
 .levels li {
-  font-weight: 300;
+  font-weight: 00;
   display: flex;
-  gap: 1rem;
   align-items: center;
+  padding: 0.75rem 0 0.75rem 0;
+}
+
+.levels li:first-child {
+  padding-top: 0;
+}
+.levels li:last-child {
+  padding-bottom: 0;
 }
 
 .level {
@@ -160,7 +192,6 @@
 }
 
 .levelInfo {
-  padding: 1rem 0 0 0;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -176,7 +207,7 @@
 }
 
 .deleteLevel:hover {
-  background-color: var(--bgClr);
+  background-color: var(--gray);
 }
 
 .levels li:first-child .levelInfo {
@@ -184,12 +215,16 @@
 }
 
 .level p {
-  color: var(--txtClr);
+  color: var(--dark-blue-p);
   width: 100%;
 }
 
+.levelInfo {
+  border-bottom: 2px var(--white) solid;
+}
+
 .level:hover .levelInfo {
-  border-bottom: 2px var(--bgClr) solid;
+  border-bottom: 2px var(--border-gray) solid;
 }
 
 .level:hover .deleteLevel {
@@ -201,36 +236,16 @@
 }
 
 .dragLevel {
-  /* position: absolute; */
-  /* left: -1.25rem; */
-  bottom: 0rem;
+  bottom: 0.125rem;
   top: 0.125rem;
   padding-right: 2rem;
-  padding-top: 1rem;
-  /* font-size: 1.25rem; */
-  /* visibility: hidden; */
+  padding-top: 0.5rem;
 }
 
 .levels li:first-child .dragLevel {
   right: 0;
   padding-top: 0;
   padding-right: 2rem;
-}
-
-.circle {
-  display: block;
-  height: 1rem;
-  width: 1rem;
-  border-radius: 50%;
-  border: 1px solid black;
-}
-
-.levels li:last-child .circle {
-  border-color: var(--addClr);
-}
-
-.levels li:nth-last-child(2) {
-  padding: 0rem 0 1rem 0;
 }
 
 .levelInfo {
@@ -242,29 +257,39 @@
   background: none;
   border: none;
   outline: none;
-  color: var(--addClr);
-  font-weight: 400;
+  color: var(--blue-p);
+
   font-size: 1rem;
   width: 100%;
 }
 
+.inputField {
+  color: var(--dark-blue-p);
+  font-weight: 500;
+}
+
+.input::placeholder {
+  font-weight: 300;
+  color: var(--blue-p);
+}
+
 .stroke {
-  border: 1px solid var(--lineClr);
+  border: 1px solid var(--blue);
 }
 
 .stroke_left {
-  border: 1px solid var(--lineClr);
+  border: 1px solid var(--blue);
   border-right: none;
 }
 
 .stroke_right {
-  border: 1px solid var(--lineClr);
+  border: 1px solid var(--blue);
   border-left: none;
 }
 
 .attribute_weights {
   width: 5rem;
-  border-left: 1px solid var(--bgClr);
+  border-left: 1px solid var(--border-gray);
   padding: 1rem;
   transition: none;
 }
@@ -279,7 +304,7 @@
 
 .notvisible {
   visibility: hidden;
-  background-color: var(--bgClr);
+  background-color: var(--border-gray);
   transition: none;
 }
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { Header } from "../../../components/header";
 import styles from "../../../styles/page.module.css";
 import { Sidebar } from "../../../components/sidebar";
 import { SurveyContainer } from "../../../components/survey/survey.container";
@@ -20,7 +19,8 @@ function DocumentPage({ params }: IServerProps) {
   const documentID = decodeURIComponent(params.document as string);
 
   // console.log(documentName);
-  const { setCurrentDoc, setCurrentDocID, currentDoc } = useContext(DocumentContext);
+  const { setCurrentDoc, setCurrentDocID, currentDoc } =
+    useContext(DocumentContext);
 
   useEffect(() => {
     const localData = localStorage.getItem(`attributes-${documentID}`);
@@ -36,8 +36,6 @@ function DocumentPage({ params }: IServerProps) {
 
   return (
     <>
-      <Header></Header>
-
       <main className={styles.main}>
         <Sidebar active={documentID} />
         <SurveyContainer />

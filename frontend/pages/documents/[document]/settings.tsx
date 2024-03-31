@@ -1,14 +1,15 @@
-"use client";
+// "use client";
 
 import styles from "../../../styles/page.module.css";
 import { Sidebar } from "../../../components/sidebar";
-import { SurveyContainer } from "../../../components/survey/survey.container";
-import { IDocument } from "../../../components/documents/document";
 import { DocumentContext } from "../../../context/document_context";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
+import Preview, { IPreview } from "../../../components/preview/preview";
 
 import { GetServerSideProps } from "next";
-import { Restrictions } from "../../../components/restrictions/restrictions";
+import { useAttributes } from "../../../context/attributes_context";
+import { getPreview } from "../../../services/api";
+import { Settings } from "../../../components/settings/settings";
 
 interface IServerProps {
   params: {
@@ -16,12 +17,10 @@ interface IServerProps {
   };
 }
 
-function RestrictionsPage({ params }: IServerProps) {
+function SettingsPage({ params }: IServerProps) {
   const documentID = decodeURIComponent(params.document as string);
-
   // console.log(documentName);
-  const { setCurrentDoc, setCurrentDocID, currentDoc } =
-    useContext(DocumentContext);
+  const { setCurrentDoc, setCurrentDocID } = useContext(DocumentContext);
 
   useEffect(() => {
     const localData = localStorage.getItem(`attributes-${documentID}`);
@@ -39,7 +38,7 @@ function RestrictionsPage({ params }: IServerProps) {
     <>
       <main className={styles.main}>
         <Sidebar active={documentID} />
-        <Restrictions />
+        <Settings />
       </main>
     </>
   );
@@ -67,4 +66,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default RestrictionsPage;
+export default SettingsPage;

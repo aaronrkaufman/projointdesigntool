@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Document, IDocument } from "./document";
 import styles from "./documents.module.css";
-import { Button } from "../button";
 
 export const Documents = ({
   active,
@@ -20,9 +19,6 @@ export const Documents = ({
           id={document.key as string}
         />
       ))}
-      {/* <li>
-        <Button text="New document" onClick={() => {}} />
-      </li> */}
     </ul>
   );
 };

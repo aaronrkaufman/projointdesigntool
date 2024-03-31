@@ -1,10 +1,7 @@
 // "use client";
 
-import { Header } from "../../../components/header";
 import styles from "../../../styles/page.module.css";
 import { Sidebar } from "../../../components/sidebar";
-import { SurveyContainer } from "../../../components/survey/survey.container";
-import { IDocument } from "../../../components/documents/document";
 import { DocumentContext } from "../../../context/document_context";
 import { useContext, useEffect, useState } from "react";
 import Preview, { IPreview } from "../../../components/preview/preview";
@@ -21,29 +18,34 @@ interface IServerProps {
 
 function PreviewPage({ params }: IServerProps) {
   const documentID = decodeURIComponent(params.document as string);
-  const localData = localStorage.getItem(`attributes-${documentID}`);
-  const parsedData = localData ? JSON.parse(localData) : {};
-  const documentName = parsedData?.name;
   // console.log(documentName);
   const { setCurrentDoc, setCurrentDocID } = useContext(DocumentContext);
 
   useEffect(() => {
+    const localData = localStorage.getItem(`attributes-${documentID}`);
+    const parsedData = localData ? JSON.parse(localData) : {};
+    const documentName = parsedData?.name;
     setCurrentDoc(documentName);
+  }, []);
+
+  useEffect(() => {
     setCurrentDocID(documentID);
     // console.log("whatis happening", currentDoc)
-  }, [documentName]);
+  }, [documentID]);
 
-  const { attributes, restrictions } = useAttributes();
+  const { attributes, restrictions, instructions } = useAttributes();
 
   const [profiles, setProfiles] = useState<IPreview | null>(null);
 
   const [refresh, setRefresh] = useState<boolean>(true);
 
   const previewData = async () => {
-    const previews = await getPreview(attributes, restrictions);
+    // const previews = await getPreview(attributes, restrictions);
+    const previews = await getPreview(attributes);
     setProfiles({
       attributes: attributes.map((el) => el.name),
       previews: previews,
+      instructions: instructions,
     });
     // console.log("previews:", previews);
   };
@@ -61,8 +63,6 @@ function PreviewPage({ params }: IServerProps) {
 
   return (
     <>
-      <Header></Header>
-
       <main className={styles.main}>
         <Sidebar active={documentID} />
         {/* <SurveyContainer /> */}

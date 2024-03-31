@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import styles from "../restrictions//dropdown.module.css"; // Import your styles here
 import { downloadSurvey } from "../../services/api";
 import { useAttributes } from "../../context/attributes_context";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 
 // interface IDropdown {
 //   items: string[];

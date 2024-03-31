@@ -2,9 +2,8 @@
 import React, { FC, useContext, useEffect, useRef, useState } from "react";
 import styles from "./survey.module.css";
 import { AddAttribute } from "./add_attribute";
-import { IAttribute } from "../attribute/attribute.container";
 import { AttributeContainer } from "../attribute/attribute.container";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import { HighlightedContext } from "../../context/highlighted";
 import { useAttributes } from "../../context/attributes_context";
 import { DocumentContext } from "../../context/document_context";
@@ -33,12 +32,14 @@ export const Survey: FC = () => {
   const {
     setEdited,
     attributes,
+    instructions,
     addLevelToAttribute,
     isCreatingAttribute,
     addNewAttribute,
     cancelNewAttribute,
     handleCreateAttribute,
     updateWeight,
+    handleInstructions,
   } = useAttributes();
 
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
@@ -87,71 +88,102 @@ export const Survey: FC = () => {
     }
   };
 
+  const [description, setDescription] = useState<string>(
+    instructions ? instructions.description : ""
+  );
+  const [instructs, setInstructions] = useState<string>(
+    instructions ? instructions.instructions : ""
+  );
+
   return (
     <section className={styles.survey}>
-      <div className={styles.top}>
-        {isEditing ? (
+      <div className={styles.surveyContainer}>
+        <div className={styles.top}>
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              value={docName}
+              style={{ width: `${(docName.length + 1) * 9.75}px` }}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              className={styles.editableInput}
+              // additional styling or attributes
+            />
+          ) : (
+            <h2
+              onClick={() => {
+                setIsEditing(true);
+              }}
+            >
+              {docName}
+            </h2>
+          )}
+          {/* {highlightedAttribute === -1 ? (
+            ""
+          ) : (
+            <Button
+              text={showWeights ? "Save weights" : "Edit weights"}
+              onClick={
+                showWeights
+                  ? () => saveWeights()
+                  : () => setShowWeights(!showWeights)
+              }
+            ></Button>
+          )} */}
+          {/* <ExportDropdown /> */}
+          {/* <CustomDropdown /> */}
+          <div>Last edited: {getTimeElapsed(lastEdited)}</div>
+        </div>
+        <div>
+          {/* <p>Description</p> */}
           <input
-            ref={inputRef}
-            value={docName}
-            style={{ width: `${(docName.length + 1) * 14}px` }}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            className={styles.editableInput}
-            // additional styling or attributes
-          />
-        ) : (
-          <h2
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            {docName}
-          </h2>
-        )}
-        {highlightedAttribute === -1 ? (
-          ""
-        ) : (
-          <Button
-            text={showWeights ? "Save weights" : "Edit weights"}
-            onClick={
-              showWeights
-                ? () => saveWeights()
-                : () => setShowWeights(!showWeights)
-            }
-          ></Button>
-        )}
-        <ExportDropdown />
-        {/* <CustomDropdown /> */}
-        <div>Last edited: {getTimeElapsed(lastEdited)}</div>
+            className={`${styles.input} ${styles.inputField}`}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            onBlur={() => handleInstructions(description, "description")}
+            placeholder="Enter your description here! Example: 'Here are two porfiles A and B'"
+          ></input>
+        </div>
+
+        <Droppable droppableId="droppable-attributes" type="group">
+          {(provided) => (
+            <ul
+              className={styles.attributes}
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {attributes.map((attribute, index) => (
+                <AttributeContainer
+                  key={attribute.key}
+                  attribute={attribute}
+                  index={index}
+                  addLevel={addLevelToAttribute}
+                />
+              ))}
+              {provided.placeholder}
+              {/* {isCreatingAttribute && (
+                <AttributeContainer
+                  isCreator
+                  addNewAttribute={addNewAttribute}
+                  cancelNewAttribute={cancelNewAttribute}
+                />
+              )} */}
+            </ul>
+          )}
+        </Droppable>
+        <AddAttribute onCreate={() => addNewAttribute("Untitled")} />
+
+        <div>
+          {/* <p>Instructions</p> */}
+          <input
+            className={`${styles.input} ${styles.inputField}`}
+            value={instructs}
+            onChange={(e) => setInstructions(e.target.value)}
+            onBlur={() => handleInstructions(instructs, "instructions")}
+            placeholder="Enter your instructions here! Example: 'Do you prefer A or B?'"
+          ></input>
+        </div>
       </div>
-      <Droppable droppableId="droppable-attributes" type="group">
-        {(provided) => (
-          <ul
-            className={styles.attributes}
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-          >
-            {attributes.map((attribute, index) => (
-              <AttributeContainer
-                key={attribute.key}
-                attribute={attribute}
-                index={index}
-                addLevel={addLevelToAttribute}
-              />
-            ))}
-            {provided.placeholder}
-            {isCreatingAttribute && (
-              <AttributeContainer
-                isCreator
-                addNewAttribute={addNewAttribute}
-                cancelNewAttribute={cancelNewAttribute}
-              />
-            )}
-          </ul>
-        )}
-      </Droppable>
-      <AddAttribute onCreate={handleCreateAttribute} />
     </section>
   );
 };
