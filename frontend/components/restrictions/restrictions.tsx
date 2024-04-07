@@ -3,7 +3,6 @@ import { Button } from "../ui/button";
 import styles from "./restrictions.module.css";
 import { Statement } from "./statement";
 import { useAttributes } from "../../context/attributes_context";
-import { AddedRestriction } from "./added_restriction";
 import { PlusIcon } from "../ui/icons";
 import { Restriction, RestrictionProps } from "./restriction";
 import { v4 as uuidv4 } from "uuid";
