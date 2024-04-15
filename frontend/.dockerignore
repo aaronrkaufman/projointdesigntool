@@ -1,0 +1,8 @@
+# Add or update your .dockerignore file
+node_modules
+.next
+.dockerignore
+Dockerfile
+.git
+.gitignore
+README.md

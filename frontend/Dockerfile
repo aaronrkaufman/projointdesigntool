@@ -1,12 +1,18 @@
-FROM node:alpine
-
+# Use a multi-stage build to keep the final image as small as possible
+# Build stage
+FROM node:alpine as builder
 WORKDIR /app
-
-COPY ./package* ./
+COPY package*.json ./
 RUN npm ci
-
 COPY . .
-
 RUN npm run build
 
-CMD [ "npm", "start" ]
+# Production stage
+FROM node:alpine
+WORKDIR /app
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+CMD ["npm", "start"]
