@@ -56,14 +56,14 @@ export const Sidebar = ({ active }: { active: string }) => {
       <div className={styles.top} onClick={handleAddDoc}>
         <h3>Projoint</h3>
         {/* <button onClick={handleAddDoc}>+</button> */}
-        {/* <LightTooltip
+        <LightTooltip
           disableInteractive
           title="New file"
           arrow
           placement="right"
         >
           <FileAdd />
-        </LightTooltip> */}
+        </LightTooltip>
       </div>
       <span className={styles.line}></span>
       <Documents documents={documents} active={active} />

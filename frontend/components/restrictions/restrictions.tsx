@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import styles from "./restrictions.module.css";
-import { Statement } from "./statement";
 import { useAttributes } from "../../context/attributes_context";
 import { PlusIcon } from "../ui/icons";
 import { Restriction, RestrictionProps } from "./restriction";

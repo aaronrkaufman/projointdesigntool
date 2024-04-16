@@ -21,12 +21,10 @@ export const Document = ({ name, active, id }: IDoc) => {
   const router = useRouter();
 
   const isPath = (path: string) => {
-    console.log(router.asPath, router.asPath.includes(path));
     return router.asPath.includes(path);
   };
 
   const handleDelete = () => {
-    console.log(`attributes-${id}`);
     localStorage.removeItem(`attributes-${id}`);
     setStorageChanged((prev) => prev + 1);
     router.push(`/document}`);

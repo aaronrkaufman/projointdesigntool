@@ -4,7 +4,7 @@ import { Attribute } from "../context/attributes_context";
 import { preproccessAttributes, preprocessRestrictions } from "./utils";
 
 const api = axios.create({
-  baseURL: "https://projoint.abudhabi.nyu.edu/api/",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });
 
 export default api;
@@ -48,6 +48,7 @@ export const getPreview = async (
   attributes: Attribute[]
   // retstrictions: string[][][]
 ): Promise<string[][]> => {
+  console.log("HERE TRIED", api.defaults.baseURL);
   try {
     const processedAttributes = preproccessAttributes(attributes);
     const processedRestrictions = preprocessRestrictions([]);
