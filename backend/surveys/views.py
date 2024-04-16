@@ -1266,19 +1266,17 @@ def noDuplicate_csv(request):
         rows = []
         while len(rows) < CSV_FILES_NUM:
             row = []
-            # Shuffle the attributes for each row
-            shuffled_attributes = random.sample(attributes, len(attributes))
-            for attribute in shuffled_attributes:
+            for attribute in attributes:
                 att_name = attribute['name']
                 row.append(att_name)
-                for j in range(1, profiles + 1):
-                    random_level = random.choice(attribute['levels'])['name']
-                    row.append(random_level)
+                
+                randomized_levels = [random.choice(attribute['levels'])['name'] for _ in range(profiles + 1)]
+                row.extend(randomized_levels)
             rows.append(row)
 
         previews.extend(rows)
 
-        with open("profiles.csv", "w") as file:
+        with open("unique_profiles.csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows(previews)
         return _sendFileResponse("profiles.csv")
