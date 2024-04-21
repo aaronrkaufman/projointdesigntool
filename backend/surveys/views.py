@@ -8,6 +8,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
 from .models import Survey
 from .serializers import SurveySerializer, ShortSurveySerializer
+from functools import reduce
 import requests, os, random, json, csv
 
 
@@ -249,10 +250,25 @@ for (var p = 1; p <= K; p++) {
   }
 }
 
+
 // Write returnarray to Qualtrics
 
 var returnarrayKeys = Object.keys(returnarray);
-
+"""
+temp_dup = """
+// Duplicate profiles
+for (const key in returnarray) {
+  if (returnarray.hasOwnProperty(key)) {
+    if (key.startsWith('F-2')) {
+      let correspondingKey = 'F-1' + key.substring(3); // Get corresponding key starting with 'F-1'
+      if (returnarray[correspondingKey]) {
+        returnarray[key] = returnarray[correspondingKey]; // Set value of 'F-2' key to be the same as 'F-1' counterpart
+      }
+    }
+  }
+}
+"""
+temp_4 = """
 for (var pr = 0; pr < returnarrayKeys.length; pr++) {
   Qualtrics.SurveyEngine.setEmbeddedData(
     returnarrayKeys[pr],
@@ -261,6 +277,7 @@ for (var pr = 0; pr < returnarrayKeys.length; pr++) {
 }
 
 """
+
 def _checkAttributes(attributes):
     # Raise error if level is missing
     for attribute in attributes:
@@ -305,12 +322,14 @@ def _createFile(request):
     constraints = request.data.get("constraints", [])
     restrictions = request.data.get("restrictions", [])
     filename = request.data.get("filename", "survey.js")
-    profiles = request.data.get("profiles", 2)
+    profiles = request.data.get("profiles", 2) #PROFILE NUM #FIX
     tasks = request.data.get("tasks", 5)
     randomize = request.data.get("randomize", 1)
     noDuplicates = request.data.get("noDuplicates", 0)
     random = request.data.get("random", 0)
     advanced = request.data.get("advanced", {})
+    duplicates = request.data.get("duplicates", [2, 4])
+    noFlip = request.data.get("noFlip", 0)
 
     resp = _checkAttributes(attributes)
     if resp:
@@ -334,6 +353,7 @@ def _createFile(request):
         file_js.write("// num_attributes = Number of Attributes in the Array\n")
         file_js.write("var num_attributes = featurearray.length;\n\n")
         file_js.write("// Should duplicate profiles be rejected?\n")
+        file_js.write("let dupprofiles = [" + str(duplicates[0]) + "," + str(duplicates[1]) + "]" + "\n")
         file_js.write(f"var noDuplicateProfiles = {'true' if noDuplicates else 'false'};\n\n")
 
         if randomize == 1:
@@ -362,7 +382,44 @@ def _createFile(request):
             file_js.write("var featureArrayNew = featurearray;\n\n")
 
         file_js.write(temp_3)
+        
+        if noFlip:
+            file_js.write("""
+                // Duplicate profiles
+                for (const key in returnarray) {
+                if (returnarray.hasOwnProperty(key)) {
+                    if (key.startsWith('F-{}')) {
+                    let correspondingKey = 'F-{}' + key.substring(3); // Get corresponding key starting with 'F-1'
+                    if (returnarray[correspondingKey]) {
+                        returnarray[key] = returnarray[correspondingKey]; // Set value of 'F-2' key to be the same as 'F-1' counterpart
+                    }
+                    }
+                }
+                }
+                """).format(duplicates[0], duplicates[1])
+        else:
+            file_js.write("""
+            for (let i = 1; i <= N; i++) { // Loop through tasks starting from Task 2
+                let startKey = 'F-{}-' + curr;
+                let trailKey = 'F-{}-' + i;
+                for (let j = 1 ; j <= num_attributes; j++){
+                    let correspondingKey = startKey + '-' + j;
+                    let trailCorKey = trailKey + '-' + j;
+                    if (returnarray[correspondingKey]){
+                        returnarray[correspondingKey] = returnarray[trailCorKey];
+                    }
+                };
+                curr -=1;
+            }
 
+            for(let i=1 ; i<=num_attributes; i++){
+                let startKey = 'F-1-' + i;
+                let trailKey = 'F-2-' + i;
+                if (returnarray[startKey]){
+                    returnarray[startKey] = returnarray[trailKey];
+                }
+            """).format(duplicates[0], duplicates[1])
+        file_js.write(temp_4)
         file_js.close()
     return filename
 
@@ -719,18 +776,42 @@ def preview_survey(request):
 @api_view(["POST"])
 def preview_csv(request):
     try:
+        CSV_FILES_NUM = 500
         attributes = request.data.get("attributes")
         restrictions = request.data.get("restrictions", [])
         cross_restrictions = request.data.get("cross_restrictions", [])
         profiles = request.data.get("profiles", 2)
+
+        #To calculate the total number of combinations
+        levels_per_attribute = [len(attribute['levels']) for attribute in attributes]
+        profiles_per_attribute = [profiles for _ in attributes]
         
+        
+        header = []
+        for i in range(1, len(attributes) + 1):
+            for j in range(1, profiles + 2):
+                if j == 1:
+                    header.append(f'ATT{i}')
+                else:
+                    header.append(f'ATT{i}P{j-1}')
         previews = []
-        CSV_FILES_NUM = 500
-        if any(not attribute["levels"] for attribute in attributes):
-            return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-        for i in range(CSV_FILES_NUM):
-            previews.append([i + 1, *[char for profile in _createProfiles(profiles, attributes, restrictions, cross_restrictions) for char in profile]])
-        
+        previews.append(header)
+
+        rows = []
+        while len(rows) < CSV_FILES_NUM:
+            row = []
+            # Shuffle the attributes for each row
+            shuffled_attributes = random.sample(attributes, len(attributes))
+            for attribute in shuffled_attributes:
+                att_name = attribute['name']
+                row.append(att_name)
+                for j in range(1, profiles + 1):
+                    random_level = random.choice(attribute['levels'])['name']
+                    row.append(random_level)
+            rows.append(row)
+
+        previews.extend(rows)
+
         with open("profiles.csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows(previews)
@@ -810,7 +891,7 @@ def __CreateBlock(surveyID, bl, user_token):
     return response["result"]["BlockID"]
 
 
-def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, duplicates, repeatFlip):
+def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, duplicates, repeatFlip, doubleQ):
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions"
     payload = {"SurveyName": name, "Language": "AR", "ProjectCategory": "CORE"}
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
@@ -821,11 +902,16 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, dup
         bl = __GetFlow(surveyID, user_token)
         blockID = __CreateBlock(surveyID, bl, user_token)
         currText = __CreateHTML(i, num_attr, profiles, i-1, 0)
-        if i==d2:
-            currText = __CreateHTML(d1, num_attr, profiles, i-1, repeatFlip)
+        #if i==d2:
+            #currText = __CreateHTML(d1, num_attr, profiles, i-1, repeatFlip)
         currQ = __CreateQuestion(
             surveyID, currText, blockID, user_token, profiles, js, i
         )
+        if doubleQ: 
+            currQ = __CreateQuestion(
+                surveyID, " ", blockID, user_token, profiles, js, i
+            )
+    __EmbFields(surveyID, user_token, num_attr, profiles, task)
     return surveyID
 
 
@@ -873,10 +959,42 @@ def __GetFlow(surveyID, user_token):
     # print(response["result"]["Flow"][0]["ID"])
     return response["result"]["Flow"][0]["ID"]
 
+def __EmbFields(surveyID, user_token, num_attr ,profiles,tasks):
+    url = "https://yul1.qualtrics.com/API/v3/surveys/" + surveyID + "/embeddeddatafields"
+    headers = {
+        'X-API-TOKEN': user_token,
+        'Content-Type': 'application/json'
+    }
 
-def __DownloadSurvey(surveyID, user_token):
+    fields = []
+    for i in range(1, tasks+1):
+        for j in range(1, profiles + 1):
+            key = F'F-{i}-{j}'
+            fields.append({
+                "key": key,
+                "type": "text"
+            })
+            for k in range(1, num_attr + 1):
+                sub_key = F'{key}-{k}'
+                fields.append({
+                    "key": sub_key,
+                    "type": "text"
+                })
+ 
+    payload = { "embeddedDataFields": fields }
+
+    headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json, application/xml",
+    "X-API-TOKEN": user_token
+    }
+
+    # Make the API request to set embedded fields without values
+    response = requests.post(url, json=payload, headers=headers)
+
+
+def __DownloadSurvey(surveyID, user_token, doubleQ):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}"
-
     headers = {
         "Content-Type": "application/json",
         "X-API-TOKEN": user_token,
@@ -888,15 +1006,43 @@ def __DownloadSurvey(surveyID, user_token):
 
     try:
         response = requests.get(url, headers=headers, params=querystring)
+        questionType = ['MC', 'SAVR']
+        questionType2 = ['TE', 'SL']
+        #questionType = ["Slider", "HSLIDER"] 
+        #questionType = ["RO", "DND"]
 
         if response.status_code == 200:
             response_json = response.json()
-            qsf_json = response_json.get("result", {})
-            qsf_data = json.dumps(qsf_json)  # QSF data in the response text
+            qsf_data = response_json.get("result", {})
+            
+            if doubleQ: 
+                counter = 0
+                for i in qsf_data['SurveyElements']:
+                    if 'Payload' in i:
+                        counter +=1
+                        curr = i['Payload']
+                        if curr and 'QuestionType' in curr:
+                            if counter%2==1:
+                                curr['QuestionType'] = questionType[0]
+                            else:
+                                curr['QuestionType'] = questionType2[0]
+                        if curr and 'Selector' in curr:
+                            if counter%2==1:
+                                curr['Selector'] = questionType[1]
+                            else:
+                                curr['Selector'] = questionType2[1]
+            else:
+                for i in qsf_data['SurveyElements']:
+                    if 'Payload' in i:
+                        curr = i['Payload']
+                        if curr and 'QuestionType' in curr:
+                            curr['QuestionType'] = questionType[0]
+                        if curr and 'Selector' in curr:
+                            curr['Selector'] = questionType[1]
 
             # Save the QSF data to a file named "survey.qsf"
             with open("survey.qsf", "w") as qsf_file:
-                qsf_file.write(qsf_data)
+                json.dump(qsf_data, qsf_file)
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
@@ -947,6 +1093,8 @@ def create_qualtrics(request):
     tasks = request.data.get("tasks", 5)
     duplicates = request.data.get("duplicates", [2,4])
     repeatFlip = request.data.get("repeatFlip", 1)
+    doubleQ = request.data.get("doubleQ", False)
+
     resp = _checkAttributes(attributes)
     if resp:
         return resp
@@ -961,12 +1109,12 @@ def create_qualtrics(request):
                 });\nQualtrics.SurveyEngine.addOnUnload(function()\
                 {\n/*Place your JavaScript here to run when the page is unloaded*/});"
     js_text = "//" + js_py + "\n"+ js_text
-    user_token = "ZOxp1TYLxPH8dlBs1FogWM3UNdKsLTHVmUAB1Rfm"  # FIGURE OUT BETTER WAY TO STORE THIS
+    user_token = "mz1rvjsRNwqqvl5laoESTZYdUP3nsYPO4fplYncM"  # FIGURE OUT BETTER WAY TO STORE THIS
     created = __CreateSurvey(
-        filename, user_token, tasks, len(attributes), profiles, "", js_text, duplicates, repeatFlip
+        filename, user_token, tasks, len(attributes), profiles, "", js_text, duplicates, repeatFlip, doubleQ
     )
     
-    __DownloadSurvey(created, user_token)
+    __DownloadSurvey(created, user_token, doubleQ)
     return _sendFileResponse("survey.qsf")
 
 
@@ -1046,3 +1194,97 @@ def qsf_to_attributes(request):
     if flag: # If QSF invalid, will return empty json
         attribute_data = {}
     return attribute_data
+
+@extend_schema(
+    request=SurveySerializer,
+    responses={
+        status.HTTP_201_CREATED: OpenApiResponse(
+            response="text/csv",
+            description="A CSV file containing the preview of survey data.",
+            examples=[
+                OpenApiExample(
+                    name="PreviewCSVFileExample",
+                    summary="Exported Preview CSV File (No duplicates)",
+                    description="A CSV file stream containing the preview of survey data of all possible combinations.",
+                    value={
+                        "content_type": "text/csv",
+                        "headers": {
+                            "Content-Disposition": 'attachment; filename="preview.csv"'
+                        },
+                    },
+                    response_only=True,
+                    status_codes=[str(status.HTTP_201_CREATED)],
+                ),
+            ],
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Bad Request, no survey data or invalid data provided",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name="SurveyPreviewFailEmpty",
+                    description="The survey data provided is empty.",
+                    value={"message": "Survey is empty."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+                OpenApiExample(
+                    name="SurveyPreviewFailInvalid",
+                    description="The survey data provided is invalid.",
+                    value={"message": "Invalid survey data."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+            ],
+        ),
+    },
+    description="Generates and sends a CSV file of profile combinations based on provided attributes.",
+)
+@api_view(["POST"])
+def noDuplicate_csv(request):
+    try:
+        CSV_FILES_NUM = 500
+        attributes = request.data.get("attributes")
+        restrictions = request.data.get("restrictions", [])
+        profiles = request.data.get("profiles", 2)
+
+        #To calculate the total number of combinations
+        levels_per_attribute = [len(attribute['levels']) for attribute in attributes]
+        profiles_per_attribute = [profiles for _ in attributes]
+        
+        
+        header = []
+        for i in range(1, len(attributes) + 1):
+            for j in range(1, profiles + 2):
+                if j == 1:
+                    header.append(f'ATT{i}')
+                else:
+                    header.append(f'ATT{i}P{j-1}')
+        previews = []
+        previews.append(header)
+
+        rows = []
+        while len(rows) < CSV_FILES_NUM:
+            row = []
+            for attribute in attributes:
+                att_name = attribute['name']
+                row.append(att_name)
+                
+                randomized_levels = [random.choice(attribute['levels'])['name'] for _ in range(profiles + 1)]
+                row.extend(randomized_levels)
+            rows.append(row)
+
+        previews.extend(rows)
+
+        with open("unique_profiles.csv", "w") as file:
+            writer = csv.writer(file)
+            writer.writerows(previews)
+        return _sendFileResponse("profiles.csv")
+        #response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
+        #response["Content-Disposition"] = 'attachment; filename="survey.csv"'
+
+    except:
+        return Response(
+            {"message": "Invalid survey data."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
