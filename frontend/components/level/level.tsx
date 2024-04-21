@@ -76,14 +76,14 @@ export const Level = ({ name, index, id, attributeName }: ILevelComponent) => {
             ) : (
               <p className={styles.levelName}>{levelName}</p>
             )}
-            {/* <p
+            <p
               onClick={() => {
                 deleteLevelFromAttribute(attributeName, index);
               }}
               className={styles.deleteLevel}
             >
               x
-            </p> */}
+            </p>
           </div>
         </li>
       )}

@@ -134,7 +134,6 @@ export const Survey: FC = () => {
           <div>Last edited: {getTimeElapsed(lastEdited)}</div>
         </div>
         <div>
-          {/* <p>Description</p> */}
           <input
             className={`${styles.input} ${styles.inputField}`}
             value={description}
@@ -152,20 +151,13 @@ export const Survey: FC = () => {
               ref={provided.innerRef}
             >
               {attributes.map((attribute, index) => (
-                <AttributeContainer
+                <AttributeContainer 
                   key={attribute.key}
                   attribute={attribute}
                   index={index}
                 />
               ))}
               {provided.placeholder}
-              {/* {isCreatingAttribute && (
-                <AttributeContainer
-                  isCreator
-                  addNewAttribute={addNewAttribute}
-                  cancelNewAttribute={cancelNewAttribute}
-                />
-              )} */}
             </ul>
           )}
         </Droppable>

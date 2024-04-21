@@ -166,7 +166,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                     {provided.placeholder}
                     <li>
                       <button
-                        className={styles.btn}
+                        className={styles.addLevel}
                         onClick={() =>
                           addLevelToAttribute(attribute.name, "Untitled")
                         }

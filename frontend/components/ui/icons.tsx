@@ -100,7 +100,6 @@ export const ThreeDots = forwardRef<
           display: "flex",
           alignItems: "center",
           height: "12px",
-          zIndex: 10,
         }}
         {...props}
         onClick={handleToggle}
@@ -127,7 +126,11 @@ export const ThreeDots = forwardRef<
             <Paper
               elevation={0}
               variant="outlined"
-              sx={{ borderRadius: "0.5rem", width: "10rem" }}
+              sx={{
+                borderRadius: "0.5rem",
+                width: "10rem",
+                position: "relative",
+              }}
             >
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList
