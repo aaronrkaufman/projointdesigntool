@@ -1,14 +1,4 @@
-import React, {
-  FC,
-  KeyboardEvent,
-  ChangeEvent,
-  useState,
-  useRef,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-  useContext,
-} from "react";
+import React, { FC, useState, useRef, useEffect, useContext } from "react";
 import styles from "../survey/survey.module.css";
 import { IAttribute } from "./attribute.container";
 import { HighlightedContext } from "../../context/highlighted";
@@ -22,22 +12,16 @@ import { DeleteTip, ExpandIcon, LightTooltip } from "../ui/icons";
 interface PropsAttributeComponent {
   attribute: IAttribute;
   show: boolean;
-  newLevel: string;
   onShow: () => void;
-  onKeyPress: (event: KeyboardEvent) => void;
   onBlur: () => void;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   index: number;
 }
 
 export const Attribute: FC<PropsAttributeComponent> = ({
   attribute,
   show,
-  newLevel,
   onShow,
-  onKeyPress,
   onBlur,
-  onChange,
   index,
 }) => {
   // console.log(attribute, index);
@@ -50,7 +34,8 @@ export const Attribute: FC<PropsAttributeComponent> = ({
     setCurrentWeights,
   } = useContext(HighlightedContext);
 
-  const { deleteAttribute, handleAttributeNameChange } = useAttributes();
+  const { deleteAttribute, handleAttributeNameChange, addLevelToAttribute } =
+    useAttributes();
 
   const [isEditing, setIsEditing] = useState(false);
   const [attributeName, setAttributeName] = useState<string>(attribute.name);
@@ -180,16 +165,14 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                     ))}
                     {provided.placeholder}
                     <li>
-                      {/* <span className={styles.circle}></span> */}
-                      <input
-                        type="text"
-                        className={styles.input}
-                        placeholder={"Add level"}
-                        value={newLevel}
-                        onChange={onChange}
-                        onKeyDown={onKeyPress}
-                        onBlur={onBlur}
-                      />
+                      <button
+                        className={styles.btn}
+                        onClick={() =>
+                          addLevelToAttribute(attribute.name, "Untitled")
+                        }
+                      >
+                        Add level
+                      </button>
                     </li>
                   </ul>
                 )}

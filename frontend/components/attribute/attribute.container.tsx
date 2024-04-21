@@ -18,7 +18,6 @@ export interface IAttribute {
 
 interface PropsAttributeContainer {
   attribute?: IAttribute;
-  addLevel?: (attributeName: string, newLevel: string) => void;
   addNewAttribute?: (name: string) => void;
   cancelNewAttribute?: () => void;
   isCreator?: boolean; // To determine whether to render AttributeCreator or AttributeComponent
@@ -27,7 +26,6 @@ interface PropsAttributeContainer {
 
 export const AttributeContainer: FC<PropsAttributeContainer> = ({
   attribute,
-  addLevel,
   addNewAttribute,
   cancelNewAttribute,
   isCreator = false,
@@ -38,12 +36,12 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
   const [name, setName] = useState<string>("");
 
   // Handle key press for AttributeComponent
-  const handleKeyPressAttribute = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter" && newLevel.trim() !== "" && addLevel) {
-      if (attribute) addLevel(attribute.name, newLevel);
-      setNewLevel("");
-    }
-  };
+  // const handleKeyPressAttribute = (event: React.KeyboardEvent) => {
+  //   if (event.key === "Enter" && newLevel.trim() !== "" && addLevel) {
+  //     if (attribute) addLevel(attribute.name, newLevel);
+  //     setNewLevel("");
+  //   }
+  // };
 
   // Handle blur for AttributeCreator
   const handleBlurCreator = () => {
@@ -84,11 +82,8 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
   ) : (
     <Attribute
       show={show}
-      newLevel={newLevel}
       onShow={handleShow}
-      onKeyPress={handleKeyPressAttribute}
       onBlur={() => setNewLevel("")}
-      onChange={(e) => setNewLevel(e.target.value)}
       attribute={
         attribute ?? {
           name: "",

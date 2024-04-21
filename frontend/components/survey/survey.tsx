@@ -33,7 +33,6 @@ export const Survey: FC = () => {
     setEdited,
     attributes,
     instructions,
-    addLevelToAttribute,
     isCreatingAttribute,
     addNewAttribute,
     cancelNewAttribute,
@@ -157,7 +156,6 @@ export const Survey: FC = () => {
                   key={attribute.key}
                   attribute={attribute}
                   index={index}
-                  addLevel={addLevelToAttribute}
                 />
               ))}
               {provided.placeholder}
