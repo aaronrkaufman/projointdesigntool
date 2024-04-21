@@ -1,13 +1,27 @@
 import React, { useState, useRef, useEffect } from "react";
-import styles from "../restrictions//dropdown.module.css"; // Import your styles here
+import styles from "./survey.module.css"; // Import your styles here
 import { downloadSurvey } from "../../services/api";
 import { useAttributes } from "../../context/attributes_context";
 import { Button } from "../ui/button";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import { CodeFileIcon, ExportIcon, XIcon } from "../ui/icons";
 
 // interface IDropdown {
 //   items: string[];
 //   setSelected: (item: string) => void;
 // }
+
+const modalStyle = {
+  position: "absolute" as "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 450,
+  bgcolor: "var(--light-blue)",
+  borderRadius: "1rem",
+  // p: 2,
+};
 
 const ExportDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,20 +59,64 @@ const ExportDropdown: React.FC = () => {
   }, []);
 
   return (
-    <div className={styles.dropdown} ref={dropdownRef}>
-      <button className={styles.dropdownButton} onClick={toggleOpen}>
-        Export
-      </button>
-      {isOpen && (
-        <ul className={`${styles.dropdownContent} ${styles.active}`}>
-          <li onClick={() => handleDownload("qualtrics")}>
-            Export to Qualtrics
-          </li>
-          <li onClick={() => handleDownload("export")}>Export to JS</li>
-          <li onClick={() => handleDownload("preview_csv")}>Export to CSV</li>
-        </ul>
-      )}
-    </div>
+    <>
+      <Button
+        text="Export"
+        icon={<ExportIcon stroke="white" />}
+        onClick={toggleOpen}
+      ></Button>
+      <Modal
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        aria-labelledby="export-modal-title"
+        aria-describedby="export-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <div className={styles.modalHeader}>
+            <h2 id="export-modal-title">Export this document</h2>
+            <XIcon />
+          </div>
+          <ul className={styles.modalList}>
+            <li>
+              <div className={styles.modalListItem}>
+                <CodeFileIcon stroke="var(--blue)" />
+                <p> Export to Qualtrics</p>
+              </div>
+              <button
+                onClick={() => handleDownload("qualtrics")}
+                className={styles.modalListItemButton}
+              >
+                Export
+              </button>
+            </li>
+            <li>
+              <div className={styles.modalListItem}>
+                <CodeFileIcon stroke="var(--blue)" />
+                <p>Export to JS</p>
+              </div>
+              <button
+                onClick={() => handleDownload("export")}
+                className={styles.modalListItemButton}
+              >
+                Export
+              </button>
+            </li>
+            <li>
+              <div className={styles.modalListItem}>
+                <CodeFileIcon stroke="var(--blue)" />
+                <p>Export to CSV</p>
+              </div>
+              <button
+                onClick={() => handleDownload("preview_csv")}
+                className={styles.modalListItemButton}
+              >
+                Export
+              </button>
+            </li>
+          </ul>
+        </Box>
+      </Modal>
+    </>
   );
 };
 

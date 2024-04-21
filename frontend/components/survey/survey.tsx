@@ -98,26 +98,27 @@ export const Survey: FC = () => {
     <section className={styles.survey}>
       <div className={styles.surveyContainer}>
         <div className={styles.top}>
-          {isEditing ? (
-            <input
-              ref={inputRef}
-              value={docName}
-              style={{ width: `${(docName.length + 1) * 9.75}px` }}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              className={styles.editableInput}
-              // additional styling or attributes
-            />
-          ) : (
-            <h2
-              onClick={() => {
-                setIsEditing(true);
-              }}
-            >
-              {docName}
-            </h2>
-          )}
-          {/* {highlightedAttribute === -1 ? (
+          <div className={styles.docName}>
+            {isEditing ? (
+              <input
+                ref={inputRef}
+                value={docName}
+                style={{ width: `${(docName.length + 1) * 9.75}px` }}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                className={styles.editableInput}
+                // additional styling or attributes
+              />
+            ) : (
+              <h2
+                onClick={() => {
+                  setIsEditing(true);
+                }}
+              >
+                {docName}
+              </h2>
+            )}
+            {/* {highlightedAttribute === -1 ? (
             ""
           ) : (
             <Button
@@ -129,9 +130,9 @@ export const Survey: FC = () => {
               }
             ></Button>
           )} */}
-          {/* <ExportDropdown /> */}
-          {/* <CustomDropdown /> */}
-          <div>Last edited: {getTimeElapsed(lastEdited)}</div>
+            <div>Last edited: {getTimeElapsed(lastEdited)}</div>
+          </div>
+          <ExportDropdown />
         </div>
         <div>
           <input
@@ -151,7 +152,7 @@ export const Survey: FC = () => {
               ref={provided.innerRef}
             >
               {attributes.map((attribute, index) => (
-                <AttributeContainer 
+                <AttributeContainer
                   key={attribute.key}
                   attribute={attribute}
                   index={index}
