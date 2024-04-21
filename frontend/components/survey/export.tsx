@@ -23,7 +23,7 @@ const modalStyle = {
   // p: 2,
 };
 
-const ExportDropdown: React.FC = () => {
+const ExportDropdown: React.FC = ({ type }: { type?: string }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -60,11 +60,20 @@ const ExportDropdown: React.FC = () => {
 
   return (
     <>
-      <Button
-        text="Export"
-        icon={<ExportIcon stroke="white" />}
-        onClick={toggleOpen}
-      ></Button>
+      {type === "big" ? (
+        <div
+          style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+          onClick={toggleOpen}
+        >
+          <ExportIcon /> <p>Export</p>{" "}
+        </div>
+      ) : (
+        <Button
+          text="Export"
+          icon={<ExportIcon stroke="white" />}
+          onClick={toggleOpen}
+        ></Button>
+      )}
       <Modal
         open={isOpen}
         onClose={() => setIsOpen(false)}
@@ -74,7 +83,7 @@ const ExportDropdown: React.FC = () => {
         <Box sx={modalStyle}>
           <div className={styles.modalHeader}>
             <h2 id="export-modal-title">Export this document</h2>
-            <XIcon />
+            <XIcon onClick={() => setIsOpen(false)} />
           </div>
           <ul className={styles.modalList}>
             <li>

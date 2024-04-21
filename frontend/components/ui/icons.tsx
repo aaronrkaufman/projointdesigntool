@@ -13,6 +13,7 @@ import {
 import { styled } from "@mui/material/styles";
 import React from "react";
 import Image from "next/image";
+import ExportDropdown from "../survey/export";
 
 export const FileAdd = forwardRef<HTMLDivElement>((props, ref) => {
   return (
@@ -149,7 +150,7 @@ export const ThreeDots = forwardRef<
                       fontWeight: "medium",
                     }}
                   >
-                    <ExportIcon /> <p>Export</p>
+                    <ExportDropdown type={"big"} />
                   </MenuItem>
                   <MenuItem
                     sx={{

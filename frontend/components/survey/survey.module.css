@@ -364,6 +364,10 @@
   color: var(--dark-blue-p);
 }
 
+.modalHeader svg:hover {
+  cursor: pointer;
+}
+
 .modalList {
   padding: 1rem;
 }
