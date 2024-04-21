@@ -23,7 +23,11 @@ const modalStyle = {
   // p: 2,
 };
 
-const ExportDropdown: React.FC = ({ type }: { type?: string }) => {
+interface IExportDropdown {
+  size: "big" | "small";
+}
+
+const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -60,9 +64,14 @@ const ExportDropdown: React.FC = ({ type }: { type?: string }) => {
 
   return (
     <>
-      {type === "big" ? (
+      {size === "big" ? (
         <div
-          style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+          }}
           onClick={toggleOpen}
         >
           <ExportIcon /> <p>Export</p>{" "}

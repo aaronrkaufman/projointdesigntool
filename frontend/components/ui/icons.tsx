@@ -150,7 +150,7 @@ export const ThreeDots = forwardRef<
                       fontWeight: "medium",
                     }}
                   >
-                    <ExportDropdown type={"big"} />
+                    <ExportDropdown size={"big"} />
                   </MenuItem>
                   <MenuItem
                     sx={{
