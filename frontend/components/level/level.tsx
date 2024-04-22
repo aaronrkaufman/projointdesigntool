@@ -45,7 +45,7 @@ export const Level = ({ name, index, id, attributeName }: ILevelComponent) => {
   };
 
   return (
-    <Draggable key={id} draggableId={`draggable-level-${name}`} index={index}>
+    <Draggable key={id} draggableId={`draggable-level-${id}`} index={index}>
       {(providedHere) => (
         <li
           ref={providedHere.innerRef}

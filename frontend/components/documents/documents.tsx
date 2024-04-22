@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Document, IDocument } from "./document";
+import { Document, IDocument } from "./__item/document";
 import styles from "./documents.module.css";
 
 export const Documents = ({

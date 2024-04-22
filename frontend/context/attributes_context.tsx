@@ -154,6 +154,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
       setEdited(false);
 
       console.log("maybe now?");
+      console.log(attributes[0].levels);
     }
   }, [
     attributes,
@@ -210,8 +211,8 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         if (attribute.name === attributeName) {
           const newNumberOfLevels = attribute.levels.length + 1;
           const newWeight = parseFloat((1 / newNumberOfLevels).toFixed(2));
-          const newLevels = attribute.levels.map((lvl, index) => {
-            return { ...lvl, weight: newWeight, id: index + 1 };
+          const newLevels = attribute.levels.map((lvl) => {
+            return { ...lvl, weight: newWeight };
           });
           return {
             ...attribute,
@@ -310,7 +311,6 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const saveRestriction = (restriction: RestrictionProps) => {
-    console.log("something");
     // Assuming we have a function to save the entire array of restrictions to local storage
     setRestrictions((prevRestrictions) => {
       const index = prevRestrictions.findIndex((r) => r.id === restriction.id);
@@ -327,21 +327,6 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited(true);
   };
 
-  // Function to add a restriction to an attribute
-  // const addRestrictionToAttribute = (newRestriction: string) => {
-  //   console.log(restrictions);
-  //   setRestrictions((prev) => [...prev, newRestriction]);
-
-  //   setEdited(true);
-  // };
-
-  // const addRestrictionToAttribute = (newRestriction: RestrictionProps) => {
-  //   console.log(restrictions);
-  //   setRestrictions((prev) => [...prev, newRestriction]);
-
-  //   setEdited(true);
-  // };
-
   // // Function to delete a restriction from an attribute
   const deleteRestriction = (restrictionID: string) => {
     setRestrictions((prev) => {
@@ -356,22 +341,6 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
 
     setEdited(true);
   };
-
-  // // Function to edit an existing restriction
-  // const editRestrictionInAttribute = (
-  //   restrictionIndex: number,
-  //   newRestriction: RestrictionProps
-  // ) => {
-  //   setRestrictions((prev) =>
-  //     prev.map((restr, index) => {
-  //       if (index === restrictionIndex) {
-  //         return newRestriction;
-  //       }
-  //       return restr;
-  //     })
-  //   );
-  //   setEdited(true);
-  // };
 
   const updateWeight = (attributeKey: number, newWeights: number[]) => {
     setAttributes((prevAttributes) =>

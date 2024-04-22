@@ -3,7 +3,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Documents } from "./documents/documents";
 import styles from "./sidebar.module.css";
-import { IDocument } from "./documents/document";
+import { IDocument } from "./documents/__item/document";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 import { useAttributes } from "../context/attributes_context";

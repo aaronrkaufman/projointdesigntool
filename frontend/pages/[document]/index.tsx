@@ -3,7 +3,7 @@
 import styles from "../../styles/page.module.css";
 import { Sidebar } from "../../components/sidebar";
 import { SurveyContainer } from "../../components/survey/survey.container";
-import { IDocument } from "../../components/documents/document";
+import { IDocument } from "../../components/documents/__item/document";
 import { DocumentContext } from "../../context/document_context";
 import { useContext, useEffect } from "react";
 

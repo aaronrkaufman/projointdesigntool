@@ -23,6 +23,8 @@ export const FileAdd = forwardRef<HTMLDivElement>((props, ref) => {
   );
 });
 
+FileAdd.displayName = "FileAdd";
+
 export const FileIcon = ({ stroke }: { stroke: string }) => {
   return (
     <svg
@@ -175,6 +177,8 @@ export const ThreeDots = forwardRef<
     </div>
   );
 });
+
+ThreeDots.displayName = "ThreeDots";
 
 export const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -337,6 +341,8 @@ export const DeleteTip = forwardRef<SVGSVGElement>((props, ref) => {
     </svg>
   );
 });
+
+DeleteTip.displayName = "DeleteTip";
 
 export const CodeFileIcon = ({ stroke = "white" }: { stroke?: string }) => {
   return (

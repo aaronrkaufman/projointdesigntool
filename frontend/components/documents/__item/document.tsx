@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
-import { useAttributes } from "../../context/attributes_context";
-import { FileIcon, LightTooltip, ThreeDots } from "../ui/icons";
-import styles from "./documents.module.css";
+import { useAttributes } from "../../../context/attributes_context";
+import { FileIcon, LightTooltip, ThreeDots } from "../../ui/icons";
+import styles from "../documents.module.css";
 import Link from "next/link";
 
 export interface IDocument {
