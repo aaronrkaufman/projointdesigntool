@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".", // This must be set to enable path aliases
+    "paths": {
+      "@/*": ["./*"] // Maps "@" to the "services" directory
+    },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,

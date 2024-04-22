@@ -57,9 +57,9 @@ const CustomDropdown: React.FC<IDropdown> = ({
       </button>
       {isOpen && (
         <ul className={`${styles.dropdownContent} ${styles.active}`}>
-          {items.map((number) => (
+          {items.map((number, index) => (
             <li
-              key={number}
+              key={number + index}
               onClick={() => selectOption(number)}
               className={styles.dropdownItem}
             >

@@ -1,0 +1,100 @@
+.level {
+  position: relative;
+}
+
+.level p {
+  color: var(--dark-blue-p) !important;
+  width: 100%;
+}
+
+.level:hover .levelInfo {
+  border-bottom: 2px var(--border-gray) solid;
+}
+
+.level:hover .deleteLevel {
+  visibility: visible;
+}
+
+.level:hover .dragLevel {
+  visibility: visible;
+}
+
+.levelInfo {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px var(--white) solid;
+}
+
+.dragHandle {
+  position: absolute;
+  left: -1.25rem;
+  padding: 0.75rem 1rem 1rem 0;
+  font-size: 1.25rem;
+  visibility: hidden;
+}
+
+.deleteHandle {
+  position: absolute;
+  right: -2.25rem;
+  top: 0;
+  /* visibility: hidden; */
+}
+
+.deleteLevel {
+  width: fit-content;
+  visibility: hidden;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.deleteLevel svg {
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  /* left: 50%; */
+  /* transform: translate(-50%, -50%); */
+  transition: transform 0.25s ease-in-out;
+}
+
+.deleteLevel:hover svg:first-child {
+  transform: rotate(45deg);
+}
+
+.deleteLevel:hover svg:last-child {
+  transform: rotate(-45deg);
+}
+
+.dragLevel {
+  bottom: 0.25rem;
+  top: -0.125rem;
+  left: -0.75rem;
+  /* padding-right: 2rem; */
+  padding-top: 0.5rem;
+}
+
+.input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--blue-p);
+
+  font-size: 1rem;
+  width: 100%;
+}
+
+.inputField {
+  color: var(--dark-blue-p);
+  font-weight: 500;
+}
+
+.input::placeholder {
+  font-weight: 300;
+  color: var(--blue-p);
+}

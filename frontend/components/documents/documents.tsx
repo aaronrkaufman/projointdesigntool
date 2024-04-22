@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Document, IDocument } from "./__item/document";
+import { DocumentItem, IDocument } from "./__item/documents__item";
 import styles from "./documents.module.css";
 
 export const Documents = ({
@@ -12,7 +12,7 @@ export const Documents = ({
   return (
     <ul className={styles.list}>
       {documents.map((document) => (
-        <Document
+        <DocumentItem
           name={document.name}
           active={active == document.key}
           key={document.key}

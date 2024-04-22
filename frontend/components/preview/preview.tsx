@@ -17,8 +17,6 @@ const Preview = ({
   instructions,
   setRefresh,
 }: IPreview) => {
-  const [selectedCar, setSelectedCar] = useState(null);
-
   return (
     <section className={styles.section}>
       <div className={styles.sectionContainer}>
@@ -34,31 +32,18 @@ const Preview = ({
         </div>
         <div className={styles.cardContainer}>
           <ul className={styles.attributes}>
-            {attributes.map((attribute) => (
-              <li key={attribute}>{attribute}:</li>
+            {attributes.map((attribute, index) => (
+              <li key={attribute + index}>{attribute}:</li>
             ))}
           </ul>
           {previews.map((preview, index) => (
-            <div
-              key={index}
-              className={
-                selectedCar === index ? styles.cardSelected : styles.card
-              }
-            >
+            <div key={index} className={styles.card}>
               <ul className={styles.cardContent}>
                 <li className={styles.profile_name}>Profile {index + 1}</li>
-                {preview.map((choice) => (
-                  <li key={choice}>{choice}</li>
+                {preview.map((choice, index) => (
+                  <li key={choice + index}>{choice}</li>
                 ))}
               </ul>
-              {/* <div className={styles.buttonContainer}>
-            <button
-              onClick={() => handleSelectCar(index)}
-              className={styles.selectButton}
-            >
-              {selectedCar === index ? "Selected" : "Select"}
-            </button>
-          </div> */}
             </div>
           ))}
         </div>

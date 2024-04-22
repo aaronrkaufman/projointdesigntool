@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
-import styles from "../survey/survey.module.css";
+import React, { FC, useEffect, useState } from "react";
 
-interface IWeight {
+import styles from "./attribute__weight.module.css";
+
+export interface AttributeWeightProps {
   index: number;
   value: number;
   onWeightChange: (index: number, value: number) => void;
 }
 
-export const Weight = ({ index, value, onWeightChange }: IWeight) => {
-
+export const AttributeWeight: FC<AttributeWeightProps> = ({
+  index,
+  value,
+  onWeightChange,
+}) => {
   useEffect(() => {
     setWeight(value.toString());
   }, [value]);
@@ -25,7 +29,7 @@ export const Weight = ({ index, value, onWeightChange }: IWeight) => {
     }
   };
   return (
-    <li className={styles.weight}>
+    <li className={styles.attribute__weight}>
       <input
         className={`${styles.input}`}
         value={weight}

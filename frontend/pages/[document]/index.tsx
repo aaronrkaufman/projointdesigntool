@@ -1,9 +1,9 @@
 "use client";
 
 import styles from "../../styles/page.module.css";
-import { Sidebar } from "../../components/sidebar";
+import { Sidebar } from "../../components/sidebar/sidebar";
 import { SurveyContainer } from "../../components/survey/survey.container";
-import { IDocument } from "../../components/documents/__item/document";
+import { IDocument } from "../../components/documents/__item/documents__item";
 import { DocumentContext } from "../../context/document_context";
 import { useContext, useEffect } from "react";
 

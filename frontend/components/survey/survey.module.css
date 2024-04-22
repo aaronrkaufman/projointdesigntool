@@ -110,13 +110,6 @@
   visibility: hidden;
 }
 
-.deleteHandle {
-  position: absolute;
-  right: -2.25rem;
-  top: 0;
-  /* visibility: hidden; */
-}
-
 .deleteAttribute {
   background: none;
   outline: none;
@@ -186,78 +179,23 @@
   font-weight: 00;
   display: flex;
   align-items: center;
-  padding: 0.75rem 0.5rem 0.75rem 0.5rem;
+  padding: 0.5rem;
 }
 
-.levels li:first-child {
-  padding-top: 0;
-}
 .levels li:last-child {
   padding-bottom: 0;
   padding-left: 0;
 }
 
-.level {
-  position: relative;
-}
-
-.levelInfo {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px var(--white) solid;
-}
-
-.levelInfo .deleteLevel {
-  width: fit-content;
-  visibility: hidden;
-  cursor: pointer;
-  /* padding: 0.25rem 0.5rem; */
-}
-
-.deleteLevel:hover {
-  background-color: var(--gray);
-}
-
-.levels li:first-child .levelInfo {
+.levels li:first-child div:last-child {
   padding-top: 0;
 }
 
-.level p {
-  color: var(--dark-blue-p);
-  width: 100%;
-}
-
-.level:hover .levelInfo {
-  border-bottom: 2px var(--border-gray) solid;
-}
-
-.level:hover .deleteLevel {
-  visibility: visible;
-}
-
-.level:hover .dragLevel {
-  visibility: visible;
-}
-
-.dragLevel {
-  bottom: 0.25rem;
-  top: 0.125rem;
-  left: -0.75rem;
-  /* padding-right: 2rem; */
-  padding-top: 0.5rem;
-}
-
-.levels li:first-child .dragLevel {
-  right: 0;
-  padding-top: 0;
-  padding-right: 2rem;
-}
-
-.levelInfo {
-  position: relative;
-  display: flex;
+.deleteHandle {
+  position: absolute;
+  right: -2.25rem;
+  top: 0;
+  /* visibility: hidden; */
 }
 
 .input {
@@ -322,13 +260,6 @@
   justify-content: center;
   align-items: center;
   transition: none;
-}
-
-.weight {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
 }
 
 .addLevel {

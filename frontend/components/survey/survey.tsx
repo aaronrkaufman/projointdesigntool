@@ -33,10 +33,7 @@ export const Survey: FC = () => {
     setEdited,
     attributes,
     instructions,
-    isCreatingAttribute,
     addNewAttribute,
-    cancelNewAttribute,
-    handleCreateAttribute,
     updateWeight,
     handleInstructions,
   } = useAttributes();
@@ -132,7 +129,7 @@ export const Survey: FC = () => {
           )} */}
             <div>Last edited: {getTimeElapsed(lastEdited)}</div>
           </div>
-          <ExportDropdown />
+          <ExportDropdown size="small" />
         </div>
         <div>
           <input
@@ -140,7 +137,7 @@ export const Survey: FC = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onBlur={() => handleInstructions(description, "description")}
-            placeholder="Enter your description here! Example: 'Here are two porfiles A and B'"
+            placeholder="Enter your description here! Example: 'Here are two profiles A and B'"
           ></input>
         </div>
 

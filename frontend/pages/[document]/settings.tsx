@@ -1,7 +1,7 @@
 // "use client";
 
 import styles from "../../styles/page.module.css";
-import { Sidebar } from "../../components/sidebar";
+import { Sidebar } from "../../components/sidebar/sidebar";
 import { DocumentContext } from "../../context/document_context";
 import { useContext, useEffect, useState } from "react";
 import Preview, { IPreview } from "../../components/preview/preview";

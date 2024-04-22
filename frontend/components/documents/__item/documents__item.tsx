@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useAttributes } from "../../../context/attributes_context";
 import { FileIcon, LightTooltip, ThreeDots } from "../../ui/icons";
-import styles from "../documents.module.css";
+import styles from "./documents__item.module.css";
 import Link from "next/link";
 
 export interface IDocument {
@@ -14,7 +14,7 @@ interface IDoc extends IDocument {
   id: string;
 }
 
-export const Document = ({ name, active, id }: IDoc) => {
+export const DocumentItem = ({ name, active, id }: IDoc) => {
   const encodedName = encodeURIComponent(id);
 
   const { setStorageChanged } = useAttributes();

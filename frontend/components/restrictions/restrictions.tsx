@@ -15,7 +15,7 @@ export interface StatementProps {
 }
 
 export const Restrictions = () => {
-  const { restrictions } = useAttributes();
+  const { restrictions, saveRestriction } = useAttributes();
 
   const isRestrictionDone = (restriction: RestrictionProps) => {
     const notDone = ({ attribute, level }: any) => {
@@ -36,8 +36,6 @@ export const Restrictions = () => {
 
   const [canAddNewRestriction, setCanAddNewRestriction] =
     useState<boolean>(true);
-
-  const { saveRestriction } = useAttributes();
 
   useEffect(() => {
     setNewRestrictions(restrictions ? restrictions : []);

@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "../styles/page.module.css";
-import { Sidebar } from "../components/sidebar";
+import { Sidebar } from "../components/sidebar/sidebar";
 import { SurveyContainer } from "../components/survey/survey.container";
 
 function DocumentsPage() {

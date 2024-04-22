@@ -2,6 +2,7 @@
 import axios from "axios";
 import { Attribute } from "../context/attributes_context";
 import { preproccessAttributes, preprocessRestrictions } from "./utils";
+import { RestrictionProps } from "@/components/restrictions/restriction";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -45,13 +46,13 @@ export const downloadSurvey = async (
 };
 
 export const getPreview = async (
-  attributes: Attribute[]
-  // retstrictions: string[][][]
+  attributes: Attribute[],
+  restrictions: RestrictionProps[]
 ): Promise<string[][]> => {
   console.log("HERE TRIED", api.defaults.baseURL);
   try {
     const processedAttributes = preproccessAttributes(attributes);
-    const processedRestrictions = preprocessRestrictions([]);
+    const processedRestrictions = preprocessRestrictions(restrictions);
 
     const response = await api.post("/surveys/preview/", {
       ...processedRestrictions,

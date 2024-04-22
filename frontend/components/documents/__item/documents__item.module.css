@@ -1,0 +1,54 @@
+.active {
+  color: var(--dark-blue-h);
+  background-color: var(--active-blue) !important;
+}
+
+.container {
+  padding: 1rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.container:hover {
+  cursor: pointer;
+  background-color: var(--light-blue);
+}
+
+.helpers {
+  display: flex;
+  flex-direction: column;
+  padding-top: 0.5rem;
+  padding-left: 1.5rem;
+  font-weight: medium;
+}
+
+.helpers li,
+.helpers p {
+  color: var(--blue-p);
+  padding: 0.5rem 0;
+}
+
+.file_top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  height: 20px;
+}
+
+.noshow {
+  display: none;
+}
+
+.activeLink {
+  color: var(--blue) !important;
+}

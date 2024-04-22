@@ -44,9 +44,9 @@ interface AttributeContextType {
   isCreatingAttribute: boolean;
   setIsCreatingAttribute: React.Dispatch<React.SetStateAction<boolean>>;
   addNewAttribute: (name: string) => void;
-  addLevelToAttribute: (attributeName: string, newLevel: string) => void;
-  deleteLevelFromAttribute: (attributeName: string, levelIndex: number) => void;
-  deleteAttribute: (index: number) => void;
+  addLevelToAttribute: (attributeKey: number, newLevel: string) => void;
+  deleteLevelFromAttribute: (attributeKey: number, levelId: number) => void; // Changed levelIndex to levelId
+  deleteAttribute: (key: number) => void;
   updateWeight: (attributeKey: number, newWeights: number[]) => void;
   cancelNewAttribute: () => void;
   handleCreateAttribute: () => void;
@@ -55,33 +55,24 @@ interface AttributeContextType {
     setting: "instructions" | "description"
   ) => void;
   handleLevelNameChange: (
-    attributeName: string,
+    attributeKey: number,
     newName: string,
-    levelIndex: number
+    levelId: number // Changed levelIndex to levelId
   ) => void;
-  handleAttributeNameChange: (newName: string, index: number) => void;
+  handleAttributeNameChange: (newName: string, key: number) => void;
   setEdited: (edited: boolean) => void;
   storageChanged: number;
   setStorageChanged: React.Dispatch<React.SetStateAction<number>>;
-  // restrictions: string[];
   restrictions: RestrictionProps[];
   saveRestriction: (restriction: RestrictionProps) => void;
-  // addRestrictionToAttribute: (newRestriction: RestrictionProps) => void;
   deleteRestriction: (restrictionId: string) => void;
-  // editRestrictionInAttribute: (
-  //   restrictionIndex: number,
-  //   newRestriction: RestrictionProps
-  // ) => void;
   instructions: IInstructions;
-  // Include other function signatures as needed
 }
 
-// Initialize context with undefined as it will be set in the provider
 const AttributeContext = createContext<AttributeContextType | undefined>(
   undefined
 );
 
-// Custom hook to use the attribute context
 export const useAttributes = () => {
   const context = useContext(AttributeContext);
   if (!context) {
@@ -90,7 +81,6 @@ export const useAttributes = () => {
   return context;
 };
 
-// The component that provides the context
 export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -121,7 +111,6 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         setCurrentDoc(parsedData.name);
         setRestrictions(parsedData.restrictions ? parsedData.restrictions : []);
         setInstructions(parsedData.instructions);
-        // Use parsedData.lastEdited as needed
       } else {
         setAttributes([]);
       }
@@ -131,17 +120,11 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   const [isCreatingAttribute, setIsCreatingAttribute] = useState(false);
 
   useEffect(() => {
-    // console.log("but here it is:", currentDoc);
-    if (
-      currentDocID &&
-      // attributes.length > 0 &&
-      currentDocID === prevDocID &&
-      edited
-    ) {
+    if (currentDocID && currentDocID === prevDocID && edited) {
       setLastEdited(new Date());
       const dataToSave = {
         attributes: attributes,
-        lastEdited: new Date(), // Update last edited time
+        lastEdited: new Date(),
         name: currentDoc,
         restrictions: restrictions,
         instructions: instructions,
@@ -154,7 +137,6 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
       setEdited(false);
 
       console.log("maybe now?");
-      console.log(attributes[0].levels);
     }
   }, [
     attributes,
@@ -171,7 +153,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     const newAttribute: Attribute = {
       name,
       levels: [],
-      key: attributes.length + 1,
+      key: Date.now(), // Using Date.now() to ensure a unique key
     };
     setAttributes([...attributes, newAttribute]);
     setIsCreatingAttribute(false);
@@ -194,10 +176,11 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited(true);
   };
 
-  // TODO: Change keys so there is no possiblity of duplicate keys
-  const deleteAttribute = (index: number) => {
+  const deleteAttribute = (key: number) => {
     setAttributes((prevAttributes) => {
-      const newAttributes = prevAttributes.filter((_, ind) => ind !== index);
+      const newAttributes = prevAttributes.filter(
+        (attribute) => attribute.key !== key
+      );
       return newAttributes;
     });
     setEdited(true);
@@ -205,10 +188,15 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
 
   const handleCreateAttribute = () => setIsCreatingAttribute(true);
 
-  const addLevelToAttribute = (attributeName: string, newLevel: string) => {
+  const addLevelToAttribute = (attributeKey: number, newLevel: string) => {
     setAttributes((prevAttributes) =>
       prevAttributes.map((attribute) => {
-        if (attribute.name === attributeName) {
+        if (attribute.key === attributeKey) {
+          const newLevelId =
+            attribute.levels.reduce(
+              (maxId, lvl) => Math.max(maxId, lvl.id),
+              0
+            ) + 1; // Calculate new levelId
           const newNumberOfLevels = attribute.levels.length + 1;
           const newWeight = parseFloat((1 / newNumberOfLevels).toFixed(2));
           const newLevels = attribute.levels.map((lvl) => {
@@ -216,12 +204,11 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
           });
           return {
             ...attribute,
-
             levels: [
               ...newLevels,
               {
                 name: newLevel,
-                id: newLevels.length + 1,
+                id: newLevelId, // Use newLevelId instead of length + 1
                 weight: newWeight,
               },
             ],
@@ -234,15 +221,14 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const deleteLevelFromAttribute = (
-    attributeName: string,
-    levelIndex: number
+    attributeKey: number,
+    levelId: number // Changed levelIndex to levelId
   ) => {
     setAttributes((prevAttributes) =>
       prevAttributes.map((attribute) => {
-        if (attribute.name === attributeName) {
-          // Remove the level at the specified index
+        if (attribute.key === attributeKey) {
           let newLevels = attribute.levels.filter(
-            (_, index) => index !== levelIndex
+            (lvl) => lvl.id !== levelId // Use levelId for comparison
           );
 
           const newNumberOfLevels = newLevels.length;
@@ -251,8 +237,8 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
               ? parseFloat((1 / newNumberOfLevels).toFixed(2))
               : 0;
 
-          newLevels = newLevels.map((lvl, index) => {
-            return { ...lvl, weight: newWeight, id: index + 1 };
+          newLevels = newLevels.map((lvl) => {
+            return { ...lvl, weight: newWeight, id: lvl.id }; // Keep original id
           });
 
           return {
@@ -269,23 +255,20 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   const cancelNewAttribute = () => setIsCreatingAttribute(false);
 
   const handleLevelNameChange = (
-    attributeName: string,
+    attributeKey: number,
     newName: string,
-    levelIndex: number
+    levelId: number // Changed levelIndex to levelId
   ) => {
-    // console.log("yes here.", attributeName, newName, levelIndex)
     setAttributes((prevAttributes) =>
       prevAttributes.map((attribute) => {
-        // Check if this is the attribute to update
-        if (attribute.name === attributeName) {
-          // Copy the levels array
-          const newLevels = [...attribute.levels];
-
-          // Check if the level index is valid
-          if (levelIndex >= 0 && levelIndex < newLevels.length) {
-            // Update the level name
-            newLevels[levelIndex] = { ...newLevels[levelIndex], name: newName };
-          }
+        if (attribute.key === attributeKey) {
+          const newLevels = attribute.levels.map((lvl) => {
+            if (lvl.id === levelId) {
+              // Use levelId for comparison
+              return { ...lvl, name: newName };
+            }
+            return lvl;
+          });
 
           // Return the updated attribute
           return { ...attribute, levels: newLevels };
@@ -298,10 +281,10 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited(true);
   };
 
-  const handleAttributeNameChange = (newName: string, index: number) => {
+  const handleAttributeNameChange = (newName: string, key: number) => {
     setAttributes((prevAttributes) => {
-      return prevAttributes.map((attribute, ind) => {
-        if (ind === index) {
+      return prevAttributes.map((attribute) => {
+        if (attribute.key === key) {
           return { ...attribute, name: newName };
         }
         return attribute;
@@ -384,11 +367,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     restrictions,
     saveRestriction,
     deleteRestriction,
-    // addRestrictionToAttribute,
-
-    // editRestrictionInAttribute,
     instructions,
-    // Add other functions here
   };
 
   return (

@@ -20,7 +20,7 @@ export const preproccessAttributes = (attributes: Attribute[]) => {
   };
 };
 
-export const preprocessRestrictions = (restrictions: string[][][]) => {
+export const preprocessRestrictions = (restrictions: RestrictionProps[]) => {
   const processedRestrictions = restrictions.map((restriction) => {
     const ifPart = restriction[0];
     const thenPart = restriction[1];

@@ -1,7 +1,7 @@
 // "use client";
 
 import styles from "../../styles/page.module.css";
-import { Sidebar } from "../../components/sidebar";
+import { Sidebar } from "../../components/sidebar/sidebar";
 import { DocumentContext } from "../../context/document_context";
 import { useContext, useEffect, useState } from "react";
 import Preview, { IPreview } from "../../components/preview/preview";
@@ -41,7 +41,7 @@ function PreviewPage({ params }: IServerProps) {
 
   const previewData = async () => {
     // const previews = await getPreview(attributes, restrictions);
-    const previews = await getPreview(attributes);
+    const previews = await getPreview(attributes, restrictions);
     setProfiles({
       attributes: attributes.map((el) => el.name),
       previews: previews,

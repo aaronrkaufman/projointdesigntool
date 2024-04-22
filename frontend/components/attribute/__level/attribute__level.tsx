@@ -1,26 +1,21 @@
-import styles from "../survey/survey.module.css";
+import styles from "./attribute__level.module.css";
 
-import { ILevel } from "../attribute/attribute.container";
+import { ILevel } from "../attribute.container";
 import { Draggable } from "react-beautiful-dnd";
-import DragButton from "../ui/drag_button";
+import DragButton from "../../ui/drag_button";
 import { useState, useRef, useEffect } from "react";
-import { useAttributes } from "../../context/attributes_context";
+import { useAttributes } from "../../../context/attributes_context";
+import { RemoveMinus } from "../../ui/icons";
 
 interface ILevelComponent extends ILevel {
   index: number;
-  attributeName: string;
+  attributeKey: number;
 }
 
-export const Level = ({ name, index, id, attributeName }: ILevelComponent) => {
+export const Level = ({ name, index, id, attributeKey }: ILevelComponent) => {
   const [isEditing, setIsEditing] = useState(false);
   const [levelName, setLevelName] = useState<string>(name);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  //   useEffect(() => {
-  //     if (levelName !== currentDoc) {
-  //         setLevelName(currentDoc);
-  //     }
-  //   }, [currentDoc]);
 
   const { deleteLevelFromAttribute, handleLevelNameChange } = useAttributes();
 
@@ -38,14 +33,18 @@ export const Level = ({ name, index, id, attributeName }: ILevelComponent) => {
     setIsEditing(false);
 
     if (levelName.trim() === "") {
-      deleteLevelFromAttribute(attributeName, index);
+      deleteLevelFromAttribute(attributeKey, id);
     } else {
-      handleLevelNameChange(attributeName, levelName, index);
+      handleLevelNameChange(attributeKey, levelName, id);
     }
   };
 
   return (
-    <Draggable key={id} draggableId={`draggable-level-${id}`} index={index}>
+    <Draggable
+      key={id}
+      draggableId={`draggable-level-${attributeKey}-${id}`}
+      index={index}
+    >
       {(providedHere) => (
         <li
           ref={providedHere.innerRef}
@@ -76,14 +75,15 @@ export const Level = ({ name, index, id, attributeName }: ILevelComponent) => {
             ) : (
               <p className={styles.levelName}>{levelName}</p>
             )}
-            <p
+            <div
               onClick={() => {
-                deleteLevelFromAttribute(attributeName, index);
+                deleteLevelFromAttribute(attributeKey, id);
               }}
               className={styles.deleteLevel}
             >
-              x
-            </p>
+              <RemoveMinus />
+              <RemoveMinus />
+            </div>
           </div>
         </li>
       )}

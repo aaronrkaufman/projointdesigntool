@@ -1,0 +1,15 @@
+{
+  "aliases": {
+    "sb": "stories.tsx",
+    "const": "constants.ts",
+    "i18n": "block.i18n/block.en.json",
+    "hook": "block.i18n/block.hooks/use.ts"
+  },
+  "naming": {
+    "elem": "__",
+    "mod": {
+      "name": "_",
+      "val": "_"
+    }
+  }
+}

@@ -4,10 +4,10 @@ import { IAttribute } from "./attribute.container";
 import { HighlightedContext } from "../../context/highlighted";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import DragButton from "../ui/drag_button";
-import { Level } from "../level/level";
+import { Level } from "./__level/attribute__level";
 import { useAttributes } from "../../context/attributes_context";
-import { Weight } from "../level/weight";
 import { DeleteTip, ExpandIcon, LightTooltip } from "../ui/icons";
+import { AttributeWeight } from "./__weight/attribute__weight";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -64,9 +64,9 @@ export const Attribute: FC<PropsAttributeComponent> = ({
     setIsEditing(false);
 
     if (attributeName.trim() === "") {
-      deleteAttribute(index);
+      deleteAttribute(attribute.key);
     } else {
-      handleAttributeNameChange(attributeName, index);
+      handleAttributeNameChange(attributeName, attribute.key);
     }
   };
 
@@ -88,7 +88,6 @@ export const Attribute: FC<PropsAttributeComponent> = ({
         <li
           ref={provided.innerRef}
           {...provided.draggableProps}
-          // {...provided.dragHandleProps}
           className={`${styles.attribute} ${
             highlightedAttribute === attribute.key ? styles.stroke : ""
           }`}
@@ -100,7 +99,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
             <div className={styles.deleteHandle}>
               <button
                 onClick={() => {
-                  deleteAttribute(index);
+                  deleteAttribute(attribute.key);
                 }}
                 className={styles.deleteAttribute}
               >
@@ -160,7 +159,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                         key={level.id}
                         {...level}
                         index={index}
-                        attributeName={attribute.name}
+                        attributeKey={attribute.key}
                       ></Level>
                     ))}
                     {provided.placeholder}
@@ -168,7 +167,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                       <button
                         className={styles.addLevel}
                         onClick={() =>
-                          addLevelToAttribute(attribute.name, "Untitled")
+                          addLevelToAttribute(attribute.key, "Untitled")
                         }
                       >
                         Add level
@@ -191,7 +190,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
             {show && highlightedAttribute === attribute.key ? (
               <ul className={`${styles.weights}`}>
                 {attribute.levels.map((lvl, index) => (
-                  <Weight
+                  <AttributeWeight
                     key={index}
                     index={index}
                     value={lvl.weight}
