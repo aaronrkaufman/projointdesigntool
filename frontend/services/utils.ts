@@ -1,5 +1,6 @@
 import { RestrictionProps } from "@/components/restrictions/restriction";
 import { Attribute } from "../context/attributes_context";
+import { StatementProps } from "@/components/restrictions/restrictions";
 
 export const preproccessAttributes = (attributes: Attribute[]) => {
   const processedAttributes = attributes.map((attribute) => {
@@ -23,9 +24,28 @@ export const preproccessAttributes = (attributes: Attribute[]) => {
 
 export const preprocessRestrictions = (restrictions: RestrictionProps[]) => {
   const processedRestrictions = restrictions.map((restriction) => {
-    const ifPart = restriction.ifStates;
-    const thenPart = restriction.elseStates;
-    return [...ifPart, ...thenPart];
+    const formatStatement = (
+      statement: StatementProps,
+      index: number,
+      array: StatementProps[]
+    ) => {
+      console.log(
+        index < array.length - 1,
+        statement.part,
+        statement.part == "and",
+        array
+      );
+      const operand = statement.equals ? "==" : "!=";
+      const joiner =
+        index != 0 ? `;${statement.part == "and" ? "&&" : "||"};` : "";
+      return `${joiner}${statement.attribute};${operand};${statement.level}`;
+    };
+
+    const ifPart = restriction.ifStates.map(formatStatement).join("");
+    const thenPart = restriction.elseStates.map(formatStatement).join("");
+    const logicalOperator = restriction.elseStates.length > 0 ? ";then;" : "";
+
+    return ifPart + logicalOperator + thenPart;
   });
 
   return {
