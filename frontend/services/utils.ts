@@ -1,3 +1,4 @@
+import { RestrictionProps } from "@/components/restrictions/restriction";
 import { Attribute } from "../context/attributes_context";
 
 export const preproccessAttributes = (attributes: Attribute[]) => {
@@ -22,8 +23,8 @@ export const preproccessAttributes = (attributes: Attribute[]) => {
 
 export const preprocessRestrictions = (restrictions: RestrictionProps[]) => {
   const processedRestrictions = restrictions.map((restriction) => {
-    const ifPart = restriction[0];
-    const thenPart = restriction[1];
+    const ifPart = restriction.ifStates;
+    const thenPart = restriction.elseStates;
     return [...ifPart, ...thenPart];
   });
 
