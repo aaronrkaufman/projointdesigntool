@@ -382,43 +382,43 @@ def _createFile(request):
             file_js.write("var featureArrayNew = featurearray;\n\n")
 
         file_js.write(temp_3)
-        
         if noFlip:
             file_js.write("""
                 // Duplicate profiles
-                for (const key in returnarray) {
-                if (returnarray.hasOwnProperty(key)) {
-                    if (key.startsWith('F-{}')) {
+                for (const key in returnarray) {{
+                if (returnarray.hasOwnProperty(key)) {{
+                    if (key.startsWith('F-{}')) {{
                     let correspondingKey = 'F-{}' + key.substring(3); // Get corresponding key starting with 'F-1'
-                    if (returnarray[correspondingKey]) {
+                    if (returnarray[correspondingKey]) {{
                         returnarray[key] = returnarray[correspondingKey]; // Set value of 'F-2' key to be the same as 'F-1' counterpart
-                    }
-                    }
-                }
-                }
-                """).format(duplicates[0], duplicates[1])
+                    }}
+                    }}
+                }}
+                }}
+                """.format(str(duplicates[0]), str(duplicates[1])))
         else:
             file_js.write("""
-            for (let i = 1; i <= N; i++) { // Loop through tasks starting from Task 2
+            for (let i = 1; i <= N; i++) {{ // Loop through tasks starting from Task 2
                 let startKey = 'F-{}-' + curr;
                 let trailKey = 'F-{}-' + i;
-                for (let j = 1 ; j <= num_attributes; j++){
+                for (let j = 1 ; j <= num_attributes; j++){{
                     let correspondingKey = startKey + '-' + j;
                     let trailCorKey = trailKey + '-' + j;
-                    if (returnarray[correspondingKey]){
+                    if (returnarray[correspondingKey]){{
                         returnarray[correspondingKey] = returnarray[trailCorKey];
-                    }
-                };
+                    }}
+                }};
                 curr -=1;
-            }
+            }}
 
-            for(let i=1 ; i<=num_attributes; i++){
+            for(let i=1 ; i<=num_attributes; i++){{
                 let startKey = 'F-1-' + i;
                 let trailKey = 'F-2-' + i;
-                if (returnarray[startKey]){
+                if (returnarray[startKey]){{
                     returnarray[startKey] = returnarray[trailKey];
-                }
-            """).format(duplicates[0], duplicates[1])
+                }}
+            }}""".format(str(duplicates[0]), str(duplicates[1])))
+        file_js.write("\n")
         file_js.write(temp_4)
         file_js.close()
     return filename
@@ -452,19 +452,22 @@ def _checkCrossProfileRestrictions(profiles_list, cross_restrictions):
                 return True
     return False
 
-def _createProfiles(profiles, attributes, restrictions, cross_restrictions):
+def _createProfiles(profiles, attributes, restrictions, cross_restrictions, csvY):
     cross_profile_restriction_broken = True
     while cross_profile_restriction_broken:
         profiles_list = []
+        csv_export = []
         for _ in range(profiles): 
             restriction_broken = True
             while restriction_broken:
                 levels = []
+                attribute_names = []
                 level_dict = {}
                 for attribute in attributes:
                     lvl = random.choice(attribute["levels"])["name"]
                     level_dict[attribute["name"]] = lvl
                     levels.append(lvl)
+                    attribute_names.append(attribute["name"])
                 # FORMAT: if att = lvl &&/|| ... then att =/!= lvl
                 # "att1;==;b;||;att1;==;a;then;att2;==;d"
                 restriction_broken = False
@@ -505,8 +508,15 @@ def _createProfiles(profiles, attributes, restrictions, cross_restrictions):
                                 restriction_broken = True
                 if not restriction_broken:
                     profiles_list.append(levels)
+                    for i,j in enumerate(attribute_names):
+                        levels.insert(2*i, j)
+                    csv_export.append(levels)
         cross_profile_restriction_broken = _checkCrossProfileRestrictions(profiles_list, cross_restrictions)
-    return profiles_list
+    
+    if not csvY: 
+        return profiles_list 
+    else:
+        return csv_export
 
 
 @extend_schema(
@@ -718,7 +728,7 @@ def preview_survey(request):
         
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-        answer["previews"] = _createProfiles(profiles, attributes, restrictions, cross_restrictions)
+        answer["previews"] = _createProfiles(profiles, attributes, restrictions, cross_restrictions, False)
         answer["attributes"] = [attribute["name"] for attribute in attributes]
         return Response(answer, status=status.HTTP_201_CREATED)
     except:
@@ -783,9 +793,10 @@ def preview_csv(request):
         profiles = request.data.get("profiles", 2)
 
         #To calculate the total number of combinations
-        levels_per_attribute = [len(attribute['levels']) for attribute in attributes]
-        profiles_per_attribute = [profiles for _ in attributes]
-        
+        #levels_per_attribute = [len(attribute['levels']) for attribute in attributes]
+        #profiles_per_attribute = [profiles for _ in attributes]
+        if any(not attribute["levels"] for attribute in attributes):
+            return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
         
         header = []
         for i in range(1, len(attributes) + 1):
@@ -797,24 +808,12 @@ def preview_csv(request):
         previews = []
         previews.append(header)
 
-        rows = []
-        while len(rows) < CSV_FILES_NUM:
-            row = []
-            # Shuffle the attributes for each row
-            shuffled_attributes = random.sample(attributes, len(attributes))
-            for attribute in shuffled_attributes:
-                att_name = attribute['name']
-                row.append(att_name)
-                for j in range(1, profiles + 1):
-                    random_level = random.choice(attribute['levels'])['name']
-                    row.append(random_level)
-            rows.append(row)
-
-        previews.extend(rows)
-
+        export_list = _createProfiles(profiles, attributes, restrictions, cross_restrictions, True)
         with open("profiles.csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows(previews)
+            writer.writerows(export_list)
+
         return _sendFileResponse("profiles.csv")
         #response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
         #response["Content-Disposition"] = 'attachment; filename="survey.csv"'
@@ -824,6 +823,7 @@ def preview_csv(request):
             {"message": "Invalid survey data."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
 
 
 def __CreateHTML(i, num_attr, profiles, qNum, noFlip):
