@@ -2,8 +2,7 @@
 
 import styles from "../styles/page.module.css";
 import { Sidebar } from "../components/sidebar/sidebar";
-import { SurveyContainer } from "../components/survey/survey.container";
-import ColumnGroupingTable from "@/components/documents-table/test-table";
+import { DocumentsTable } from "@/components/documents-table/documents-table";
 
 function DocumentsPage() {
   return (
@@ -11,7 +10,7 @@ function DocumentsPage() {
       <main className={styles.main}>
         <Sidebar active={"documentName"} />
         {/* <SurveyContainer /> */}
-        <ColumnGroupingTable />
+        <DocumentsTable />
       </main>
     </>
   );

@@ -51,19 +51,24 @@ export const Sidebar = ({ active }: { active: string }) => {
     router.push(`/${encodeURIComponent(uniqueId)}`);
   };
 
+  const handleHome = () => {
+    router.push("/");
+  };
+
   return (
     <div className={styles.sidebar}>
-      <div className={styles.top} onClick={handleAddDoc}>
-        <h3>Projoint</h3>
-        {/* <button onClick={handleAddDoc}>+</button> */}
-        <LightTooltip
-          disableInteractive
-          title="New file"
-          arrow
-          placement="right"
-        >
-          <FileAdd />
-        </LightTooltip>
+      <div className={styles.top}>
+        <h3 onClick={handleHome}>Projoint</h3>
+        <div className={styles.addDoc} onClick={handleAddDoc}>
+          <LightTooltip
+            disableInteractive
+            title="New file"
+            arrow
+            placement="right"
+          >
+            <FileAdd />
+          </LightTooltip>
+        </div>
       </div>
       <span className={styles.line}></span>
       <Documents documents={documents} active={active} />

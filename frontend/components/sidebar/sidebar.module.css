@@ -11,7 +11,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem;
+  padding: 0 0.5rem;
   border-radius: 0.25rem;
 }
 
@@ -19,11 +19,22 @@
   color: var(--dark-blue-h);
   font-weight: 500;
   font-size: 1.25rem;
+  width: 100%;
+  cursor: pointer;
 }
 
-.top:hover {
+/* .top:hover {
   background-color: var(--light-blue);
+} */
+
+.addDoc {
+  padding: 0.5rem;
+  border-radius: 0.25r;
+}
+
+.addDoc:hover {
   cursor: pointer;
+  background-color: var(--light-blue);
 }
 
 .line {

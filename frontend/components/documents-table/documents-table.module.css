@@ -1,5 +1,5 @@
-.documents_table {
-}
+/* .documents_table {
+} */
 
 .table {
   margin-left: 17.5rem;
@@ -19,6 +19,10 @@
   gap: 1.5rem;
 }
 
+.tableContainer tbody tr {
+  cursor: pointer;
+}
+
 .top {
   display: flex;
   gap: 2rem;
@@ -28,8 +32,22 @@
   border-bottom: 2px solid var(--border-gray);
 }
 
+.top button {
+  margin-left: auto;
+}
+
 .docName {
   display: flex;
   gap: 2rem;
+  align-items: center;
+}
+
+.table_docName {
+  color: var(--dark-blue-h);
+}
+
+.file {
+  display: flex;
+  gap: 0.5rem;
   align-items: center;
 }
