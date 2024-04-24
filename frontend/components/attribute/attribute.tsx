@@ -94,6 +94,11 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           onClick={() => {
             show && setHighlightedAttribute(attribute.key);
           }}
+          style={{
+            height: `${
+              show ? 32 + (attribute.levels.length + 1) * 41.5 : 67.5
+            }px`,
+          }}
         >
           {highlightedAttribute === attribute.key && (
             <div className={styles.deleteHandle}>

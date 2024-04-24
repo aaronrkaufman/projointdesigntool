@@ -27,27 +27,32 @@ export const DocumentItem = ({ name, active, id }: IDoc) => {
   const handleDelete = () => {
     localStorage.removeItem(`attributes-${id}`);
     setStorageChanged((prev) => prev + 1);
-    router.push(`/document}`);
+    router.push(`/`);
   };
   return (
     <li>
-      <div className={`${active ? styles.active : ""} ${styles.container}`}>
-        <div className={styles.file_top}>
-          <Link href={`/${encodedName}`}>
-            <div className={styles.file}>
-              <FileIcon
-                stroke={`${active ? "var(--dark-blue-h)" : "var(--blue-p)"}`}
-              />
-              <p>{name}</p>
+      {active ? (
+        <div className={`${styles.active} ${styles.container}`}>
+          <div className={styles.file_top}>
+            <Link href={`/${encodedName}`}>
+              <a>
+                <div className={styles.file}>
+                  <FileIcon stroke="var(--dark-blue-h)" />
+                  <p>{name}</p>
+                </div>
+              </a>
+            </Link>
+            <div className={styles.dots}>
+              <LightTooltip
+                disableInteractive
+                title="More"
+                arrow
+                placement="top"
+              >
+                <ThreeDots onDelete={handleDelete} />
+              </LightTooltip>
             </div>
-          </Link>
-          <div className={`${active ? "" : styles.noshow} ${styles.dots}`}>
-            <LightTooltip disableInteractive title="More" arrow placement="top">
-              <ThreeDots onDelete={handleDelete} />
-            </LightTooltip>
           </div>
-        </div>
-        {active && (
           <ul className={styles.helpers}>
             <Link href={`/${encodedName}/preview`}>
               <li className={isPath("/preview") ? styles.activeLink : ""}>
@@ -65,8 +70,29 @@ export const DocumentItem = ({ name, active, id }: IDoc) => {
               </li>
             </Link>
           </ul>
-        )}
-      </div>
+        </div>
+      ) : (
+        <Link href={`/${encodedName}`}>
+          <div className={`${styles.container}`}>
+            <div className={styles.file_top}>
+              <div className={styles.file}>
+                <FileIcon stroke="var(--blue-p)" />
+                <p>{name}</p>
+              </div>
+              <div className={`${styles.noshow} ${styles.dots}`}>
+                <LightTooltip
+                  disableInteractive
+                  title="More"
+                  arrow
+                  placement="top"
+                >
+                  <ThreeDots onDelete={handleDelete} />
+                </LightTooltip>
+              </div>
+            </div>
+          </div>
+        </Link>
+      )}
     </li>
   );
 };
