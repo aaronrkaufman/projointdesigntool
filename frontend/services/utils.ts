@@ -29,12 +29,6 @@ export const preprocessRestrictions = (restrictions: RestrictionProps[]) => {
       index: number,
       array: StatementProps[]
     ) => {
-      console.log(
-        index < array.length - 1,
-        statement.part,
-        statement.part == "and",
-        array
-      );
       const operand = statement.equals ? "==" : "!=";
       const joiner =
         index != 0 ? `;${statement.part == "and" ? "&&" : "||"};` : "";

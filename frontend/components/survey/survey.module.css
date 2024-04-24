@@ -137,6 +137,10 @@
   position: relative;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .attribute_right {
   position: relative;
   display: flex;

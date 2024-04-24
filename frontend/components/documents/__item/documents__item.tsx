@@ -31,47 +31,42 @@ export const DocumentItem = ({ name, active, id }: IDoc) => {
   };
   return (
     <li>
-      <Link href={`/${encodedName}`}>
-        <div className={`${active ? styles.active : ""} ${styles.container}`}>
-          <div className={styles.file_top}>
+      <div className={`${active ? styles.active : ""} ${styles.container}`}>
+        <div className={styles.file_top}>
+          <Link href={`/${encodedName}`}>
             <div className={styles.file}>
               <FileIcon
                 stroke={`${active ? "var(--dark-blue-h)" : "var(--blue-p)"}`}
               />
               <p>{name}</p>
             </div>
-            <div className={`${active ? "" : styles.noshow} ${styles.dots}`}>
-              <LightTooltip
-                disableInteractive
-                title="More"
-                arrow
-                placement="top"
-              >
-                <ThreeDots onDelete={handleDelete} />
-              </LightTooltip>
-            </div>
+          </Link>
+          <div className={`${active ? "" : styles.noshow} ${styles.dots}`}>
+            <LightTooltip disableInteractive title="More" arrow placement="top">
+              <ThreeDots onDelete={handleDelete} />
+            </LightTooltip>
           </div>
-          {active && (
-            <ul className={styles.helpers}>
-              <Link href={`/${encodedName}/preview`}>
-                <p className={isPath("/preview") ? styles.activeLink : ""}>
-                  Preview
-                </p>
-              </Link>
-              <Link href={`/${encodedName}/settings`}>
-                <p className={isPath("/settings") ? styles.activeLink : ""}>
-                  Settings
-                </p>
-              </Link>
-              <Link href={`/${encodedName}/restrictions`}>
-                <p className={isPath("/restrictions") ? styles.activeLink : ""}>
-                  Restrictions
-                </p>
-              </Link>
-            </ul>
-          )}
         </div>
-      </Link>
+        {active && (
+          <ul className={styles.helpers}>
+            <Link href={`/${encodedName}/preview`}>
+              <p className={isPath("/preview") ? styles.activeLink : ""}>
+                Preview
+              </p>
+            </Link>
+            <Link href={`/${encodedName}/settings`}>
+              <p className={isPath("/settings") ? styles.activeLink : ""}>
+                Settings
+              </p>
+            </Link>
+            <Link href={`/${encodedName}/restrictions`}>
+              <p className={isPath("/restrictions") ? styles.activeLink : ""}>
+                Restrictions
+              </p>
+            </Link>
+          </ul>
+        )}
+      </div>
     </li>
   );
 };

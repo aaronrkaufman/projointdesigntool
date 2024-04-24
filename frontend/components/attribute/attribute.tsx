@@ -114,14 +114,19 @@ export const Attribute: FC<PropsAttributeComponent> = ({
               </button>
             </div>
           )}
-          <div className={styles.attribute_left}>
+          <div
+            className={`${styles.attribute_left} ${
+              !show ? styles.pointer : ""
+            }`}
+            onClick={!show ? onShow : () => {}}
+          >
             <div className={`${styles.dragHandle} ${styles.dragAttribute}`}>
               <DragButton
                 direction={"horizontal"}
                 {...provided.dragHandleProps}
               />
             </div>
-            <ExpandIcon expand={!show} onClick={onShow} size={1.25} />
+            <ExpandIcon onClick={onShow} expand={!show} size={1.25} />
             <div
               className={styles.atrributeInfo}
               onClick={() => {
