@@ -27,6 +27,11 @@
   padding: 0.5rem 0;
 }
 
+.helpers li:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .file_top {
   display: flex;
   justify-content: space-between;
