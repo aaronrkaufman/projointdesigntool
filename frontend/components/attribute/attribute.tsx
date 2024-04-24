@@ -96,7 +96,9 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           }}
           style={{
             height: `${
-              show ? 32 + (attribute.levels.length + 1) * 41.5 : 67.5
+              show && attribute.levels.length > 0
+                ? 32 + (attribute.levels.length + 1) * 41.5
+                : 67.5
             }px`,
           }}
         >

@@ -189,6 +189,7 @@
 .levels li:last-child {
   padding-bottom: 0;
   padding-left: 0;
+  padding-top: 0;
 }
 
 .levels li:first-child div:last-child {
@@ -267,7 +268,7 @@
 }
 
 .addLevel {
-  background-color: white;
+  background-color: transparent;
   border: none;
   border-radius: 0.25rem;
   padding: 0.5rem;
