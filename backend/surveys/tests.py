@@ -95,10 +95,10 @@ class SurveyPostTests(TestCase):
     #    response = self.client.post(url, payload, format="json")
     #    self.assertEqual(response.status_code, 201)
 
-    # def test_create_qualtrics(self):
-    #     url = reverse("surveys:qualtrics")
-    #     response = self.client.post(url, self.payloadSuccess, format="json")
-    #     self.assertEqual(response.status_code, 201)
+    def test_create_qualtrics(self):
+        url = reverse("surveys:qualtrics")
+        response = self.client.post(url, self.payloadSuccess, format="json")
+        self.assertEqual(response.status_code, 201)
 
 class PreviewSurveyTest(TestCase):
     def setUp(self):

@@ -398,6 +398,7 @@ def _createFile(request):
                 """.format(str(duplicates[0]), str(duplicates[1])))
         else:
             file_js.write("""
+            let curr = N;
             for (let i = 1; i <= N; i++) {{ // Loop through tasks starting from Task 2
                 let startKey = 'F-{}-' + curr;
                 let trailKey = 'F-{}-' + i;
@@ -911,6 +912,7 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, dup
             currQ = __CreateQuestion(
                 surveyID, " ", blockID, user_token, profiles, js, i
             )
+        print(i)
     __EmbFields(surveyID, user_token, num_attr, profiles, task)
     return surveyID
 
@@ -1094,7 +1096,7 @@ def create_qualtrics(request):
     duplicates = request.data.get("duplicates", [2,4])
     repeatFlip = request.data.get("repeatFlip", 1)
     doubleQ = request.data.get("doubleQ", False)
-
+    print("dafd")
     resp = _checkAttributes(attributes)
     if resp:
         return resp
@@ -1109,7 +1111,7 @@ def create_qualtrics(request):
                 });\nQualtrics.SurveyEngine.addOnUnload(function()\
                 {\n/*Place your JavaScript here to run when the page is unloaded*/});"
     js_text = "//" + js_py + "\n"+ js_text
-    user_token = "mz1rvjsRNwqqvl5laoESTZYdUP3nsYPO4fplYncM"  # FIGURE OUT BETTER WAY TO STORE THIS
+    user_token = "Vy99DuC4A57FSg4tzvoejFdE0sDgaBH8cAouYF6h"  # FIGURE OUT BETTER WAY TO STORE THIS
     created = __CreateSurvey(
         filename, user_token, tasks, len(attributes), profiles, "", js_text, duplicates, repeatFlip, doubleQ
     )
