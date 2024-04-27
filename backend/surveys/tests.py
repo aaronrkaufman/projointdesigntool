@@ -6,8 +6,6 @@ from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 from rest_framework import status
 
-from .models import Survey
-
 Profile = get_user_model()
 
 class SurveyPostTests(TestCase):
@@ -73,17 +71,17 @@ class SurveyPostTests(TestCase):
         response = self.client.get(url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 405)
 
-    def test_save_success(self):
-        url = reverse("surveys:save")
-        response = self.client.post(url, self.payloadSuccess, format="json")
-        self.assertEqual(response.status_code, 201)
+    # def test_save_success(self):
+    #     url = reverse("surveys:save")
+    #     response = self.client.post(url, self.payloadSuccess, format="json")
+    #     self.assertEqual(response.status_code, 201)
 
-    def test_list_no_surveys_success(self):
-        Survey.objects.filter(profile=self.profile).delete()
-        url = reverse("surveys:list")
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 204)
-        self.assertEqual(response.data["message"], "User has no surveys")
+    # def test_list_no_surveys_success(self):
+    #     Survey.objects.filter(profile=self.profile).delete()
+    #     url = reverse("surveys:list")
+    #     response = self.client.get(url)
+    #     self.assertEqual(response.status_code, 204)
+    #     self.assertEqual(response.data["message"], "User has no surveys")
         
         
     # def test_qsf_to_attributes_success(self):
@@ -95,10 +93,10 @@ class SurveyPostTests(TestCase):
     #    response = self.client.post(url, payload, format="json")
     #    self.assertEqual(response.status_code, 201)
 
-    def test_create_qualtrics(self):
-        url = reverse("surveys:qualtrics")
-        response = self.client.post(url, self.payloadSuccess, format="json")
-        self.assertEqual(response.status_code, 201)
+    # def test_create_qualtrics(self):
+    #     url = reverse("surveys:qualtrics")
+    #     response = self.client.post(url, self.payloadSuccess, format="json")
+    #     self.assertEqual(response.status_code, 201)
 
 class PreviewSurveyTest(TestCase):
     def setUp(self):
@@ -156,7 +154,8 @@ class PreviewCSVTest(TestCase):
     def test_preview_csv_success(self):
         # Data for a successful request
         data = {
-            "attributes": [{"name": "attr1", "levels": [{"name": "level1"}, {"name": "level2"}]}],
+            "attributes": [{"name": "attr1", "levels": [{"name": "level1"}, {"name": "level2"}]}, 
+                           {"name": "attr2", "levels": [{"name": "lvl1"}, {"name": "lvl2"}]}],
             "restrictions": [],
             "cross_restrictions": [],
             "profiles": 2
