@@ -522,11 +522,13 @@ def _createProfiles(profiles, attributes, restrictions, cross_restrictions, csvY
                         else:
                             if lvl == level_dict[attr]:
                                 restriction_broken = True
-                if not restriction_broken:
-                    profiles_list.append(levels)
-                    for i,j in enumerate(attribute_names):
-                        levels.insert(2*i, j)
-                    csv_export.append(levels)
+        if not restriction_broken:
+            if csvY:
+                for i, att in enumerate(attribute_names):
+                    csv_export.append(att)
+                    for prof in levels:
+                        csv_export.append(prof[i])
+            profiles_list.append(levels)
         cross_profile_restriction_broken = _checkCrossProfileRestrictions(profiles_list, cross_restrictions)
     
     if not csvY: 
@@ -627,7 +629,6 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, dup
             currQ = __CreateQuestion(
                 surveyID, " ", blockID, user_token, profiles, js, i
             )
-        print(i)
     __EmbFields(surveyID, user_token, num_attr, profiles, task)
     return surveyID
 

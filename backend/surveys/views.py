@@ -295,8 +295,10 @@ def preview_csv(request):
         with open("profiles.csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows(previews)
-            writer.writerows(export_list)
-
+            for i in range(CSV_FILES_NUM):
+                export_list = _createProfiles(profiles, attributes, restrictions, cross_restrictions, True)
+                export_list = [export_list]
+                writer.writerows(export_list)
         return _sendFileResponse("profiles.csv")
         #response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
         #response["Content-Disposition"] = 'attachment; filename="survey.csv"'
@@ -359,7 +361,6 @@ def create_qualtrics(request):
     duplicates = request.data.get("duplicates", [2,4])
     repeatFlip = request.data.get("repeatFlip", 1)
     doubleQ = request.data.get("doubleQ", False)
-    print("dafd")
     resp = _checkAttributes(attributes)
     if resp:
         return resp
