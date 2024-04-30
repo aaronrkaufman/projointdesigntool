@@ -17,10 +17,11 @@ class ShortSurveySerializer(serializers.ModelSerializer):
     restrictions = serializers.JSONField(default=list)
     cross_restrictions = serializers.JSONField(default=list)
     profiles = serializers.IntegerField(default=2, min_value=2)
+    csv_lines = serializers.IntegerField(default=500)
 
     class Meta:
         model = Survey
-        fields = ["attributes", "restrictions", "cross_restrictions", "profiles"]
+        fields = ["attributes", "restrictions", "cross_restrictions", "profiles", "csv_lines"]
 
 class SurveySerializer(serializers.ModelSerializer):
     attributes = AttributeSerializer(many=True, required=True)
@@ -28,22 +29,23 @@ class SurveySerializer(serializers.ModelSerializer):
     restrictions = serializers.JSONField(default=list)
     cross_restrictions = serializers.JSONField(default=list)
     filename = serializers.CharField(default='survey.js', allow_blank=True)
-    profiles = serializers.IntegerField(default=2, min_value=2)
-    advanced = serializers.JSONField(default=dict)
-    tasks = serializers.IntegerField(default=5, min_value=1)
-    randomize = serializers.BooleanField(default=False)
-    repeat_task = serializers.BooleanField(default=False)
-    random = serializers.BooleanField(default=False)
-    noFlip = serializers.BooleanField(default=False)
+    profiles = serializers.IntegerField(default=2, min_value=2, allow_null=True)
+    tasks = serializers.IntegerField(default=5, min_value=1, allow_null=True)
+    randomize = serializers.BooleanField(default=False, allow_null=True)
+    repeat_task = serializers.BooleanField(default=False, allow_null=True)
+    random = serializers.BooleanField(default=False, allow_null=True)
+    noFlip = serializers.BooleanField(default=False, allow_null=True)
+    csv_lines = serializers.IntegerField(default=500, allow_null=True)
     duplicate_first = serializers.IntegerField(default=0, min_value=0, allow_null=True)
     duplicate_second = serializers.IntegerField(default=0, min_value=0, allow_null=True)
+    advanced = serializers.JSONField(default=dict)
 
     class Meta:
         model = Survey
         fields = [
             'id', 'attributes', 'constraints', 'restrictions', 'cross_restrictions', 'filename',
             'advanced', 'profiles', 'tasks', 'randomize', 'repeat_task', 
-            'random', 'duplicate_first', 'duplicate_second', 'noFlip',
+            'random', 'duplicate_first', 'duplicate_second', 'noFlip', 'csv_lines'
         ]
 
 

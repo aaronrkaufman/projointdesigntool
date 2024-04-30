@@ -17,3 +17,7 @@ media
 !.vscode/extensions.json 
 .history
 .env
+
+# Generated Files #
+*.csv
+*.js

@@ -48,7 +48,7 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
   const { attributes } = useAttributes();
 
   const handleDownload = async (
-    path: "qualtrics" | "export" | "preview_csv"
+    path: "qualtrics" | "export" | "export_csv"
   ) => {
     setisLoading(true);
     await downloadSurvey(attributes, path);
@@ -125,7 +125,7 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
                 <p>Export to CSV</p>
               </div>
               <button
-                onClick={() => handleDownload("preview_csv")}
+                onClick={() => handleDownload("export_csv")}
                 className={styles.modalListItemButton}
               >
                 Export

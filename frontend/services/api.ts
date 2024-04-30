@@ -12,7 +12,7 @@ export default api;
 
 export const downloadSurvey = async (
   attributes: Attribute[],
-  path: "qualtrics" | "export" | "preview_csv"
+  path: "qualtrics" | "export" | "export_csv"
 ): Promise<void> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
@@ -28,7 +28,7 @@ export const downloadSurvey = async (
         ? "default-filename.qsf"
         : path === "export"
         ? "survey.js"
-        : path === "preview_csv"
+        : path === "export_csv"
         ? "survey.csv"
         : "survey.js";
 

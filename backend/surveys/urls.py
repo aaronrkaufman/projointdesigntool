@@ -4,7 +4,7 @@ from .views import (
     # list_user_surveys,
     # save_user_survey,
     preview_survey,
-    preview_csv,
+    export_csv,
     create_qualtrics,
 )
 
@@ -16,6 +16,6 @@ urlpatterns = [
     # path("list/", list_user_surveys, name="list"),
     # path("save/", save_user_survey, name="save"),
     path("preview/", preview_survey, name="preview"),
-    path("preview_csv/", preview_csv, name="preview_csv"),
+    path("export_csv/", export_csv, name="export_csv"),
     path("qualtrics/", create_qualtrics, name="qualtrics"),
 ]

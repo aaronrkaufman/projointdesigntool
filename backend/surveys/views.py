@@ -45,116 +45,6 @@ def export_js(request):
     return _sendFileResponse(_createFile(request))
 
 
-# @extend_schema(
-#     request=ShortSurveySerializer,
-#     responses={
-#         status.HTTP_201_CREATED: OpenApiResponse(
-#             description="Saves the survey to user's profile",
-#             response="application/json",
-#             examples=[
-#                 OpenApiExample(
-#                     name="SurveySaveSuccess",
-#                     description="The survey has been successfully saved to the user's profile.",
-#                     value={"message": "Survey has been saved."},
-#                     response_only=True,
-#                     status_codes=[str(status.HTTP_201_CREATED)],
-#                 )
-#             ],
-#         ),
-#         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-#             description="Bad Request",
-#             response="application/json",
-#             examples=[
-#                 OpenApiExample(
-#                     name="SurveySaveFail",
-#                     description="The survey data provided is invalid.",
-#                     value={"error": "Invalid data provided."},
-#                     response_only=True,
-#                     status_codes=[str(status.HTTP_400_BAD_REQUEST)],
-#                 )
-#             ],
-#         ),
-#     },
-#     description="Saves the survey to user's profile",
-# )
-# @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
-# def save_user_survey(request):
-#     serializer = ShortSurveySerializer(data=request.data, context={"request": request})
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(
-#             {"message": "Survey has been saved."}, status=status.HTTP_201_CREATED
-#         )
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# @extend_schema(
-#     responses={
-#         status.HTTP_200_OK: OpenApiResponse(
-#             description="List of user's surveys",
-#             response=ShortSurveySerializer,
-#             examples=[
-#                 OpenApiExample(
-#                     name="SurveyListExample",
-#                     description="Example of a user having multiple surveys.",
-#                     value=[
-#                         {
-#                             "id": 1,
-#                             "profile": 1,
-#                             "attributes": [
-#                                 {
-#                                     "name": "asfasf",
-#                                     "levels": [
-#                                         {"name": "1", "weight": 0.5},
-#                                         {"name": "2", "weight": 0.5},
-#                                     ],
-#                                 },
-#                                 {
-#                                     "name": "asf",
-#                                     "levels": [
-#                                         {"name": "3", "weight": 0.5},
-#                                         {"name": "4", "weight": 0.5},
-#                                     ],
-#                                 },
-#                             ],
-#                             "constraints": [],
-#                         },
-#                     ],
-#                     response_only=True,
-#                     status_codes=[str(status.HTTP_200_OK)],
-#                 )
-#             ],
-#         ),
-#         status.HTTP_204_NO_CONTENT: OpenApiResponse(
-#             description="No surveys found for the user",
-#             response=None,
-#             examples=[
-#                 OpenApiExample(
-#                     name="NoSurveyExample",
-#                     description="Example of a user having no surveys.",
-#                     value={"message": "User has no surveys"},
-#                     response_only=True,
-#                     status_codes=[str(status.HTTP_204_NO_CONTENT)],
-#                 )
-#             ],
-#         ),
-#     },
-#     description="Retrieves the list of surveys belonging to the user",
-# )
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def list_user_surveys(request):
-#     surveys = Survey.objects.filter(profile=request.user)
-#     if surveys.exists():
-#         serializer = ShortSurveySerializer(surveys, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#     else:
-#         return Response(
-#             {"message": "User has no surveys"}, status=status.HTTP_204_NO_CONTENT
-#         )
-
-
 @extend_schema(
     request=ShortSurveySerializer,
     responses={
@@ -202,23 +92,24 @@ def export_js(request):
 )
 @api_view(["POST"])
 def preview_survey(request):
-    try:
-        answer = {"attributes": [], "previews": []}
-        attributes = request.data.get("attributes")
-        restrictions = request.data.get("restrictions", [])
-        cross_restrictions = request.data.get("cross_restrictions", [])
-        profiles = request.data.get("profiles", 2)
+    serializer = ShortSurveySerializer(data=request.data)
+    if serializer.is_valid():
+        validated_data = serializer.validated_data
+        
+        attributes = validated_data["attributes"]
+        restrictions = validated_data["restrictions"]
+        cross_restrictions = validated_data["cross_restrictions"]
+        profiles = validated_data["profiles"]
         
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        answer = {"attributes": [], "previews": []}
         answer["previews"] = _createProfiles(profiles, attributes, restrictions, cross_restrictions, False)
         answer["attributes"] = [attribute["name"] for attribute in attributes]
         return Response(answer, status=status.HTTP_201_CREATED)
-    except:
-        return Response(
-            {"Error": "Invalid survey data."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    else:
+        return Response(serializer.errors, status=400)
 
 
 @extend_schema(
@@ -267,47 +158,46 @@ def preview_survey(request):
     description="Generates and sends a CSV file based on provided attributes.",
 )
 @api_view(["POST"])
-def preview_csv(request):
-    try:
-        CSV_FILES_NUM = 500
-        attributes = request.data.get("attributes")
-        restrictions = request.data.get("restrictions", [])
-        cross_restrictions = request.data.get("cross_restrictions", [])
-        profiles = request.data.get("profiles", 2)
+def export_csv(request):
+    serializer = ShortSurveySerializer(data=request.data)
+    if serializer.is_valid():
+        validated_data = serializer.validated_data
+        
+        attributes = validated_data["attributes"]
+        restrictions = validated_data["restrictions"]
+        cross_restrictions = validated_data["cross_restrictions"]
+        profiles = validated_data["profiles"]
+        csv_lines = validated_data["csv_lines"]
 
         #To calculate the total number of combinations
         #levels_per_attribute = [len(attribute['levels']) for attribute in attributes]
         #profiles_per_attribute = [profiles for _ in attributes]
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        header = []
-        for i in range(1, len(attributes) + 1):
-            for j in range(1, profiles + 2):
-                if j == 1:
-                    header.append(f'ATT{i}')
-                else:
-                    header.append(f'ATT{i}P{j-1}')
-        previews = []
-        previews.append(header)
 
-        export_list = _createProfiles(profiles, attributes, restrictions, cross_restrictions, True)
         with open("profiles.csv", "w") as file:
             writer = csv.writer(file)
-            writer.writerows(previews)
-            for i in range(CSV_FILES_NUM):
-                export_list = _createProfiles(profiles, attributes, restrictions, cross_restrictions, True)
-                export_list = [export_list]
-                writer.writerows(export_list)
+                
+            header = []
+            for i in range(1, len(attributes) + 1):
+                for j in range(1, profiles + 2):
+                    if j == 1:
+                        header.append(f'ATT{i}')
+                    else:
+                        header.append(f'ATT{i}P{j-1}')
+            writer.writerow(header)
+            
+            for i in range(csv_lines):
+                profiles_list = _createProfiles(profiles, attributes, restrictions, cross_restrictions, True)
+                rearrenged_profiles = []
+                for i in range(len(attributes)):
+                    rearrenged_profiles.append(profiles_list[0][i * 2])
+                    for j in range(profiles):
+                        rearrenged_profiles.append(profiles_list[j][i * 2 + 1])
+                writer.writerow(rearrenged_profiles)   
         return _sendFileResponse("profiles.csv")
-        #response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
-        #response["Content-Disposition"] = 'attachment; filename="survey.csv"'
-
-    except:
-        return Response(
-            {"message": "Invalid survey data."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    else:
+        return Response(serializer.errors, status=400)
 
 
 '''''''''''''''''''''''''''''''''''''''''''''

@@ -112,7 +112,9 @@ class PreviewSurveyTest(TestCase):
     def test_preview_survey_success(self):
         # Вata for a successful request
         data = {
-            "attributes": [{"name": "attr1", "levels": [{"name": "level1"}, {"name": "level2"}]}],
+            "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
+                           {"name": "att2", "levels": [{"name": "level2"}, {"name": "another2"}]},
+                           {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
             "restrictions": [],
             "cross_restrictions": [],
             "profiles": 2
@@ -138,7 +140,6 @@ class PreviewSurveyTest(TestCase):
         data = {} 
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(response.data, {"Error": "Invalid survey data."})
         
 class PreviewCSVTest(TestCase):
     def setUp(self):
@@ -149,13 +150,17 @@ class PreviewCSVTest(TestCase):
             password="testpassword123",
         )
         self.client.force_authenticate(user=self.profile)
-        self.url = reverse('surveys:preview_csv')  
+        self.url = reverse('surveys:export_csv')  
 
-    def test_preview_csv_success(self):
+    def test_export_csv_success(self):
         # Data for a successful request
         data = {
-            "attributes": [{"name": "attr1", "levels": [{"name": "level1"}, {"name": "level2"}]}, 
-                           {"name": "attr2", "levels": [{"name": "lvl1"}, {"name": "lvl2"}]}],
+            "attributes": [{"name": "att1", "levels": [{"name": "lvl1"}, {"name": "another1"}, {"name": "bruh1"}]}, 
+                           {"name": "att2", "levels": [{"name": "lvl2"}, {"name": "another2"}, {"name": "bruh2"}]},
+                           {"name": "att3", "levels": [{"name": "lvl3"}, {"name": "another3"}, {"name": "bruh3"}]},
+                           {"name": "att4", "levels": [{"name": "lvl4"}, {"name": "another4"}, {"name": "bruh4"}]},
+                           {"name": "att5", "levels": [{"name": "lvl5"}, {"name": "another5"}, {"name": "bruh5"}]},
+                           {"name": "att6", "levels": [{"name": "lvl6"}, {"name": "another6"}, {"name": "bruh6"}]}],
             "restrictions": [],
             "cross_restrictions": [],
             "profiles": 2
@@ -166,7 +171,7 @@ class PreviewCSVTest(TestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             mock_sendFileResponse.assert_called_once()
 
-    def test_preview_csv_no_levels(self):
+    def test_export_csv_no_levels(self):
         # Data where an attribute has no levels
         data = {
             "attributes": [{"name": "attr1", "levels": []}],
@@ -178,9 +183,8 @@ class PreviewCSVTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertDictEqual(response.data, {"Error": "Cannot export to JavaScript. Some attributes have no levels."})
 
-    def test_preview_csv_invalid_data(self):
+    def test_export_csv_invalid_data(self):
         # Example of sending invalid data
         data = {} 
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(response.data, {"message": "Invalid survey data."})

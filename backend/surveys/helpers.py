@@ -337,7 +337,6 @@ def _createFile(request):
         repeat_task = validated_data['repeat_task']
         random = validated_data['random']
         advanced = validated_data['advanced']
-        duplicates = request.data.get("duplicates", [2, 4])
         duplicate_first = validated_data['duplicate_first']
         duplicate_second = validated_data['duplicate_second']
         
@@ -407,7 +406,7 @@ def _createFile(request):
                         }}
                     }}
                     }}
-                    """.format(str(duplicates[0]), str(duplicates[1])))
+                    """.format(str(duplicate_first), str(duplicate_second)))
             else:
                 file_js.write("""
                 let curr = N;
@@ -430,13 +429,12 @@ def _createFile(request):
                     if (returnarray[startKey]){{
                         returnarray[startKey] = returnarray[trailKey];
                     }}
-                }}""".format(str(duplicates[0]), str(duplicates[1])))
+                }}""".format(str(duplicate_first), str(duplicate_second)))
             file_js.write("\n")
             file_js.write(temp_4)
             file_js.close()
         return filename
     else:
-        # Return an error response if the data was not valid
         return Response(serializer.errors, status=400)
 
 
@@ -468,7 +466,7 @@ def _checkCrossProfileRestrictions(profiles_list, cross_restrictions):
                 return True
     return False
 
-def _createProfiles(profiles, attributes, restrictions, cross_restrictions, csvY):
+def _createProfiles(profiles, attributes, restrictions, cross_restrictions, csv_mode):
     cross_profile_restriction_broken = True
     while cross_profile_restriction_broken:
         profiles_list = []
@@ -522,16 +520,13 @@ def _createProfiles(profiles, attributes, restrictions, cross_restrictions, csvY
                         else:
                             if lvl == level_dict[attr]:
                                 restriction_broken = True
-        if not restriction_broken:
-            if csvY:
-                for i, att in enumerate(attribute_names):
-                    csv_export.append(att)
-                    for prof in levels:
-                        csv_export.append(prof[i])
-            profiles_list.append(levels)
+                if not restriction_broken:
+                    profiles_list.append(levels[:])
+                    for index, name in enumerate(attribute_names):
+                        levels.insert(2 * index, name)
+                    csv_export.append(levels)
         cross_profile_restriction_broken = _checkCrossProfileRestrictions(profiles_list, cross_restrictions)
-    
-    if not csvY: 
+    if not csv_mode: 
         return profiles_list 
     else:
         return csv_export
