@@ -92,7 +92,10 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => {
                     return (
-                      <Link href={`/${encodeURIComponent(row.id)}`}>
+                      <Link
+                        href={`/${encodeURIComponent(row.id)}`}
+                        key={row.id}
+                      >
                         <TableRow
                           hover
                           role="checkbox"
