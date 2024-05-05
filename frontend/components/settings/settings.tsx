@@ -19,6 +19,8 @@ export const Settings = () => {
 
   const [numProfiles, setNumProfiles] = useState(2);
   const [numTasks, setNumTasks] = useState(2);
+  const [taskToRepeat, setTaskToRepeat] = useState(1);
+  const [whereToRepeat, setWhereToRepeat] = useState(1);
 
   const [isEditing, setIsEditing] = useState(false);
   const [docName, setDocName] = useState<string>(currentDoc);
@@ -39,6 +41,22 @@ export const Settings = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDocName(e.target.value);
   };
+
+  useEffect(() => {
+    // Ensure taskToRepeat is within the new range of tasks
+    if (taskToRepeat > numTasks) {
+      setTaskToRepeat(numTasks);
+    }
+
+    if (whereToRepeat < taskToRepeat) {
+      setWhereToRepeat(taskToRepeat);
+    }
+
+    // Ensure whereToRepeat is within the new range of tasks + 1
+    if (whereToRepeat > numTasks + 1) {
+      setWhereToRepeat(numTasks + 1);
+    }
+  }, [numTasks, taskToRepeat, whereToRepeat]);
 
   const handleBlur = () => {
     setIsEditing(false);
@@ -79,6 +97,8 @@ export const Settings = () => {
           label="Number of profiles"
           explanation="Changes the number of profiles in preview section"
         />
+
+        <SettingsLine />
         <SettingsNumberRange
           value={numTasks}
           onChange={(newValue) => setNumTasks(newValue)}
@@ -87,7 +107,6 @@ export const Settings = () => {
           label="Number of tasks"
           explanation="Set of choices presented to the respondent in a single screen (i.e. pair of candidates)"
         />
-        <SettingsLine />
         <SettingsCheckbox
           checked={repeatedTasks}
           onChange={(e) => setRepeatedTasks(e.target.checked)}
@@ -95,12 +114,31 @@ export const Settings = () => {
           explanation="Option to repeat tasks"
         />
         {repeatedTasks && (
-          <SettingsCheckbox
-            checked={repeatedTasksFlipped}
-            onChange={(e) => setRepeatedTasksFlipped(e.target.checked)}
-            label="Flipped"
-            explanation="Option to either flip columns same for repeated tasks"
-          />
+          <>
+            <SettingsCheckbox
+              checked={repeatedTasksFlipped}
+              onChange={(e) => setRepeatedTasksFlipped(e.target.checked)}
+              label="Flipped"
+              explanation="Option to either flip columns same for repeated tasks"
+            />
+            <SettingsNumberRange
+              value={taskToRepeat}
+              onChange={(newValue) => setTaskToRepeat(newValue)}
+              min={1}
+              max={numTasks}
+              label="Which task to repeat?"
+              explanation="A Task to repeat from 1 to N (the chosen number of tasks)"
+            />
+
+            <SettingsNumberRange
+              value={whereToRepeat}
+              onChange={(newValue) => setWhereToRepeat(newValue)}
+              min={taskToRepeat}
+              max={numTasks + 1}
+              label="Where to repeat?"
+              explanation="Where to repeat from i (the chosen task) to N + 1 (the chosen number of tasks)"
+            />
+          </>
         )}
         <SettingsLine />
         <div className={styles.ordering}>
