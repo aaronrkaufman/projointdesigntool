@@ -2,6 +2,9 @@ import { useContext, useState, useRef, useEffect } from "react";
 import styles from "./settings.module.css";
 import { DocumentContext } from "../../context/document_context";
 import { useAttributes } from "../../context/attributes_context";
+import { SettingsCheckbox } from "./__checkbox/settings__checkbox";
+import { SettingsRadioGroup } from "./__radio-group/settings__radio-group";
+import { SettingsExplanation } from "./__explanation/settings__explanation";
 
 export const Settings = () => {
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
@@ -59,34 +62,19 @@ export const Settings = () => {
         <div className={styles.content}>
           <h3>Ordering of attributes</h3>
           <form>
-            <label>
-              <input type="checkbox" name="attributes" value="non-random" /> Non
-              random (default)
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                name="attributes"
-                value="participant-randomized"
-              />{" "}
-              Participant randomized
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                name="attributes"
-                value="task-randomized"
-              />{" "}
-              Task randomized
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                name="attributes"
-                value="advanced-randomized"
-              />{" "}
-              Advanced randomized (i.e political party always first)
-            </label>
+            <SettingsRadioGroup
+              options={[
+                "Non random",
+                "Participant randomized",
+                "Task randomized",
+                "Advanced randomized (i.e political party always first)",
+              ]}
+              defaultValue="Non random"
+            />
+            <SettingsExplanation
+              explanation={<p>Learn about attribute ordering.</p>}
+            />
+            {/* This setting determines the order in which the attributes are presented to the user. The default is non-random, which means the attributes are presented in the order they are defined in the document. The other options randomize the order in different ways. */}
 
             <h3>Number of profiles</h3>
             <input
@@ -98,10 +86,7 @@ export const Settings = () => {
             />
 
             <h3>Repeated tasks</h3>
-            <label className={styles.switch}>
-              <input type="checkbox" />
-              <span className={styles.slider}></span>
-            </label>
+            <SettingsCheckbox />
           </form>
         </div>
       </div>
