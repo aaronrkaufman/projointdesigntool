@@ -1,4 +1,12 @@
 .settings__checkbox {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.settings__checkbox__switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }

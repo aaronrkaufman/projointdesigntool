@@ -1,3 +1,7 @@
 .settings__explanation {
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
 }

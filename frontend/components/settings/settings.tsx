@@ -5,12 +5,16 @@ import { useAttributes } from "../../context/attributes_context";
 import { SettingsCheckbox } from "./__checkbox/settings__checkbox";
 import { SettingsRadioGroup } from "./__radio-group/settings__radio-group";
 import { SettingsExplanation } from "./__explanation/settings__explanation";
+import { SettingsLine } from "./__line/settings__line";
 
 export const Settings = () => {
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
     useContext(DocumentContext);
 
   const { setEdited } = useAttributes();
+
+  const [repeatedTasks, setRepeatedTasks] = useState(true);
+  const [repeatedTasksFlipped, setRepeatedTasksFlipped] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [docName, setDocName] = useState<string>(currentDoc);
@@ -58,36 +62,53 @@ export const Settings = () => {
             className={styles.editableInput}
             // additional styling or attributes
           />
+          <SettingsExplanation
+            explanation={<p>You can use any name you want. Keep it simple.</p>}
+          />
         </div>
-        <div className={styles.content}>
+        <SettingsLine />
+        <SettingsCheckbox
+          checked={repeatedTasks}
+          onChange={(e) => setRepeatedTasks(e.target.checked)}
+          label="Repeated tasks"
+          explanation="Option to repeat tasks"
+        />
+        {repeatedTasks && (
+          <SettingsCheckbox
+            checked={repeatedTasksFlipped}
+            onChange={(e) => setRepeatedTasksFlipped(e.target.checked)}
+            label="Flipped"
+            explanation="Option to either flip columns same for repeated tasks"
+          />
+        )}
+        <SettingsLine />
+        <div className={styles.ordering}>
           <h3>Ordering of attributes</h3>
-          <form>
-            <SettingsRadioGroup
-              options={[
-                "Non random",
-                "Participant randomized",
-                "Task randomized",
-                "Advanced randomized (i.e political party always first)",
-              ]}
-              defaultValue="Non random"
-            />
-            <SettingsExplanation
-              explanation={<p>Learn about attribute ordering.</p>}
-            />
-            {/* This setting determines the order in which the attributes are presented to the user. The default is non-random, which means the attributes are presented in the order they are defined in the document. The other options randomize the order in different ways. */}
 
-            <h3>Number of profiles</h3>
-            <input
-              type="number"
-              id="profile-number"
-              min="1"
-              max="10"
-              //   value="2"
-            />
-
-            <h3>Repeated tasks</h3>
-            <SettingsCheckbox />
-          </form>
+          <SettingsRadioGroup
+            options={[
+              "Non random",
+              "Participant randomized",
+              "Task randomized",
+            ]}
+            defaultValue="Non random"
+          />
+          <SettingsExplanation
+            learnMoreLink
+            explanation={<p>Learn about attribute ordering.</p>}
+          />
+          {/* This setting determines the order in which the attributes are presented to the user. The default is non-random, which means the attributes are presented in the order they are defined in the document. The other options randomize the order in different ways. */}
+        </div>
+        <SettingsLine />
+        <div>
+          <h3>Number of profiles</h3>
+          <input
+            type="number"
+            id="profile-number"
+            min="1"
+            max="10"
+            //   value="2"
+          />
         </div>
       </div>
     </section>

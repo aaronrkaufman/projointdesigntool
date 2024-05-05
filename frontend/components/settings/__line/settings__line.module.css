@@ -1,0 +1,7 @@
+.settings__line {
+  display: block;
+  height: 1px;
+  width: 100%;
+  background-color: var(--border-gray);
+  margin-top: 0.5rem;
+}

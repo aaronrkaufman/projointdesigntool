@@ -4,15 +4,38 @@ import styles from "./settings__checkbox.module.css";
 import { styled } from "@mui/material/styles";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import { SettingsExplanation } from "../__explanation/settings__explanation";
 
-export interface SettingsCheckboxProps {}
+export interface SettingsCheckboxProps {
+  checked: boolean;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  label: string;
+  explanation: string;
+}
 
-export const SettingsCheckbox: FC<SettingsCheckboxProps> = ({}) => (
+export const SettingsCheckbox: FC<SettingsCheckboxProps> = ({
+  checked,
+  onChange,
+  label,
+  explanation,
+}) => (
   <div className={styles.settings__checkbox}>
-    <FormControlLabel
-      control={<Android12Switch defaultChecked />}
-      label=""
-    />
+    <div>
+      <h3>{label}</h3>
+      <SettingsExplanation explanation={<p>{explanation}</p>} />
+    </div>
+    <div className={styles.settings__checkbox__switch}>
+      <FormControlLabel
+        control={
+          <Android12Switch
+            defaultChecked
+            checked={checked}
+            onChange={onChange}
+          />
+        }
+        label=""
+      />
+    </div>
   </div>
 );
 

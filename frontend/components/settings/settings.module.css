@@ -14,7 +14,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.5rem;
 }
 
 .top {
@@ -74,43 +74,13 @@
 .section h3 {
   color: var(--dark-blue-h);
   font-weight: 400;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   margin-top: 0.5rem;
   font-size: 1.125rem;
 }
 
-.content form {
+.ordering {
   display: flex;
   flex-direction: column;
 }
 
-.content form label {
-  display: block;
-  margin-bottom: 5px;
-  cursor: pointer;
-}
-
-.content form label input[type="checkbox"] {
-  margin-right: 10px;
-}
-
-.content form input[type="number"] {
-  width: 100px;
-  padding: 10px;
-  border: 1px solid var(--border-gray);
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
