@@ -6,6 +6,11 @@ import React, {
   ReactNode,
 } from "react";
 import { DocumentContext } from "./document_context";
+import {
+  AddLevelToAttribute,
+  DeleteLevelFromAttribute,
+  LevelNameChange,
+} from "./utils/level";
 
 interface Level {
   name: string;
@@ -189,34 +194,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   const handleCreateAttribute = () => setIsCreatingAttribute(true);
 
   const addLevelToAttribute = (attributeKey: number, newLevel: string) => {
-    setAttributes((prevAttributes) =>
-      prevAttributes.map((attribute) => {
-        if (attribute.key === attributeKey) {
-          const newLevelId =
-            attribute.levels.reduce(
-              (maxId, lvl) => Math.max(maxId, lvl.id),
-              0
-            ) + 1; // Calculate new levelId
-          const newNumberOfLevels = attribute.levels.length + 1;
-          const newWeight = parseFloat((1 / newNumberOfLevels).toFixed(2));
-          const newLevels = attribute.levels.map((lvl) => {
-            return { ...lvl, weight: newWeight };
-          });
-          return {
-            ...attribute,
-            levels: [
-              ...newLevels,
-              {
-                name: newLevel,
-                id: newLevelId, // Use newLevelId instead of length + 1
-                weight: newWeight,
-              },
-            ],
-          };
-        }
-        return attribute;
-      })
-    );
+    AddLevelToAttribute(attributeKey, newLevel, setAttributes);
     setEdited(true);
   };
 
@@ -224,31 +202,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     attributeKey: number,
     levelId: number // Changed levelIndex to levelId
   ) => {
-    setAttributes((prevAttributes) =>
-      prevAttributes.map((attribute) => {
-        if (attribute.key === attributeKey) {
-          let newLevels = attribute.levels.filter(
-            (lvl) => lvl.id !== levelId // Use levelId for comparison
-          );
-
-          const newNumberOfLevels = newLevels.length;
-          const newWeight =
-            newNumberOfLevels > 0
-              ? parseFloat((1 / newNumberOfLevels).toFixed(2))
-              : 0;
-
-          newLevels = newLevels.map((lvl) => {
-            return { ...lvl, weight: newWeight, id: lvl.id }; // Keep original id
-          });
-
-          return {
-            ...attribute,
-            levels: newLevels,
-          };
-        }
-        return attribute;
-      })
-    );
+    DeleteLevelFromAttribute(attributeKey, levelId, setAttributes);
     setEdited(true);
   };
 
@@ -259,25 +213,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     newName: string,
     levelId: number // Changed levelIndex to levelId
   ) => {
-    setAttributes((prevAttributes) =>
-      prevAttributes.map((attribute) => {
-        if (attribute.key === attributeKey) {
-          const newLevels = attribute.levels.map((lvl) => {
-            if (lvl.id === levelId) {
-              // Use levelId for comparison
-              return { ...lvl, name: newName };
-            }
-            return lvl;
-          });
-
-          // Return the updated attribute
-          return { ...attribute, levels: newLevels };
-        }
-
-        // For other attributes, return them as is
-        return attribute;
-      })
-    );
+    LevelNameChange(attributeKey, newName, levelId, setAttributes);
     setEdited(true);
   };
 
@@ -354,10 +290,10 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     addNewAttribute,
     addLevelToAttribute,
     deleteLevelFromAttribute,
+    handleLevelNameChange,
     updateWeight,
     cancelNewAttribute,
     handleCreateAttribute,
-    handleLevelNameChange,
     setEdited,
     handleAttributeNameChange,
     handleInstructions,
