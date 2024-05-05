@@ -6,6 +6,7 @@ import { SettingsCheckbox } from "./__checkbox/settings__checkbox";
 import { SettingsRadioGroup } from "./__radio-group/settings__radio-group";
 import { SettingsExplanation } from "./__explanation/settings__explanation";
 import { SettingsLine } from "./__line/settings__line";
+import { SettingsNumberRange } from "./__number-range/settings__number-range";
 
 export const Settings = () => {
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
@@ -15,6 +16,9 @@ export const Settings = () => {
 
   const [repeatedTasks, setRepeatedTasks] = useState(true);
   const [repeatedTasksFlipped, setRepeatedTasksFlipped] = useState(false);
+
+  const [numProfiles, setNumProfiles] = useState(2);
+  const [numTasks, setNumTasks] = useState(2);
 
   const [isEditing, setIsEditing] = useState(false);
   const [docName, setDocName] = useState<string>(currentDoc);
@@ -67,6 +71,23 @@ export const Settings = () => {
           />
         </div>
         <SettingsLine />
+        <SettingsNumberRange
+          value={numProfiles}
+          onChange={(newValue) => setNumProfiles(newValue)}
+          min={1}
+          max={10}
+          label="Number of profiles"
+          explanation="Changes the number of profiles in preview section"
+        />
+        <SettingsNumberRange
+          value={numTasks}
+          onChange={(newValue) => setNumTasks(newValue)}
+          min={1}
+          max={10}
+          label="Number of tasks"
+          explanation="Set of choices presented to the respondent in a single screen (i.e. pair of candidates)"
+        />
+        <SettingsLine />
         <SettingsCheckbox
           checked={repeatedTasks}
           onChange={(e) => setRepeatedTasks(e.target.checked)}
@@ -100,16 +121,6 @@ export const Settings = () => {
           {/* This setting determines the order in which the attributes are presented to the user. The default is non-random, which means the attributes are presented in the order they are defined in the document. The other options randomize the order in different ways. */}
         </div>
         <SettingsLine />
-        <div>
-          <h3>Number of profiles</h3>
-          <input
-            type="number"
-            id="profile-number"
-            min="1"
-            max="10"
-            //   value="2"
-          />
-        </div>
       </div>
     </section>
   );
