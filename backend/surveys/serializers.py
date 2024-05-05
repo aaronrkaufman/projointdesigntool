@@ -12,50 +12,68 @@ class AttributeSerializer(serializers.Serializer):
     levels = LevelSerializer(many=True)
 
 
-class SurveySerializer(serializers.Serializer):
-    attributes = AttributeSerializer(many=True, required=True)
-    constraints = serializers.ListField(
-        child=serializers.ListField(
-            child=serializers.CharField(),
-            required=False,
-        ),
-        required=False,
-        default=list,
-    )
-    restrictions = serializers.ListField(
-        child=serializers.DictField(), required=False, default=[]
-    )
-    filename = serializers.CharField(required=False, default="survey.js")
-    profiles = serializers.IntegerField(required=False, default=2)
-    tasks = serializers.IntegerField(required=False, default=5)
-    randomize = serializers.IntegerField(required=False, default=1)
-    noDuplicates = serializers.IntegerField(required=False, default=0)
-    random = serializers.IntegerField(required=False, default=0)
-
-
 class ShortSurveySerializer(serializers.ModelSerializer):
     attributes = AttributeSerializer(many=True, required=True)
-    constraints = serializers.ListField(
-        child=serializers.ListField(
-            child=serializers.CharField(),
-            required=False,
-        ),
-        required=False,
-        default=list,
-    )
+    restrictions = serializers.JSONField(default=list)
+    cross_restrictions = serializers.JSONField(default=list)
+    profiles = serializers.IntegerField(default=2, min_value=2)
+    csv_lines = serializers.IntegerField(default=500)
 
     class Meta:
         model = Survey
-        fields = ["attributes", "constraints"]
+        fields = ["attributes", "restrictions", "cross_restrictions", "profiles", "csv_lines"]
 
-    def create(self, validated_data):
-        profile = self.context["request"].user
-        # Assuming the Survey model has an 'attributes' field that accepts JSON
-        # and a 'constraints' field that also accepts JSON.
-        # Adjust this according to your actual Survey model fields.
-        attributes_data = validated_data.pop("attributes")
-        constraints_data = validated_data.pop("constraints", [])
-        survey = Survey.objects.create(
-            profile=profile, attributes=attributes_data, constraints=constraints_data
-        )
-        return survey
+class SurveySerializer(serializers.ModelSerializer):
+    attributes = AttributeSerializer(many=True, required=True)
+    constraints = serializers.JSONField(default=list)
+    restrictions = serializers.JSONField(default=list)
+    cross_restrictions = serializers.JSONField(default=list)
+    filename = serializers.CharField(default='survey.js', allow_blank=True)
+    profiles = serializers.IntegerField(default=2, min_value=2, allow_null=True)
+    tasks = serializers.IntegerField(default=5, min_value=1, allow_null=True)
+    randomize = serializers.BooleanField(default=False, allow_null=True)
+    repeat_task = serializers.BooleanField(default=False, allow_null=True)
+    random = serializers.BooleanField(default=False, allow_null=True)
+    noFlip = serializers.BooleanField(default=False, allow_null=True)
+    csv_lines = serializers.IntegerField(default=500, allow_null=True)
+    duplicate_first = serializers.IntegerField(default=0, min_value=0, allow_null=True)
+    duplicate_second = serializers.IntegerField(default=0, min_value=0, allow_null=True)
+    advanced = serializers.JSONField(default=dict)
+
+    class Meta:
+        model = Survey
+        fields = [
+            'id', 'attributes', 'constraints', 'restrictions', 'cross_restrictions', 'filename',
+            'advanced', 'profiles', 'tasks', 'randomize', 'repeat_task', 
+            'random', 'duplicate_first', 'duplicate_second', 'noFlip', 'csv_lines'
+        ]
+
+
+    def validate_attributes(self, value):
+        """
+        Check that attributes is a list of dicts with required keys 'name' and 'levels'.
+        """
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Attributes must be a list.")
+        
+        for item in value:
+            if not isinstance(item, dict) or 'name' not in item or 'levels' not in item:
+                raise serializers.ValidationError("Each attribute must be a dict with 'name' and 'levels'.")
+        
+        return value
+
+    def validate_restrictions(self, value):
+        """
+        Check that restrictions is a list of dicts with required keys.
+        """
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Restrictions must be a list.")
+        
+        for item in value:
+            required_keys = ['ifStates', 'elseStates']
+            if not all(key in item for key in required_keys):
+                raise serializers.ValidationError(
+                    "Each restriction must contain 'ifStates' and 'elseStates'."
+                )
+        
+        return value
