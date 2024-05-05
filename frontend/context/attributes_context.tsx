@@ -43,6 +43,17 @@ export interface Attribute {
   key: number;
 }
 
+interface Settings {
+  numProfiles: number;
+  numTasks: number;
+  repeatedTasks: boolean;
+  repeatedTasksFlipped: boolean;
+  taskToRepeat: number;
+  whereToRepeat: number;
+  randomize: boolean;
+  noFlip: boolean;
+}
+
 interface AttributeContextType {
   attributes: Attribute[];
   setAttributes: React.Dispatch<React.SetStateAction<Attribute[]>>;
@@ -72,6 +83,8 @@ interface AttributeContextType {
   saveRestriction: (restriction: RestrictionProps) => void;
   deleteRestriction: (restrictionId: string) => void;
   instructions: IInstructions;
+  settings: Settings;
+  updateSettings: (newSettings: Settings) => void;
 }
 
 const AttributeContext = createContext<AttributeContextType | undefined>(
@@ -104,6 +117,17 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     instructions: "",
   });
 
+  const [settings, setSettings] = useState<Settings>({
+    numProfiles: 2,
+    numTasks: 2,
+    repeatedTasks: true,
+    repeatedTasksFlipped: false,
+    taskToRepeat: 1,
+    whereToRepeat: 1,
+    randomize: false,
+    noFlip: false,
+  });
+
   useEffect(() => {
     if (currentDocID && currentDocID !== prevDocID) {
       setEdited(false);
@@ -116,6 +140,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         setCurrentDoc(parsedData.name);
         setRestrictions(parsedData.restrictions ? parsedData.restrictions : []);
         setInstructions(parsedData.instructions);
+        setSettings(parsedData.settings ? parsedData.settings : settings);
       } else {
         setAttributes([]);
       }
@@ -133,6 +158,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         name: currentDoc,
         restrictions: restrictions,
         instructions: instructions,
+        settings: settings,
       };
       localStorage.setItem(
         `attributes-${currentDocID}`,
@@ -282,6 +308,11 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited(true);
   };
 
+  const updateSettings = (newSettings: Settings) => {
+    setSettings(newSettings);
+    setEdited(true);
+  };
+
   const value: AttributeContextType = {
     attributes,
     setAttributes,
@@ -304,6 +335,8 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     saveRestriction,
     deleteRestriction,
     instructions,
+    settings,
+    updateSettings,
   };
 
   return (

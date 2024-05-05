@@ -26,13 +26,7 @@ export const SettingsCheckbox: FC<SettingsCheckboxProps> = ({
     </div>
     <div className={styles.settings__checkbox__switch}>
       <FormControlLabel
-        control={
-          <Android12Switch
-            defaultChecked
-            checked={checked}
-            onChange={onChange}
-          />
-        }
+        control={<Android12Switch checked={checked} onChange={onChange} />}
         label=""
       />
     </div>

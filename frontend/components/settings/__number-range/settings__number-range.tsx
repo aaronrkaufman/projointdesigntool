@@ -58,8 +58,8 @@ export const SettingsNumberRange: FC<SettingsNumberRangeProps> = ({
             <path
               d="M1 7L7 1L13 7"
               stroke="#778C9F"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </button>
@@ -74,8 +74,8 @@ export const SettingsNumberRange: FC<SettingsNumberRangeProps> = ({
             <path
               d="M13 1L7 7L1 1"
               stroke="#778C9F"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </button>

@@ -75,6 +75,7 @@ export const SettingsRadioGroup: FC<SettingsRadioGroupProps> = ({
     >
       {options.map((option) => (
         <FormControlLabel
+          key={option}
           value={option}
           control={<BpRadio />}
           label={option}

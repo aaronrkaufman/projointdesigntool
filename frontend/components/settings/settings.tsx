@@ -12,19 +12,30 @@ export const Settings = () => {
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
     useContext(DocumentContext);
 
-  const { setEdited } = useAttributes();
+  const { setEdited, settings, updateSettings } = useAttributes();
 
-  const [repeatedTasks, setRepeatedTasks] = useState(true);
-  const [repeatedTasksFlipped, setRepeatedTasksFlipped] = useState(false);
+  const [repeatedTasks, setRepeatedTasks] = useState(settings.repeatedTasks);
+  const [repeatedTasksFlipped, setRepeatedTasksFlipped] = useState(
+    settings.repeatedTasksFlipped
+  );
 
-  const [numProfiles, setNumProfiles] = useState(2);
-  const [numTasks, setNumTasks] = useState(2);
-  const [taskToRepeat, setTaskToRepeat] = useState(1);
-  const [whereToRepeat, setWhereToRepeat] = useState(1);
+  const [numProfiles, setNumProfiles] = useState(settings.numProfiles);
+  const [numTasks, setNumTasks] = useState(settings.numTasks);
+  const [taskToRepeat, setTaskToRepeat] = useState(settings.taskToRepeat);
+  const [whereToRepeat, setWhereToRepeat] = useState(settings.whereToRepeat);
 
   const [isEditing, setIsEditing] = useState(false);
   const [docName, setDocName] = useState<string>(currentDoc);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setNumProfiles(settings.numProfiles);
+    setNumTasks(settings.numTasks);
+    setTaskToRepeat(settings.taskToRepeat);
+    setWhereToRepeat(settings.whereToRepeat);
+    setRepeatedTasks(settings.repeatedTasks);
+    setRepeatedTasksFlipped(settings.repeatedTasksFlipped);
+  }, [settings]);
 
   useEffect(() => {
     if (docName !== currentDoc) {
@@ -66,6 +77,37 @@ export const Settings = () => {
     // saveDocName(docName);
     setCurrentDoc(docName);
   };
+
+  const handleNumProfilesChange = (newValue: number) => {
+    // setNumProfiles(newValue);
+    updateSettings({ ...settings, numProfiles: newValue });
+  };
+
+  const handleNumTasksChange = (newValue: number) => {
+    // setNumTasks(newValue);
+    updateSettings({ ...settings, numTasks: newValue });
+  };
+
+  const handleRepeatedTasksChange = (newValue: boolean) => {
+    // setRepeatedTasks(newValue);
+    updateSettings({ ...settings, repeatedTasks: newValue });
+  };
+
+  const handleRepeatedTasksFlippedChange = (newValue: boolean) => {
+    // setRepeatedTasksFlipped(newValue);
+    updateSettings({ ...settings, repeatedTasksFlipped: newValue });
+  };
+
+  const handleTaskToRepeatChange = (newValue: number) => {
+    // setTaskToRepeat(newValue);
+    updateSettings({ ...settings, taskToRepeat: newValue });
+  };
+
+  const handleWhereToRepeatChange = (newValue: number) => {
+    // setWhereToRepeat(newValue);
+    updateSettings({ ...settings, whereToRepeat: newValue });
+  };
+
   return (
     <section className={styles.section}>
       <div className={styles.sectionContainer}>
@@ -91,7 +133,7 @@ export const Settings = () => {
         <SettingsLine />
         <SettingsNumberRange
           value={numProfiles}
-          onChange={(newValue) => setNumProfiles(newValue)}
+          onChange={handleNumProfilesChange}
           min={1}
           max={10}
           label="Number of profiles"
@@ -101,7 +143,7 @@ export const Settings = () => {
         <SettingsLine />
         <SettingsNumberRange
           value={numTasks}
-          onChange={(newValue) => setNumTasks(newValue)}
+          onChange={handleNumTasksChange}
           min={1}
           max={10}
           label="Number of tasks"
@@ -109,7 +151,7 @@ export const Settings = () => {
         />
         <SettingsCheckbox
           checked={repeatedTasks}
-          onChange={(e) => setRepeatedTasks(e.target.checked)}
+          onChange={(e) => handleRepeatedTasksChange(e.target.checked)}
           label="Repeated tasks"
           explanation="Option to repeat tasks"
         />
@@ -117,13 +159,15 @@ export const Settings = () => {
           <>
             <SettingsCheckbox
               checked={repeatedTasksFlipped}
-              onChange={(e) => setRepeatedTasksFlipped(e.target.checked)}
+              onChange={(e) =>
+                handleRepeatedTasksFlippedChange(e.target.checked)
+              }
               label="Flipped"
               explanation="Option to either flip columns same for repeated tasks"
             />
             <SettingsNumberRange
               value={taskToRepeat}
-              onChange={(newValue) => setTaskToRepeat(newValue)}
+              onChange={handleTaskToRepeatChange}
               min={1}
               max={numTasks}
               label="Which task to repeat?"
@@ -132,7 +176,7 @@ export const Settings = () => {
 
             <SettingsNumberRange
               value={whereToRepeat}
-              onChange={(newValue) => setWhereToRepeat(newValue)}
+              onChange={handleWhereToRepeatChange}
               min={taskToRepeat}
               max={numTasks + 1}
               label="Where to repeat?"
