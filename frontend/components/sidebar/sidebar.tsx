@@ -62,7 +62,7 @@ export const Sidebar = ({ active }: { active: string }) => {
         <div className={styles.addDoc} onClick={handleAddDoc}>
           <LightTooltip
             disableInteractive
-            title="New file"
+            title="New survey"
             arrow
             placement="right"
           >

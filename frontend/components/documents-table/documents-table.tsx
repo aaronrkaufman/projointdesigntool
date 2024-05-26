@@ -63,10 +63,10 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
       <div className={styles.tableContainer}>
         <div className={styles.top}>
           <div className={styles.docName}>
-            <h2>Documents</h2>
+            <h2>Surveys</h2>
           </div>
           <Button
-            text="New document"
+            text="New survey"
             icon={<FileAdd stroke="var(--white)" />}
             onClick={handleAddDoc}
           />

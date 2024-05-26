@@ -91,7 +91,7 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
       >
         <Box sx={modalStyle}>
           <div className={styles.modalHeader}>
-            <h2 id="export-modal-title">Export this document</h2>
+            <h2 id="export-modal-title">Export this survey</h2>
             <XIcon onClick={() => setIsOpen(false)} />
           </div>
           <ul className={styles.modalList}>
