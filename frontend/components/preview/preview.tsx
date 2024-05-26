@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import styles from "./preview.module.css"; // Make sure to create this CSS module
 import { Button } from "../ui/button";
 import { IInstructions } from "../../context/attributes_context";
+import ExportDropdown from "../survey/export";
 
 export interface IPreview {
   attributes: string[];
@@ -22,10 +23,13 @@ const Preview = ({
       <div className={styles.sectionContainer}>
         <div className={styles.top}>
           <h2>Preview</h2>
-          <Button
-            text="Refresh"
-            onClick={() => setRefresh && setRefresh(true)}
-          />
+          <div className={styles.buttons}>
+            <Button
+              text="Refresh"
+              onClick={() => setRefresh && setRefresh(true)}
+            />
+            <ExportDropdown size="small" />
+          </div>
         </div>
         <div className={styles.instructions}>
           {instructions && instructions.description}

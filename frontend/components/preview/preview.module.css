@@ -27,6 +27,11 @@
   justify-content: space-between;
 }
 
+.top .buttons {
+  display: flex;
+  gap: 1rem;
+}
+
 .cardContainer {
   display: flex;
   justify-content: space-between;

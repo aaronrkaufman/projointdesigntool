@@ -7,6 +7,7 @@ import { SettingsRadioGroup } from "./__radio-group/settings__radio-group";
 import { SettingsExplanation } from "./__explanation/settings__explanation";
 import { SettingsLine } from "./__line/settings__line";
 import { SettingsNumberRange } from "./__number-range/settings__number-range";
+import ExportDropdown from "../survey/export";
 
 export const Settings = () => {
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
@@ -113,6 +114,7 @@ export const Settings = () => {
       <div className={styles.sectionContainer}>
         <div className={styles.top}>
           <h2>Settings</h2>
+          <ExportDropdown size="small" />
         </div>
         <div className={styles.name}>
           <label>

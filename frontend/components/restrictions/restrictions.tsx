@@ -5,6 +5,7 @@ import { useAttributes } from "../../context/attributes_context";
 import { PlusIcon } from "../ui/icons";
 import { Restriction, RestrictionProps } from "./restriction";
 import { v4 as uuidv4 } from "uuid";
+import ExportDropdown from "../survey/export";
 
 export interface StatementProps {
   part: "if" | "then" | "and" | "or";
@@ -83,6 +84,7 @@ export const Restrictions = () => {
       <div className={styles.sectionContainer}>
         <div className={styles.top}>
           <h2>Restrictions</h2>
+          <ExportDropdown size="small" />
         </div>
         <p>List of attribute-level pairs that can’t be together in a profile</p>
         <div className={styles.container}>
