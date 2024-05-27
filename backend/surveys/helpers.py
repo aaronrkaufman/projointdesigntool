@@ -2,6 +2,7 @@
 THIS IS A HELPER FUNCTION TO CLEAR UP THE VIEWS FILE
 '''
 
+import os
 from django.http import FileResponse
 from rest_framework import status
 from rest_framework.response import Response
@@ -314,7 +315,7 @@ def _sendFileResponse(file_path):
     )
     response.closed = file_js.close
     # Delete the file
-    # os.remove(file_path)
+    os.remove(file_path)
     return response
 
 
@@ -323,11 +324,10 @@ def _createFile(request):
     if serializer.is_valid():
         validated_data = serializer.validated_data
 
-
-        # # Convert parameters to types
+        # Convert parameters to types
         attributes = validated_data['attributes']
 
-        # # Optional
+        # Optional
         constraints = validated_data['constraints']
         restrictions = validated_data['restrictions']
         filename = validated_data['filename']
@@ -466,70 +466,64 @@ def _checkCrossProfileRestrictions(profiles_list, cross_restrictions):
                 return True
     return False
 
-def _createProfiles(profiles, attributes, restrictions, cross_restrictions, csv_mode):
+def _evaluate_condition(profile, conditions):
+    current_result = None
+    for cond in conditions:
+        attr, op, value = cond['attribute'], cond['operation'], cond['value']
+        # Convert operation string to actual operation
+        if op == '==': result = profile[attr] == value
+        elif op == '!=': result = profile[attr] != value
+
+        if 'logical' in cond:
+            if cond['logical'] == '&&':
+                current_result = current_result and result if current_result is not None else result
+            elif cond['logical'] == '||':
+                current_result = current_result or result if current_result is not None else result
+        else:
+            current_result = result
+    return current_result
+
+def _evaluate_result(profile, results):
+    # Check the 'Then' part
+    for res in results:
+        attr, op, value = res['attribute'], res['operation'], res['value']
+        if op == '==': 
+            if not (profile[attr] == value): return False
+        elif op == '!=': 
+            if not (profile[attr] != value): return False
+    return True
+
+def _evaluate_restriction(profile, restriction):
+    if _evaluate_condition(profile, restriction['condition']):
+        # If the condition is true, check the result part
+        return _evaluate_result(profile, restriction['result'])
+    return True
+
+def _check_restrictions(profile, restrictions):
+    for restriction in restrictions:
+        if not _evaluate_restriction(profile, restriction):
+            return False
+    return True
+
+def _createProfiles(profiles_num, attributes, restrictions, cross_restrictions, csv_mode):
     cross_profile_restriction_broken = True
     while cross_profile_restriction_broken:
         profiles_list = []
         csv_export = []
-        for _ in range(profiles): 
-            restriction_broken = True
-            while restriction_broken:
-                levels = []
-                attribute_names = []
-                level_dict = {}
-                for attribute in attributes:
-                    lvl = random.choice(attribute["levels"])["name"]
-                    level_dict[attribute["name"]] = lvl
-                    levels.append(lvl)
-                    attribute_names.append(attribute["name"])
-                # FORMAT: if att = lvl &&/|| ... then att =/!= lvl
-                # "att1;==;b;||;att1;==;a;then;att2;==;d"
-                restriction_broken = False
-                # Check for restriction break
-                for restriction in restrictions:
-                    # split if then statement
-                    res = restriction.split("then")
-                    if_strings = res[0].strip().split(";")
-                    if_strings.pop() # remove empty string
-                    then_statement = res[1].strip().split(";")
-                    then_statement.pop(0) # remove empty string
-                    # and_statement: True - for only one statement || for multiple "AND" statements
-                    # False: - for multiple "OR" statements
-                    and_statement = True
-                    if len(if_strings) > 3 and if_strings[3] == "||":
-                        and_statement = False
-                    
-                    if_statements = []
-                    for i in range((len(if_strings) + 1) // 4):
-                        if_statements.append(if_strings[4 * i : 4 * i + 3])
-                    # if the "if statements" are true, then make check_then_statement True
-                    check_then_statement = False
-                    if and_statement:
-                        if all(lvl == level_dict[attr] for attr, _, lvl in if_statements):
-                            check_then_statement = True
-                    else:
-                        if any(lvl == level_dict[attr] for attr, _, lvl in if_statements):
-                            check_then_statement = True
-                    
-                    # if "then statement" is true, then restriction is broken
-                    if check_then_statement:
-                        attr, op, lvl = then_statement
-                        if op == "==":
-                            if lvl != level_dict[attr]:
-                                restriction_broken = True
-                        else:
-                            if lvl == level_dict[attr]:
-                                restriction_broken = True
-                if not restriction_broken:
-                    profiles_list.append(levels[:])
-                    for index, name in enumerate(attribute_names):
-                        levels.insert(2 * index, name)
-                    csv_export.append(levels)
+        while len(profiles_list) < profiles_num:
+            profile = {}
+            for attribute in attributes:
+                attr_name = attribute['name']
+                levels = [level['name'] for level in attribute['levels']]
+                profile[attr_name] = random.choice(levels)
+            if _check_restrictions(profile, restrictions):
+                level = [profile[attr] for attr in profile]
+                profiles_list.append(level[:])
+                for index, name in enumerate(list(profile.keys())):
+                    level.insert(2 * index, name)
+                csv_export.append(level)
         cross_profile_restriction_broken = _checkCrossProfileRestrictions(profiles_list, cross_restrictions)
-    if not csv_mode: 
-        return profiles_list 
-    else:
-        return csv_export
+    return profiles_list if not csv_mode else csv_export
 
 
 
