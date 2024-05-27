@@ -245,6 +245,7 @@ def export_csv(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 def create_qualtrics(request):
+    print("h")
     attributes = request.data.get("attributes", [])
     filename = request.data.get("filename", "export survey")
     profiles = request.data.get("profiles", 2)
@@ -253,6 +254,8 @@ def create_qualtrics(request):
     repeatFlip = request.data.get("repeatFlip", 1)
     doubleQ = request.data.get("doubleQ", False)
     resp = _checkAttributes(attributes)
+    qType = request.data.get("qType", "MC")
+    qText = request.data.get("qText", "")
     if resp:
         return resp
     jsname = _createFile(request)
@@ -268,10 +271,10 @@ def create_qualtrics(request):
     js_text = "//" + js_py + "\n"+ js_text
     user_token = "Vy99DuC4A57FSg4tzvoejFdE0sDgaBH8cAouYF6h"  # FIGURE OUT BETTER WAY TO STORE THIS
     created = __CreateSurvey(
-        filename, user_token, tasks, len(attributes), profiles, "", js_text, duplicates, repeatFlip, doubleQ
+        filename, user_token, tasks, len(attributes), profiles, "", js_text, duplicates, repeatFlip, doubleQ, qText
     )
     
-    __DownloadSurvey(created, user_token, doubleQ)
+    __DownloadSurvey(created, user_token, doubleQ, qType)
     return _sendFileResponse("survey.qsf")
 
 

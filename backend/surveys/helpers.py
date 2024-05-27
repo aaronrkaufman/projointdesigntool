@@ -598,7 +598,7 @@ def __CreateBlock(surveyID, bl, user_token):
     return response["result"]["BlockID"]
 
 
-def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, duplicates, repeatFlip, doubleQ):
+def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, duplicates, repeatFlip, doubleQ, qText):
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions"
     payload = {"SurveyName": name, "Language": "AR", "ProjectCategory": "CORE"}
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
@@ -608,6 +608,8 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, dup
     for i in range(task+1): 
         bl = __GetFlow(surveyID, user_token)
         blockID = __CreateBlock(surveyID, bl, user_token)
+        currText += qText
+        currText += "\n"
         currText = __CreateHTML(i, num_attr, profiles, i-1, 0)
         #if i==d2:
             #currText = __CreateHTML(d1, num_attr, profiles, i-1, repeatFlip)
@@ -700,7 +702,7 @@ def __EmbFields(surveyID, user_token, num_attr ,profiles,tasks):
     response = requests.post(url, json=payload, headers=headers)
 
 
-def __DownloadSurvey(surveyID, user_token, doubleQ):
+def __DownloadSurvey(surveyID, user_token, doubleQ, qType):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}"
     headers = {
         "Content-Type": "application/json",
@@ -713,10 +715,13 @@ def __DownloadSurvey(surveyID, user_token, doubleQ):
 
     try:
         response = requests.get(url, headers=headers, params=querystring)
-        questionType = ['MC', 'SAVR']
-        questionType2 = ['TE', 'SL']
-        #questionType = ["Slider", "HSLIDER"] 
-        #questionType = ["RO", "DND"]
+        if qType == "MC":
+            questionType = ['MC', 'SAVR']
+        elif qType == "Rank":
+            questionType = ["RO", "DND"]
+        else:
+            questionType = ["Slider", "HSLIDER"]
+        questionType2 = ['TE', 'SL'] 
 
         if response.status_code == 200:
             response_json = response.json()
