@@ -1,0 +1,41 @@
+.sidebar__folder {
+  padding-left: 0.5rem;
+}
+
+.sidebar__folder__header {
+  padding: 0.5rem 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 500;
+  color: var(--dark-blue-p);
+  margin-right: 1.5rem;
+}
+
+.sidebar__folder__header.active {
+  color: var(--blue);
+}
+
+.sidebar__folder__content {
+  padding-right: 1rem;
+  margin-right: 0.25rem;
+  max-height: 40vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-gray) transparent;
+}
+
+/* For Webkit browsers like Chrome, Safari */
+.sidebar__folder__content::-webkit-scrollbar {
+  width: 4px; /* width of the entire scrollbar */
+}
+
+.sidebar__folder__content::-webkit-scrollbar-track {
+  background: transparent; /* color of the tracking area */
+}
+
+.sidebar__folder__content::-webkit-scrollbar-thumb {
+  background-color: var(--border-gray); /* color of the scroll thumb */
+  border-radius: 2px; /* roundness of the scroll thumb */
+}

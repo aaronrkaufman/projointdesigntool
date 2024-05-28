@@ -8,7 +8,7 @@ function DocumentsPage() {
   return (
     <>
       <main className={styles.main}>
-        <Sidebar active={"documentName"} />
+        <Sidebar active={"index"} />
         {/* <SurveyContainer /> */}
         <DocumentsTable />
       </main>

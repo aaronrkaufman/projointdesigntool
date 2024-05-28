@@ -278,10 +278,12 @@ export const ExpandIcon = ({
   expand,
   onClick,
   size,
+  fill,
 }: {
   expand: boolean;
   onClick?: () => void;
   size: number;
+  fill?: string;
 }) => {
   return (
     <svg
@@ -294,7 +296,7 @@ export const ExpandIcon = ({
     >
       <path
         d={expand ? "M9 1.5L5 5.5L1 1.5" : "M1 5L5 1L9 5"}
-        stroke="#778C9F"
+        stroke={fill ? fill : "#778C9F"}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

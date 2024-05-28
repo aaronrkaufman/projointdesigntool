@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 import { useAttributes } from "../../context/attributes_context";
 import { FileAdd, LightTooltip } from "../ui/icons";
+import { SidebarFolder } from "./__folder/sidebar__folder";
 
 export const Sidebar = ({ active }: { active: string }) => {
   const [documents, setDocuments] = useState<IDocument[]>([]);
@@ -26,7 +27,6 @@ export const Sidebar = ({ active }: { active: string }) => {
             docs.push({
               name: data.name,
               key: key.substring(11), // assuming the key is in the format 'attributes-uniqueid'
-              // Include other document properties as needed
             });
           }
         }
@@ -71,7 +71,12 @@ export const Sidebar = ({ active }: { active: string }) => {
         </div>
       </div>
       <span className={styles.line}></span>
-      <Documents documents={documents} active={active} />
+      <SidebarFolder
+        name="My surveys"
+        active={!active.includes("tutorial") && !active.includes("index")}
+        element={<Documents documents={documents} active={active} />}
+      />
+      <SidebarFolder name="Tutorials" element={<div>Shared with me</div>} />
     </div>
   );
 };
