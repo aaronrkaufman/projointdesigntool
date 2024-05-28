@@ -1,8 +1,11 @@
 from django.urls import path
+
 from .views import (
-    tooltip
+    get_docs,
+    list_docs
 )
 
 urlpatterns = [
-    path('tooltips/<str:identifier>/', tooltip, name='tooltip-detail'),
+    path('docs/list/', list_docs, name='list_docs'),
+    path('docs/<str:identifier>/', get_docs, name='docs'),
 ]

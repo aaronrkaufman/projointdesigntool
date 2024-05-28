@@ -91,7 +91,6 @@ def export_js(request):
     description="Generates a preview of survey answers based on provided attributes",
 )
 @api_view(["POST"])
-
 def preview_survey(request):
     serializer = ShortSurveySerializer(data=request.data)
     if serializer.is_valid():
