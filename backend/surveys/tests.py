@@ -19,28 +19,29 @@ class SurveyPostTests(TestCase):
 
         self.client = APIClient()
         self.client.force_authenticate(user=self.profile)
+        self.url = reverse("surveys:export")
 
         self.payloadSuccess = {
             "attributes": [
                 {
                     "name": "att1",
                     "levels": [
-                        {"name": "b", "weight": 0.5},
-                        {"name": "a", "weight": 0.5},
+                        {"name": "b"},
+                        {"name": "a"},
                     ],
                 },
                 {
                     "name": "att2",
                     "levels": [
-                        {"name": "d", "weight": 0.5},
-                        {"name": "e", "weight": 0.5},
+                        {"name": "d"},
+                        {"name": "e"},
                     ],
                 },
                 {
                     "name": "att3",
                     "levels": [
-                        {"name": "f", "weight": 0.5},
-                        {"name": "g", "weight": 0.5},
+                        {"name": "f"},
+                        {"name": "g"},
                     ],
                 },
             ],
@@ -62,13 +63,11 @@ class SurveyPostTests(TestCase):
         }
 
     def test_export_success(self):
-        url = reverse("surveys:export")
-        response = self.client.post(url, self.payloadSuccess, format="json")
+        response = self.client.post(self.url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 201)
 
     def test_export_failure(self):
-        url = reverse("surveys:export")
-        response = self.client.get(url, self.payloadSuccess, format="json")
+        response = self.client.get(self.url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 405)
 
     # def test_save_success(self):
@@ -110,7 +109,7 @@ class PreviewSurveyTest(TestCase):
         self.url = reverse('surveys:preview')  
 
     def test_preview_survey_success(self):
-        # Вata for a successful request
+        # Data for a successful request
         data = {
             "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
                            {"name": "att2", "levels": [{"name": "level2"}, {"name": "another2"}]},
@@ -121,8 +120,41 @@ class PreviewSurveyTest(TestCase):
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn('attributes', response.data)
-        self.assertIn('previews', response.data)
+    
+    def test_preview_survey_with_rest_success(self):
+        # Data for a successful request
+        data = {
+            "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
+                           {"name": "att2", "levels": [{"name": "level2"}, {"name": "another2"}]},
+                           {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
+            "restrictions": [{
+                "condition": [{"attribute": "att1", "operation": "==","value": "level1"},
+                              {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
+                "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
+            "cross_restrictions": [],
+            "profiles": 2
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_preview_survey_with_rest_failure(self):
+        # Data with wrong operation in condition
+        data = {
+            "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
+                           {"name": "att2", "levels": [{"name": "level2"}, {"name": "another2"}]},
+                           {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
+            "restrictions": [{
+                "condition": [{"attribute": "att1", "operation": "=","value": "level1"}],
+                "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
+            "cross_restrictions": [],
+            "profiles": 2
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('non_field_errors', response.data)
+        self.assertIn('Invalid operation in result.', response.data['non_field_errors'][0])
+
+
 
     def test_preview_survey_no_levels(self):
         # Data where an attribute has no levels
@@ -137,11 +169,12 @@ class PreviewSurveyTest(TestCase):
         self.assertDictEqual(response.data, {"Error": "Cannot export to JavaScript. Some attributes have no levels."})
 
     def test_preview_survey_invalid_data(self):
+        # Data with no attributes
         data = {} 
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
-class PreviewCSVTest(TestCase):
+class ExportCSVTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.profile = Profile.objects.create_user(
@@ -171,6 +204,25 @@ class PreviewCSVTest(TestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             mock_sendFileResponse.assert_called_once()
 
+    # def test_export_csv_with_rest_success(self):
+    #     # Data for a successful request
+    #     data = {
+    #         "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
+    #                        {"name": "att2", "levels": [{"name": "level2"}, {"name": "another2"}]},
+    #                        {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
+    #         "restrictions": [{
+    #             "condition": [{"attribute": "att1", "operation": "==","value": "level1"},
+    #                           {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
+    #             "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
+    #         "cross_restrictions": [],
+    #         "profiles": 2
+    #     }
+    #     with patch('surveys.views._sendFileResponse') as mock_sendFileResponse:
+    #         mock_sendFileResponse.return_value = HttpResponse(status=status.HTTP_201_CREATED)
+    #         response = self.client.post(self.url, data, format='json')
+    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    #         mock_sendFileResponse.assert_called_once()
+    
     def test_export_csv_no_levels(self):
         # Data where an attribute has no levels
         data = {

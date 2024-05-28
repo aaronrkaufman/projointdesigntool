@@ -22,12 +22,12 @@ from drf_spectacular.views import (
     # SpectacularRedocView,
 )
 
-from dmd_app.views import markdown_content_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/profiles/", include("profiles.urls")),
     path("api/surveys/", include("surveys.urls")),
+    path("api/common/", include("common.urls")),
     # Swagger urls
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     # Optional UI:
@@ -35,10 +35,5 @@ urlpatterns = [
         "api/swagger-ui/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
-    ),
-    path(
-        "docs/<slug:slug>/",
-        markdown_content_view,
-        name="docs",
     ),
 ]
