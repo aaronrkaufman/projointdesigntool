@@ -9,25 +9,24 @@ from django.urls import reverse
 class DocumentTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        # Path of the directory where the document markdown files are stored
-        documents_path = os.path.join(settings.BASE_DIR, '../docs')
         # document file path
-        document_file = os.path.join(documents_path, 'example.md')
+        cls.document_file = os.path.join(
+            settings.BASE_DIR, '../docs', 'example.md')
 
         # Populate the document markdown file with some content
-        with open(document_file, 'w') as file:
+        with open(cls.document_file, 'w') as file:
             file.write(
                 "# Example Document\n This is an example document content.")
-        # Create a document instance pointing to the newly created markdown file
-        Documentation.objects.create(
-            identifier='example',
-            description='Example Document',
-            markdown_file=document_file
-        )
+
+    @classmethod
+    def tearDownClass(cls):
+        # Clean up by removing the directory after tests run
+        os.remove(cls.document_file)
+        super().tearDownClass()
 
     def test_document_retrieval(self):
         # Get the URL for the document retrieval view
-        url = reverse('docs', kwargs={'identifier': 'example'})
+        url = reverse('get_doc', kwargs={'identifier': 'example'})
         response = self.client.get(url)
 
         # Check that the response is 200 OK
@@ -39,7 +38,7 @@ class DocumentTests(TestCase):
 
     def test_document_not_found(self):
         # Test retrieval of a non-existent document
-        url = reverse('docs', kwargs={'identifier': 'nonexistent'})
+        url = reverse('get_doc', kwargs={'identifier': 'nonexistent'})
         response = self.client.get(url)
 
         # Check that the response is 404 Not Found

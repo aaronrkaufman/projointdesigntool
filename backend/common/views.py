@@ -2,32 +2,14 @@ import os
 
 import markdown
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from drf_spectacular.utils import (OpenApiExample, OpenApiResponse,
                                    extend_schema)
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import Documentation
 from .serializer import DocumentationSerializer
-
-# def _save_docs():
-#     Documentation.objects.create(
-#             identifier='example',
-#             description='Example Document',
-#             markdown_file=os.path.join(settings.BASE_DIR, '../docs', 'example.md')
-#         )
-#     Documentation.objects.create(
-#             identifier='tutorial',
-#             description='Tutorial Document',
-#             markdown_file=os.path.join(settings.BASE_DIR, '../docs', '00_tutorial.md')
-#         )
-#     Documentation.objects.create(
-#             identifier='settings',
-#             description='Settings Document',
-#             markdown_file=os.path.join(settings.BASE_DIR, '../docs', '01_settings.md')
-#         )
 
 
 @extend_schema(
@@ -54,15 +36,18 @@ from .serializer import DocumentationSerializer
     tags=['Documentation']
 )
 @api_view(['GET'])
-def get_docs(request, identifier):
+def get_doc(request, identifier):
+    file_path = os.path.join(settings.BASE_DIR, '../docs', f'{identifier}.md')
     try:
-        document = Documentation.objects.get(identifier=identifier)
-        with open(document.markdown_file, 'r') as file:
+        if not os.path.exists(file_path):
+            raise Http404("Document not found")
+
+        with open(file_path, 'r') as file:
             text = file.read()
             html = markdown.markdown(text)
         return HttpResponse(html, content_type='text/html')
-    except Documentation.DoesNotExist:
-        return HttpResponse('Document not found', status=404)
+    except FileNotFoundError:
+        raise Http404("Document not found")
 
 
 @extend_schema(
