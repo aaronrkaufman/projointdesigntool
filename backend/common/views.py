@@ -1,46 +1,91 @@
 import os
-from django.http import HttpResponse
-from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema
-from django.conf import settings
-from rest_framework.decorators import api_view
-import markdown
-from .models import Documentation
 
-@api_view(['GET'])
+import markdown
+from django.conf import settings
+from django.http import HttpResponse
+from drf_spectacular.utils import (OpenApiExample, OpenApiResponse,
+                                   extend_schema)
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from .models import Documentation
+from .serializer import DocumentationSerializer
+
+# def _save_docs():
+#     Documentation.objects.create(
+#             identifier='example',
+#             description='Example Document',
+#             markdown_file=os.path.join(settings.BASE_DIR, '../docs', 'example.md')
+#         )
+#     Documentation.objects.create(
+#             identifier='tutorial',
+#             description='Tutorial Document',
+#             markdown_file=os.path.join(settings.BASE_DIR, '../docs', '00_tutorial.md')
+#         )
+#     Documentation.objects.create(
+#             identifier='settings',
+#             description='Settings Document',
+#             markdown_file=os.path.join(settings.BASE_DIR, '../docs', '01_settings.md')
+#         )
+
+
 @extend_schema(
-    summary="Retrieve a specific documentation file",
-    description="Fetches a documentation file by its identifier and returns the HTML content.",
+    summary="Get a documentation file",
+    request=DocumentationSerializer,
     responses={
-        200: None,  # None implies raw response, specify a more detailed schema for production
-        404: {'description': 'Documentation not found'}
+        status.HTTP_201_CREATED: OpenApiResponse(
+            description="HTML content of the requested document file.",
+            response="text/html",
+            examples=[
+                OpenApiExample(
+                    name="Example Document",
+                    description="An example document",
+                    value="<h1>Example Document</h1>\n<p>This is an example document content.</p>\n",
+                    status_codes=[status.HTTP_201_CREATED],
+                )
+            ]
+        ),
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            description="Document not found."
+        ),
     },
+    description="Returns a markdown page of the requested identifier",
     tags=['Documentation']
 )
+@api_view(['GET'])
 def get_docs(request, identifier):
     try:
-        tooltip = Documentation.objects.get(identifier=identifier)
-        with open(tooltip.markdown_file, 'r') as file:
+        document = Documentation.objects.get(identifier=identifier)
+        with open(document.markdown_file, 'r') as file:
             text = file.read()
             html = markdown.markdown(text)
         return HttpResponse(html, content_type='text/html')
     except Documentation.DoesNotExist:
-        return HttpResponse('Tooltip not found', status=404)
+        return HttpResponse('Document not found', status=404)
 
 
-@api_view(['GET'])
 @extend_schema(
     summary="List all documentation files",
     description="Returns a list of all Markdown files available in the documentation directory.",
+    request=None,
     responses={
-        200: {
-            'type': 'array',
-            'items': {'type': 'string'},
-            'description': 'A list of Markdown file names'
-        }
+        status.HTTP_200_OK: OpenApiResponse(
+            description="List of all Markdown files in the documentation directory.",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name="List of Markdown files",
+                    description="List of all Markdown files in the documentation directory.",
+                    value=["example.md", "tutorial.md", "settings.md"],
+                    status_codes=[status.HTTP_200_OK],
+                )
+            ]
+        ),
     },
     tags=['Documentation']
 )
+@api_view(['GET'])
 def list_docs(request):
     docs_path = os.path.join(settings.BASE_DIR, '../docs')
     markdown_files = [f for f in os.listdir(docs_path) if f.endswith('.md')]
