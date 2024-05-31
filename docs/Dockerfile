@@ -7,5 +7,5 @@ RUN mkdir -p /home/app/docs
 # Set the working directory
 WORKDIR /home/app/docs
 
-# Copy the docs directory
-COPY . /home/app/docs
+# Copy the docs directory contents
+COPY . .

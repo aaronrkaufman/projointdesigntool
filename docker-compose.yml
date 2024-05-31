@@ -1,6 +1,14 @@
 version: "3.9"
 
 services:
+  docs:
+    build:
+      context: ./docs
+      dockerfile: Dockerfile
+    container_name: docs
+    volumes:
+      - docs_volume:/home/app/docs
+
   backend:
     container_name: backend
     build: backend
@@ -8,15 +16,12 @@ services:
     volumes:
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
+      - docs_volume:/home/app/web/docs
     ports:
       - 8000:8000
     depends_on:
       - docs
 
-  docs:
-    container_name: docs
-    build: docs
-    command: /bin/true
 
   frontend:
     container_name: frontend
@@ -39,3 +44,4 @@ services:
 volumes:
   static_volume:
   media_volume:
+  docs_volume:
