@@ -10,6 +10,13 @@ services:
       - media_volume:/home/app/web/mediafiles
     ports:
       - 8000:8000
+    depends_on:
+      - docs
+
+  docs:
+    container_name: docs
+    build: docs
+    command: /bin/true
 
   frontend:
     container_name: frontend
