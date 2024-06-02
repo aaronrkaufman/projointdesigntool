@@ -7,9 +7,11 @@ from django.http import FileResponse
 from rest_framework import status
 from rest_framework.response import Response
 
-from .serializers import  SurveySerializer
+from .serializers import SurveySerializer
 
-import requests, random, json
+import requests
+import random
+import json
 
 
 temp_1 = """// Code to randomly generate conjoint profiles in a Qualtrics survey
@@ -92,7 +94,7 @@ if (attrconstraintarray.length != 0){
 featureArrayKeys = shuffleArray(featureArrayKeys);
 """
 
-temp_2 =  """// Re-insert the non-free attributes constrained by attrconstraintarray
+temp_2 = """// Re-insert the non-free attributes constrained by attrconstraintarray
 if (attrconstraintarray.length != 0){
   for (const constraints of attrconstraintarray){
     if (constraints.length > 1){
@@ -290,7 +292,6 @@ def _checkAttributes(attributes):
     return None
 
 
-
 def _cleanConstraints(constraints):
     # Drop any Null constraints
     return [constraint for constraint in constraints if constraint != []]
@@ -299,7 +300,8 @@ def _cleanConstraints(constraints):
 def _createArrayOrProbString(attributes, isArray):
     arrayString = {}
     for attribute in attributes:
-        arrayString[attribute["name"]] = [level["name"] if isArray else level["weight"] for level in attribute["levels"]]
+        arrayString[attribute["name"]] = [
+            level["name"] if isArray else level["weight"] for level in attribute["levels"]]
 
     return f"var {'featurearray' if isArray else 'probabilityarray'} = " + str(arrayString) + ";\n\n"
 
@@ -339,7 +341,7 @@ def _createFile(request):
         advanced = validated_data['advanced']
         duplicate_first = validated_data['duplicate_first']
         duplicate_second = validated_data['duplicate_second']
-        
+
         noFlip = validated_data['noFlip']
 
         resp = _checkAttributes(attributes)
@@ -352,29 +354,39 @@ def _createFile(request):
             file_js.write(temp_1)
 
             file_js.write(_createArrayOrProbString(attributes, True))
-            file_js.write("var restrictionarray = "  + str(restrictions) + ";\n\n")
-            file_js.write(_createArrayOrProbString(attributes, False) if random == 1 else "var probabilityarray = {};\n\n")
+            file_js.write("var restrictionarray = " +
+                          str(restrictions) + ";\n\n")
+            file_js.write(_createArrayOrProbString(attributes, False)
+                          if random == 1 else "var probabilityarray = {};\n\n")
 
-            file_js.write("// Indicator for whether weighted randomization should be enabled or not\n")
+            file_js.write(
+                "// Indicator for whether weighted randomization should be enabled or not\n")
             file_js.write("var weighted = " + str(random) + ";\n\n")
-            file_js.write("// K = Number of tasks displayed to the respondent\n")
+            file_js.write(
+                "// K = Number of tasks displayed to the respondent\n")
             file_js.write("var K = " + str(tasks) + ";\n\n")
             file_js.write("// N = Number of profiles displayed in each task\n")
             file_js.write("var N = " + str(profiles) + ";\n\n")
-            file_js.write("// num_attributes = Number of Attributes in the Array\n")
+            file_js.write(
+                "// num_attributes = Number of Attributes in the Array\n")
             file_js.write("var num_attributes = featurearray.length;\n\n")
             file_js.write("// Should duplicate profiles be rejected?\n")
-            file_js.write("let dupprofiles = [" + str(duplicate_first) + "," + str(duplicate_second) + "]" + "\n")
-            file_js.write(f"var noDuplicateProfiles = {'false' if repeat_task else 'true'};\n\n")
+            file_js.write(
+                "let dupprofiles = [" + str(duplicate_first) + "," + str(duplicate_second) + "]" + "\n")
+            file_js.write(
+                f"var noDuplicateProfiles = {'false' if repeat_task else 'true'};\n\n")
 
             if randomize == 1:
-                file_js.write("var attrconstraintarray = "  + str(constraints) + ";\n\n")
+                file_js.write("var attrconstraintarray = " +
+                              str(constraints) + ";\n\n")
                 file_js.write(temp_2_randomize)
-                if len(advanced) != 0: # Advanced randomization option (i.e. political party always first)
-                    attributes_order = [key for key, value in advanced.items() if value != 0]
-                    attributes_random = [key for key, value in advanced.items() if value == 0]
-                    #random.shuffle(attributes_random)
-                    
+                if len(advanced) != 0:  # Advanced randomization option (i.e. political party always first)
+                    attributes_order = [key for key,
+                                        value in advanced.items() if value != 0]
+                    attributes_random = [
+                        key for key, value in advanced.items() if value == 0]
+                    # random.shuffle(attributes_random)
+
                     attributes_order.sort(key=lambda x: x[1])
                     final_order = []
 
@@ -386,7 +398,7 @@ def _createFile(request):
                             final_order.append(attributes_random[-1])
                             attributes_random.pop()
 
-                    file_js.write("featureArrayKeys = " + str(final_order)) 
+                    file_js.write("featureArrayKeys = " + str(final_order))
                 file_js.write(temp_2)
             else:
                 file_js.write(temp_2_star)
@@ -445,7 +457,7 @@ def _checkCrossProfileRestrictions(profiles_list, cross_restrictions):
         res = restriction.split("then")
         if_prof, if_attr, if_op, if_lvl, _ = res[0].strip().split(";")
         _, then_prof, then_attr, then_op, then_lvl = res[1].strip().split(";")
-        
+
         # Check if both ==/==, then as long as there is an isntance of this case, restriction is not broken
         restriction_broken = True
         if if_op == "==" and then_op == "==":
@@ -454,25 +466,28 @@ def _checkCrossProfileRestrictions(profiles_list, cross_restrictions):
             if if_lvl in profiles_list[1] and then_lvl in profiles_list[0]:
                 restriction_broken = False
             return True if restriction_broken else False
-    
+
         # Check other cases, such as ==/!=, !=/==
         for i in range(2):
             broken_profiles_matched = 0
-            if if_lvl in profiles_list[i] and if_op == "==" or if_lvl not in profiles_list[i] and if_op == "!=": 
+            if if_lvl in profiles_list[i] and if_op == "==" or if_lvl not in profiles_list[i] and if_op == "!=":
                 broken_profiles_matched += 1
-            if then_lvl in profiles_list[1 - i] and then_op == "!=" or then_lvl not in profiles_list[1 - i] and then_op == "==": 
+            if then_lvl in profiles_list[1 - i] and then_op == "!=" or then_lvl not in profiles_list[1 - i] and then_op == "==":
                 broken_profiles_matched += 1
             if broken_profiles_matched == 2:
                 return True
     return False
+
 
 def _evaluate_condition(profile, conditions):
     current_result = None
     for cond in conditions:
         attr, op, value = cond['attribute'], cond['operation'], cond['value']
         # Convert operation string to actual operation
-        if op == '==': result = profile[attr] == value
-        elif op == '!=': result = profile[attr] != value
+        if op == '==':
+            result = profile[attr] == value
+        elif op == '!=':
+            result = profile[attr] != value
 
         if 'logical' in cond:
             if cond['logical'] == '&&':
@@ -483,15 +498,19 @@ def _evaluate_condition(profile, conditions):
             current_result = result
     return current_result
 
+
 def _evaluate_result(profile, results):
     # Check the 'Then' part
     for res in results:
         attr, op, value = res['attribute'], res['operation'], res['value']
-        if op == '==': 
-            if not (profile[attr] == value): return False
-        elif op == '!=': 
-            if not (profile[attr] != value): return False
+        if op == '==':
+            if not (profile[attr] == value):
+                return False
+        elif op == '!=':
+            if not (profile[attr] != value):
+                return False
     return True
+
 
 def _evaluate_restriction(profile, restriction):
     if _evaluate_condition(profile, restriction['condition']):
@@ -499,11 +518,13 @@ def _evaluate_restriction(profile, restriction):
         return _evaluate_result(profile, restriction['result'])
     return True
 
+
 def _check_restrictions(profile, restrictions):
     for restriction in restrictions:
         if not _evaluate_restriction(profile, restriction):
             return False
     return True
+
 
 def _createProfiles(profiles_num, attributes, restrictions, cross_restrictions, csv_mode):
     cross_profile_restriction_broken = True
@@ -514,17 +535,22 @@ def _createProfiles(profiles_num, attributes, restrictions, cross_restrictions, 
             profile = {}
             for attribute in attributes:
                 attr_name = attribute['name']
-                levels = [level['name'] for level in attribute['levels']]
-                profile[attr_name] = random.choice(levels)
+                levels = attribute['levels']
+                # Extract level names and their corresponding weights
+                level_names = [level['name'] for level in levels]
+                weights = [level['weight'] for level in levels]
+                # Use random.choices to select a level based on weights
+                profile[attr_name] = random.choices(
+                    level_names, weights=weights, k=1)[0]
             if _check_restrictions(profile, restrictions):
                 level = [profile[attr] for attr in profile]
                 profiles_list.append(level[:])
                 for index, name in enumerate(list(profile.keys())):
                     level.insert(2 * index, name)
                 csv_export.append(level)
-        cross_profile_restriction_broken = _checkCrossProfileRestrictions(profiles_list, cross_restrictions)
+        cross_profile_restriction_broken = _checkCrossProfileRestrictions(
+            profiles_list, cross_restrictions)
     return profiles_list if not csv_mode else csv_export
-
 
 
 '''''''''''''''''''''''''''''''''''''''''''''
@@ -532,12 +558,11 @@ def _createProfiles(profiles_num, attributes, restrictions, cross_restrictions, 
 '''''''''''''''''''''''''''''''''''''''''''''
 
 
-
 def __CreateHTML(i, num_attr, profiles, qNum, noFlip):
-    if i==0:
+    if i == 0:
         text_out = "<span>Blank page</span>"
         return text_out
-    i-=1
+    i -= 1
     top = (
         "<span>Question "
         + str(qNum + 1)
@@ -565,7 +590,7 @@ def __CreateHTML(i, num_attr, profiles, qNum, noFlip):
             + str(m + 1)
             + "}</strong></td>\n"
         )
-        for n in range(profiles) if noFlip==0 else range(profiles-1,-1,-1):
+        for n in range(profiles) if noFlip == 0 else range(profiles-1, -1, -1):
             rows[m] = (
                 rows[m]
                 + "<td style='text-align: center;'>${e://Field/F-"
@@ -594,7 +619,8 @@ def __CreateBlock(surveyID, bl, user_token):
     payload = {"Type": "Standard", "Description": "Block"}
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
 
-    response = requests.request("POST", url, json=payload, headers=headers).json()
+    response = requests.request(
+        "POST", url, json=payload, headers=headers).json()
     return response["result"]["BlockID"]
 
 
@@ -602,21 +628,22 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, dup
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions"
     payload = {"SurveyName": name, "Language": "AR", "ProjectCategory": "CORE"}
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
-    response = requests.request("POST", url, json=payload, headers=headers).json()
+    response = requests.request(
+        "POST", url, json=payload, headers=headers).json()
     surveyID = response["result"]["SurveyID"]
     d1, d2 = duplicates
-    for i in range(task+1): 
+    for i in range(task+1):
         bl = __GetFlow(surveyID, user_token)
         blockID = __CreateBlock(surveyID, bl, user_token)
         currText += qText
         currText += "\n"
         currText = __CreateHTML(i, num_attr, profiles, i-1, 0)
-        #if i==d2:
-            #currText = __CreateHTML(d1, num_attr, profiles, i-1, repeatFlip)
+        # if i==d2:
+        # currText = __CreateHTML(d1, num_attr, profiles, i-1, repeatFlip)
         currQ = __CreateQuestion(
             surveyID, currText, blockID, user_token, profiles, js, i
         )
-        if doubleQ: 
+        if doubleQ:
             currQ = __CreateQuestion(
                 surveyID, " ", blockID, user_token, profiles, js, i
             )
@@ -657,7 +684,8 @@ def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js, i):
             "Selector": "SAVR",
             "Choices": answer_choices,
         }
-    response = requests.post(url, json=payload, headers=headers, params=querystring)
+    response = requests.post(
+        url, json=payload, headers=headers, params=querystring)
 
 
 def __GetFlow(surveyID, user_token):
@@ -668,8 +696,10 @@ def __GetFlow(surveyID, user_token):
     # print(response["result"]["Flow"][0]["ID"])
     return response["result"]["Flow"][0]["ID"]
 
-def __EmbFields(surveyID, user_token, num_attr ,profiles,tasks):
-    url = "https://yul1.qualtrics.com/API/v3/surveys/" + surveyID + "/embeddeddatafields"
+
+def __EmbFields(surveyID, user_token, num_attr, profiles, tasks):
+    url = "https://yul1.qualtrics.com/API/v3/surveys/" + \
+        surveyID + "/embeddeddatafields"
     headers = {
         'X-API-TOKEN': user_token,
         'Content-Type': 'application/json'
@@ -689,13 +719,13 @@ def __EmbFields(surveyID, user_token, num_attr ,profiles,tasks):
                     "key": sub_key,
                     "type": "text"
                 })
- 
-    payload = { "embeddedDataFields": fields }
+
+    payload = {"embeddedDataFields": fields}
 
     headers = {
-    "Content-Type": "application/json",
-    "Accept": "application/json, application/xml",
-    "X-API-TOKEN": user_token
+        "Content-Type": "application/json",
+        "Accept": "application/json, application/xml",
+        "X-API-TOKEN": user_token
     }
 
     # Make the API request to set embedded fields without values
@@ -721,25 +751,25 @@ def __DownloadSurvey(surveyID, user_token, doubleQ, qType):
             questionType = ["RO", "DND"]
         else:
             questionType = ["Slider", "HSLIDER"]
-        questionType2 = ['TE', 'SL'] 
+        questionType2 = ['TE', 'SL']
 
         if response.status_code == 200:
             response_json = response.json()
             qsf_data = response_json.get("result", {})
-            
-            if doubleQ: 
+
+            if doubleQ:
                 counter = 0
                 for i in qsf_data['SurveyElements']:
                     if 'Payload' in i:
-                        counter +=1
+                        counter += 1
                         curr = i['Payload']
                         if curr and 'QuestionType' in curr:
-                            if counter%2==1:
+                            if counter % 2 == 1:
                                 curr['QuestionType'] = questionType[0]
                             else:
                                 curr['QuestionType'] = questionType2[0]
                         if curr and 'Selector' in curr:
-                            if counter%2==1:
+                            if counter % 2 == 1:
                                 curr['Selector'] = questionType[1]
                             else:
                                 curr['Selector'] = questionType2[1]
