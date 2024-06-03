@@ -110,15 +110,6 @@
   visibility: hidden;
 }
 
-.deleteAttribute {
-  background: none;
-  outline: none;
-  border: none;
-  color: var(--blue);
-  font-size: 1.25rem;
-  padding: 0.75rem 1rem 1rem 1rem;
-}
-
 .attribute:hover .dragAttribute {
   visibility: visible;
 }
@@ -198,9 +189,21 @@
 
 .deleteHandle {
   position: absolute;
-  right: -2.25rem;
-  top: 0;
+  bottom: -2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
   /* visibility: hidden; */
+}
+
+.deleteAttribute {
+  background: none;
+  outline: none;
+  border: none;
+  color: var(--blue);
+  font-size: 1.25rem;
+  padding: 0.5rem 0.25rem 0.5rem 0.25rem;
 }
 
 .input {

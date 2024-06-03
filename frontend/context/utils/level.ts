@@ -39,7 +39,8 @@ export const AddLevelToAttribute = (
           attribute.levels.reduce((maxId, lvl) => Math.max(maxId, lvl.id), 0) +
           1; // Calculate new levelId
         const newNumberOfLevels = attribute.levels.length + 1;
-        const newWeight = parseFloat((1 / newNumberOfLevels).toFixed(2));
+        const newWeight = parseFloat((1 / newNumberOfLevels).toFixed(2)) * 100;
+        console.log(newWeight);
         const newLevels = attribute.levels.map((lvl) => {
           return { ...lvl, weight: newWeight };
         });
@@ -75,7 +76,7 @@ export const DeleteLevelFromAttribute = (
         const newNumberOfLevels = newLevels.length;
         const newWeight =
           newNumberOfLevels > 0
-            ? parseFloat((1 / newNumberOfLevels).toFixed(2))
+            ? parseFloat((1 / newNumberOfLevels).toFixed(2)) * 100
             : 0;
 
         newLevels = newLevels.map((lvl) => {

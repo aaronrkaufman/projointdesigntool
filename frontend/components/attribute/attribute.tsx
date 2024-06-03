@@ -6,7 +6,7 @@ import { Draggable, Droppable } from "react-beautiful-dnd";
 import DragButton from "../ui/drag_button";
 import { Level } from "./__level/attribute__level";
 import { useAttributes } from "../../context/attributes_context";
-import { DeleteTip, ExpandIcon, LightTooltip } from "../ui/icons";
+import { DeleteTip, EditTip, ExpandIcon, LightTooltip } from "../ui/icons";
 import { AttributeWeight } from "./__weight/attribute__weight";
 
 interface PropsAttributeComponent {
@@ -31,6 +31,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
     setHighlightedAttribute,
     showWeights,
     currentWeights,
+    setShowWeights,
     setCurrentWeights,
   } = useContext(HighlightedContext);
 
@@ -102,25 +103,6 @@ export const Attribute: FC<PropsAttributeComponent> = ({
             }px`,
           }}
         >
-          {highlightedAttribute === attribute.key && (
-            <div className={styles.deleteHandle}>
-              <button
-                onClick={() => {
-                  deleteAttribute(attribute.key);
-                }}
-                className={styles.deleteAttribute}
-              >
-                <LightTooltip
-                  disableInteractive
-                  title="Delete Attribute"
-                  arrow
-                  placement="right"
-                >
-                  <DeleteTip />
-                </LightTooltip>
-              </button>
-            </div>
-          )}
           <div
             className={`${styles.attribute_left} ${
               !show ? styles.pointer : ""
@@ -210,15 +192,48 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                   />
                 ))}
                 <li>
-                  {currentWeights
-                    .reduce((acc, weight) => acc + weight, 0)
-                    .toFixed(1)}
+                  {currentWeights.reduce((acc, weight) => acc + weight, 0)}
+                  <span>%</span>
                 </li>
               </ul>
             ) : (
               ""
             )}
           </div>
+          {highlightedAttribute === attribute.key && (
+            <div className={styles.deleteHandle}>
+              <button
+                onClick={() => {
+                  deleteAttribute(attribute.key);
+                }}
+                className={styles.deleteAttribute}
+              >
+                <LightTooltip
+                  disableInteractive
+                  title="Delete Attribute"
+                  arrow
+                  placement="right"
+                >
+                  <DeleteTip />
+                </LightTooltip>
+              </button>
+              <button
+                className={styles.deleteAttribute}
+                onClick={() => {
+                  setShowWeights(!showWeights);
+                }}
+              >
+                <LightTooltip
+                  disableInteractive
+                  title="Edit Randomization Weights"
+                  arrow
+                  placement="right"
+                >
+                  <EditTip />
+                </LightTooltip>
+              </button>
+            </div>
+          )}
         </li>
       )}
     </Draggable>

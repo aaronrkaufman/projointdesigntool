@@ -1,6 +1,6 @@
 .attribute__weight {
   display: flex;
-  width: 100%;
+  width: 50%;
   justify-content: center;
   align-items: center;
 }
@@ -10,9 +10,12 @@
   border: none;
   outline: none;
   color: var(--blue-p);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   font-size: 1rem;
-  width: 100%;
+  width: 50%;
 }
 
 .input::placeholder {

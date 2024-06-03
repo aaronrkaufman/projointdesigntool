@@ -20,7 +20,6 @@ interface PropsAttributeContainer {
   attribute?: IAttribute;
   addNewAttribute?: (name: string) => void;
   cancelNewAttribute?: () => void;
-  isCreator?: boolean; // To determine whether to render AttributeCreator or AttributeComponent
   index?: number;
 }
 
@@ -28,7 +27,6 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
   attribute,
   addNewAttribute,
   cancelNewAttribute,
-  isCreator = false,
   index,
 }) => {
   const [show, setShow] = useState<boolean>(false);
@@ -71,15 +69,7 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
     setShow(!show);
   };
 
-  return isCreator ? (
-    <AttributeCreator
-      addNewAttribute={addNewAttribute!}
-      cancelNewAttribute={cancelNewAttribute!}
-      onBlur={handleBlurCreator}
-      onKeyDown={handleKeyPressCreator}
-      onChange={(e) => setName(e.target.value)}
-    />
-  ) : (
+  return (
     <Attribute
       show={show}
       onShow={handleShow}

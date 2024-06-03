@@ -21,21 +21,35 @@ export const AttributeWeight: FC<AttributeWeightProps> = ({
 
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
-
-    const match = inputValue.match(/^0\.(\d{0,3})$/);
-    if (match) {
-      setWeight(inputValue); // Update the state if the input value is valid
-      onWeightChange(index, parseFloat(inputValue));
+    if (inputValue === "") {
+      setWeight("");
+    } else {
+      const match = inputValue.match(/^(?:[1-9]?[0-9])$/); // Matches numbers from 0 to 99
+      if (match) {
+        setWeight(inputValue); // Update the state if the input value is valid
+        onWeightChange(index, parseInt(inputValue, 10));
+      }
     }
   };
+
+  const onBlurHandler = (event: React.FocusEvent<HTMLInputElement>) => {
+    const inputValue = event.target.value;
+    if (inputValue === "") {
+      setWeight("0");
+      onWeightChange(index, 0);
+    }
+  };
+
   return (
     <li className={styles.attribute__weight}>
       <input
         className={`${styles.input}`}
         value={weight}
         onChange={changeHandler}
-        pattern="0\.[0-9]*"
+        onBlur={onBlurHandler}
+        pattern="[0-9]{1,2}" // Pattern to match numbers from 0 to 99
       ></input>
+      <span>%</span>
     </li>
   );
 };
