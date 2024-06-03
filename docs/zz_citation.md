@@ -4,6 +4,8 @@ If you use this tool, please cite it as:
 
 (projoint citation here)
 
+## Comments
+
 If you have comments, suggestions, or find bugs, please [email me](mailto:aaronkaufman@nyu.edu)!
 
 ## Acknowledgements
