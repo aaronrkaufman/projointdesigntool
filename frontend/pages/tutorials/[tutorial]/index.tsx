@@ -1,7 +1,9 @@
+"use client";
+
 import styles from "../../../styles/page.module.css";
 import { Sidebar } from "@/components/sidebar/sidebar";
-import { GetStaticPaths, GetStaticProps } from "next";
-import { getTutorial, getTutorials } from "@/services/api";
+import { GetServerSideProps } from "next";
+import { getTutorial } from "@/services/api";
 import { Tutorial } from "@/components/tutorial/tutorial";
 
 interface ITutorialProps {
@@ -20,17 +22,7 @@ function TutorialPage({ tutorialData, tutorial }: ITutorialProps) {
   );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  // Assuming getTutorials is available and fetches all tutorial slugs
-  const tutorials = await getTutorials(); // This function should be implemented to fetch all tutorial identifiers
-  const paths = tutorials.map((tutorial: string) => ({
-    params: { tutorial },
-  }));
-
-  return { paths, fallback: false };
-};
-
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const tutorial = context.params?.tutorial as string;
 
   if (!tutorial) {
@@ -44,7 +36,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
       tutorialData: tutorialData || "",
       tutorial,
     },
-    revalidate: 3600, // Revalidate at most once per hour
   };
 };
 

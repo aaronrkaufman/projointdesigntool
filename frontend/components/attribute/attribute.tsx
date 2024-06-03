@@ -203,7 +203,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           {highlightedAttribute === attribute.key && (
             <div className={styles.deleteHandle}>
               <button
-                onClick={() => {
+                onClick={() => { 
                   deleteAttribute(attribute.key);
                 }}
                 className={styles.deleteAttribute}
