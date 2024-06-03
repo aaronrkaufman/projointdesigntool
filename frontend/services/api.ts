@@ -49,7 +49,6 @@ export const getPreview = async (
   attributes: Attribute[],
   restrictions: RestrictionProps[]
 ): Promise<string[][]> => {
-  console.log("HERE TRIED", api.defaults.baseURL);
   try {
     const processedAttributes = preproccessAttributes(attributes);
     const processedRestrictions = preprocessRestrictions(restrictions);
@@ -65,4 +64,16 @@ export const getPreview = async (
     console.error("Error during file download", error);
   }
   return [];
+};
+
+export const getTutorials = async () => {
+  const response = await api.get("/common/docs/list/");
+  return response.data;
+};
+
+export const getTutorial = async (tutorial: string) => {
+  const tutorialWithoutMd = tutorial.replace(".md", "");
+
+  const response = await api.get(`/common/docs/${tutorialWithoutMd}/`);
+  return response.data;
 };

@@ -1,0 +1,27 @@
+.sidebar__tutorials {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__tutorials li {
+  border-radius: 0.5rem;
+}
+
+.sidebar__tutorials li:hover {
+  cursor: pointer;
+  background-color: var(--light-blue);
+}
+
+.active {
+  color: var(--dark-blue-h);
+  background-color: var(--active-blue) !important;
+}
+
+.sidebar__tutorials__link {
+  height: 100%;
+  width: 100%;
+  padding: 1rem 0.5rem;
+}

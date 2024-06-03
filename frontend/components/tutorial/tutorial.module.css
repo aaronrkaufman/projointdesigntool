@@ -1,0 +1,20 @@
+.tutorial {
+  margin-left: 17.5rem;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  /* gap: 2rem; */
+  width: calc(100vw - 17.5rem);
+  /* align-items: center; */
+}
+
+.tutorial h1,
+.tutorial h2,
+.tutorial h3,
+.tutorial h4,
+.tutorial h5,
+.tutorial h6 {
+  margin: 0;
+  color: var(--dark-blue-h);
+}

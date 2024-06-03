@@ -130,7 +130,7 @@ export const ThreeDots = forwardRef<
         open={open}
         anchorEl={anchorRef.current}
         role={undefined}
-        placement="bottom-start"
+        placement="right-start"
         transition
         disablePortal
       >
@@ -139,7 +139,7 @@ export const ThreeDots = forwardRef<
             {...TransitionProps}
             style={{
               transformOrigin:
-                placement === "bottom-start" ? "left top" : "left bottom",
+                placement === "right-start" ? "right top" : "right bottom",
               marginTop: "0.5rem",
             }}
           >

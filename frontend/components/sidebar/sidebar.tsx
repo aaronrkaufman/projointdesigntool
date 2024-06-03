@@ -9,10 +9,22 @@ import { v4 as uuidv4 } from "uuid";
 import { useAttributes } from "../../context/attributes_context";
 import { FileAdd, LightTooltip } from "../ui/icons";
 import { SidebarFolder } from "./__folder/sidebar__folder";
+import { getTutorials } from "@/services/api";
+import { SidebarTutorials } from "./__tutorials/sidebar__tutorials";
 
 export const Sidebar = ({ active }: { active: string }) => {
   const [documents, setDocuments] = useState<IDocument[]>([]);
   const { storageChanged, setStorageChanged } = useAttributes();
+  const [tutorials, setTutorials] = useState([]);
+
+  useEffect(() => {
+    const fetchTutorials = async () => {
+      const tutorialData = await getTutorials();
+      setTutorials(tutorialData);
+    };
+
+    fetchTutorials();
+  }, []);
 
   useEffect(() => {
     // Function to load documents from localStorage
@@ -76,7 +88,11 @@ export const Sidebar = ({ active }: { active: string }) => {
         active={!active.includes("tutorial") && !active.includes("index")}
         element={<Documents documents={documents} active={active} />}
       />
-      <SidebarFolder name="Tutorials" element={<div>Shared with me</div>} />
+      <SidebarFolder
+        active={active.includes("tutorial")}
+        name="Tutorials"
+        element={<SidebarTutorials tutorials={tutorials} active={active} />}
+      />
     </div>
   );
 };
