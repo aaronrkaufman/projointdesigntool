@@ -6,7 +6,7 @@ This guide will walk you through how to create a discrete choice experiment usin
 
 ## Settings
 
-For details on each of these settings, please see the [Settings page](tutorial.md).
+For details on each of these settings, please see the [Settings page](01_settings.md).
 
 
 
