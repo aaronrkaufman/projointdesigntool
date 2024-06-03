@@ -8,7 +8,8 @@ from rest_framework import status
 
 Profile = get_user_model()
 
-class SurveyPostTests(TestCase):
+
+class ExportJsTests(TestCase):
     def setUp(self):
         # This method will run before every test function.
         self.profile = Profile.objects.create_user(
@@ -45,7 +46,7 @@ class SurveyPostTests(TestCase):
                     ],
                 },
             ],
-            "advanced" : {"att1":0, "att2":0, "att3":1}
+            "advanced": {"att1": 0, "att2": 0, "att3": 1}
         }
 
         self.payloadFailure = {
@@ -63,26 +64,15 @@ class SurveyPostTests(TestCase):
         }
 
     def test_export_success(self):
-        response = self.client.post(self.url, self.payloadSuccess, format="json")
+        response = self.client.post(
+            self.url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 201)
 
     def test_export_failure(self):
-        response = self.client.get(self.url, self.payloadSuccess, format="json")
+        response = self.client.get(
+            self.url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 405)
 
-    # def test_save_success(self):
-    #     url = reverse("surveys:save")
-    #     response = self.client.post(url, self.payloadSuccess, format="json")
-    #     self.assertEqual(response.status_code, 201)
-
-    # def test_list_no_surveys_success(self):
-    #     Survey.objects.filter(profile=self.profile).delete()
-    #     url = reverse("surveys:list")
-    #     response = self.client.get(url)
-    #     self.assertEqual(response.status_code, 204)
-    #     self.assertEqual(response.data["message"], "User has no surveys")
-        
-        
     # def test_qsf_to_attributes_success(self):
     #    qsf_path = "./test.qf"
     #    with open(qsf_path, 'r') as qsf:
@@ -97,6 +87,7 @@ class SurveyPostTests(TestCase):
     #     response = self.client.post(url, self.payloadSuccess, format="json")
     #     self.assertEqual(response.status_code, 201)
 
+
 class PreviewSurveyTest(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -106,13 +97,14 @@ class PreviewSurveyTest(TestCase):
             password="testpassword123",
         )
         self.client.force_authenticate(user=self.profile)
-        self.url = reverse('surveys:preview')  
+        self.url = reverse('surveys:preview')
 
     def test_preview_survey_success(self):
         # Data for a successful request
         data = {
             "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
-                           {"name": "att2", "levels": [{"name": "level2"}, {"name": "another2"}]},
+                           {"name": "att2", "levels": [
+                               {"name": "level2"}, {"name": "another2"}]},
                            {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
             "restrictions": [],
             "cross_restrictions": [],
@@ -120,15 +112,16 @@ class PreviewSurveyTest(TestCase):
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    
+
     def test_preview_survey_with_rest_success(self):
         # Data for a successful request
         data = {
             "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
-                           {"name": "att2", "levels": [{"name": "level2"}, {"name": "another2"}]},
+                           {"name": "att2", "levels": [
+                               {"name": "level2"}, {"name": "another2"}]},
                            {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
             "restrictions": [{
-                "condition": [{"attribute": "att1", "operation": "==","value": "level1"},
+                "condition": [{"attribute": "att1", "operation": "==", "value": "level1"},
                               {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
             "cross_restrictions": [],
@@ -141,10 +134,11 @@ class PreviewSurveyTest(TestCase):
         # Data with wrong operation in condition
         data = {
             "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
-                           {"name": "att2", "levels": [{"name": "level2"}, {"name": "another2"}]},
+                           {"name": "att2", "levels": [
+                               {"name": "level2"}, {"name": "another2"}]},
                            {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
             "restrictions": [{
-                "condition": [{"attribute": "att1", "operation": "=","value": "level1"}],
+                "condition": [{"attribute": "att1", "operation": "=", "value": "level1"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
             "cross_restrictions": [],
             "profiles": 2
@@ -152,9 +146,8 @@ class PreviewSurveyTest(TestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('non_field_errors', response.data)
-        self.assertIn('Invalid operation in result.', response.data['non_field_errors'][0])
-
-
+        self.assertIn('Invalid operation in result.',
+                      response.data['non_field_errors'][0])
 
     def test_preview_survey_no_levels(self):
         # Data where an attribute has no levels
@@ -166,14 +159,16 @@ class PreviewSurveyTest(TestCase):
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(response.data, {"Error": "Cannot export to JavaScript. Some attributes have no levels."})
+        self.assertDictEqual(response.data, {
+                             "Error": "Cannot export to JavaScript. Some attributes have no levels."})
 
     def test_preview_survey_invalid_data(self):
         # Data with no attributes
-        data = {} 
+        data = {}
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
+
+
 class ExportCSVTest(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -183,46 +178,53 @@ class ExportCSVTest(TestCase):
             password="testpassword123",
         )
         self.client.force_authenticate(user=self.profile)
-        self.url = reverse('surveys:export_csv')  
+        self.url = reverse('surveys:export_csv')
 
     def test_export_csv_success(self):
         # Data for a successful request
         data = {
-            "attributes": [{"name": "att1", "levels": [{"name": "lvl1"}, {"name": "another1"}, {"name": "bruh1"}]}, 
-                           {"name": "att2", "levels": [{"name": "lvl2"}, {"name": "another2"}, {"name": "bruh2"}]},
-                           {"name": "att3", "levels": [{"name": "lvl3"}, {"name": "another3"}, {"name": "bruh3"}]},
-                           {"name": "att4", "levels": [{"name": "lvl4"}, {"name": "another4"}, {"name": "bruh4"}]},
-                           {"name": "att5", "levels": [{"name": "lvl5"}, {"name": "another5"}, {"name": "bruh5"}]},
+            "attributes": [{"name": "att1", "levels": [{"name": "lvl1"}, {"name": "another1"}, {"name": "bruh1"}]},
+                           {"name": "att2", "levels": [{"name": "lvl2"}, {
+                               "name": "another2"}, {"name": "bruh2"}]},
+                           {"name": "att3", "levels": [{"name": "lvl3"}, {
+                               "name": "another3"}, {"name": "bruh3"}]},
+                           {"name": "att4", "levels": [{"name": "lvl4"}, {
+                               "name": "another4"}, {"name": "bruh4"}]},
+                           {"name": "att5", "levels": [{"name": "lvl5"}, {
+                               "name": "another5"}, {"name": "bruh5"}]},
                            {"name": "att6", "levels": [{"name": "lvl6"}, {"name": "another6"}, {"name": "bruh6"}]}],
             "restrictions": [],
             "cross_restrictions": [],
             "profiles": 2
         }
         with patch('surveys.views._sendFileResponse') as mock_sendFileResponse:
-            mock_sendFileResponse.return_value = HttpResponse(status=status.HTTP_201_CREATED)
+            mock_sendFileResponse.return_value = HttpResponse(
+                status=status.HTTP_201_CREATED)
             response = self.client.post(self.url, data, format='json')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             mock_sendFileResponse.assert_called_once()
 
-    # def test_export_csv_with_rest_success(self):
-    #     # Data for a successful request
-    #     data = {
-    #         "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
-    #                        {"name": "att2", "levels": [{"name": "level2"}, {"name": "another2"}]},
-    #                        {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
-    #         "restrictions": [{
-    #             "condition": [{"attribute": "att1", "operation": "==","value": "level1"},
-    #                           {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
-    #             "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
-    #         "cross_restrictions": [],
-    #         "profiles": 2
-    #     }
-    #     with patch('surveys.views._sendFileResponse') as mock_sendFileResponse:
-    #         mock_sendFileResponse.return_value = HttpResponse(status=status.HTTP_201_CREATED)
-    #         response = self.client.post(self.url, data, format='json')
-    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #         mock_sendFileResponse.assert_called_once()
-    
+    def test_export_csv_with_rest_success(self):
+        # Data for a successful request
+        data = {
+            "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
+                           {"name": "att2", "levels": [
+                               {"name": "level2"}, {"name": "another2"}]},
+                           {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
+            "restrictions": [{
+                "condition": [{"attribute": "att1", "operation": "==", "value": "level1"},
+                              {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
+                "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
+            "cross_restrictions": [],
+            "profiles": 2
+        }
+        with patch('surveys.views._sendFileResponse') as mock_sendFileResponse:
+            mock_sendFileResponse.return_value = HttpResponse(
+                status=status.HTTP_201_CREATED)
+            response = self.client.post(self.url, data, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            mock_sendFileResponse.assert_called_once()
+
     def test_export_csv_no_levels(self):
         # Data where an attribute has no levels
         data = {
@@ -233,10 +235,11 @@ class ExportCSVTest(TestCase):
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(response.data, {"Error": "Cannot export to JavaScript. Some attributes have no levels."})
+        self.assertDictEqual(response.data, {
+                             "Error": "Cannot export to JavaScript. Some attributes have no levels."})
 
     def test_export_csv_invalid_data(self):
         # Example of sending invalid data
-        data = {} 
+        data = {}
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -9,7 +9,9 @@ from .helpers import __CreateSurvey, __DownloadSurvey
 
 from .serializers import ShortSurveySerializer, SurveySerializer
 
-import random, json, csv
+import random
+import json
+import csv
 
 
 @extend_schema(
@@ -95,17 +97,18 @@ def preview_survey(request):
     serializer = ShortSurveySerializer(data=request.data)
     if serializer.is_valid():
         validated_data = serializer.validated_data
-        
+
         attributes = validated_data["attributes"]
         restrictions = validated_data["restrictions"]
         cross_restrictions = validated_data["cross_restrictions"]
         profiles = validated_data["profiles"]
-        
+
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         answer = {"attributes": [], "previews": []}
-        answer["previews"] = _createProfiles(profiles, attributes, restrictions, cross_restrictions, False)
+        answer["previews"] = _createProfiles(
+            profiles, attributes, restrictions, cross_restrictions, False)
         answer["attributes"] = [attribute["name"] for attribute in attributes]
         return Response(answer, status=status.HTTP_201_CREATED)
     else:
@@ -162,22 +165,22 @@ def export_csv(request):
     serializer = ShortSurveySerializer(data=request.data)
     if serializer.is_valid():
         validated_data = serializer.validated_data
-        
+
         attributes = validated_data["attributes"]
         restrictions = validated_data["restrictions"]
         cross_restrictions = validated_data["cross_restrictions"]
         profiles = validated_data["profiles"]
         csv_lines = validated_data["csv_lines"]
 
-        #To calculate the total number of combinations
-        #levels_per_attribute = [len(attribute['levels']) for attribute in attributes]
-        #profiles_per_attribute = [profiles for _ in attributes]
+        # To calculate the total number of combinations
+        # levels_per_attribute = [len(attribute['levels']) for attribute in attributes]
+        # profiles_per_attribute = [profiles for _ in attributes]
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
 
         with open("profiles.csv", "w") as file:
             writer = csv.writer(file)
-                
+
             header = []
             for i in range(1, len(attributes) + 1):
                 for j in range(1, profiles + 2):
@@ -186,15 +189,16 @@ def export_csv(request):
                     else:
                         header.append(f'ATT{i}P{j-1}')
             writer.writerow(header)
-            
+
             for i in range(csv_lines):
-                profiles_list = _createProfiles(profiles, attributes, restrictions, cross_restrictions, True)
+                profiles_list = _createProfiles(
+                    profiles, attributes, restrictions, cross_restrictions, True)
                 rearrenged_profiles = []
                 for i in range(len(attributes)):
                     rearrenged_profiles.append(profiles_list[0][i * 2])
                     for j in range(profiles):
                         rearrenged_profiles.append(profiles_list[j][i * 2 + 1])
-                writer.writerow(rearrenged_profiles)   
+                writer.writerow(rearrenged_profiles)
         return _sendFileResponse("profiles.csv")
     else:
         return Response(serializer.errors, status=400)
@@ -203,6 +207,7 @@ def export_csv(request):
 '''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''QUALTRICS LOGIC''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''
+
 
 @extend_schema(
     request=SurveySerializer,
@@ -218,7 +223,7 @@ def export_csv(request):
                         "content_type": "application/octet-stream",
                         "headers": {
                             "Content-Disposition": 'attachment; filename="{filename}"'
-                        }             
+                        }
                     }
                 )
             ]
@@ -238,7 +243,7 @@ def export_csv(request):
                 )
             ]
         )
-}, 
+    },
     description="Creating Qualtrics survey and exporting QSF file",
 )
 @api_view(["POST"])
@@ -249,7 +254,7 @@ def create_qualtrics(request):
     filename = request.data.get("filename", "export survey")
     profiles = request.data.get("profiles", 2)
     tasks = request.data.get("tasks", 5)
-    duplicates = request.data.get("duplicates", [2,4])
+    duplicates = request.data.get("duplicates", [2, 4])
     repeatFlip = request.data.get("repeatFlip", 1)
     doubleQ = request.data.get("doubleQ", False)
     resp = _checkAttributes(attributes)
@@ -267,12 +272,14 @@ def create_qualtrics(request):
                \n/*Place your JavaScript here to run when the page is fully displayed*/\
                 });\nQualtrics.SurveyEngine.addOnUnload(function()\
                 {\n/*Place your JavaScript here to run when the page is unloaded*/});"
-    js_text = "//" + js_py + "\n"+ js_text
-    user_token = "Vy99DuC4A57FSg4tzvoejFdE0sDgaBH8cAouYF6h"  # FIGURE OUT BETTER WAY TO STORE THIS
+    js_text = "//" + js_py + "\n" + js_text
+    # FIGURE OUT BETTER WAY TO STORE THIS
+    user_token = "Vy99DuC4A57FSg4tzvoejFdE0sDgaBH8cAouYF6h"
     created = __CreateSurvey(
-        filename, user_token, tasks, len(attributes), profiles, "", js_text, duplicates, repeatFlip, doubleQ, qText
+        filename, user_token, tasks, len(
+            attributes), profiles, "", js_text, duplicates, repeatFlip, doubleQ, qText
     )
-    
+
     __DownloadSurvey(created, user_token, doubleQ, qType)
     return _sendFileResponse("survey.qsf")
 
@@ -311,7 +318,7 @@ def create_qualtrics(request):
                                 ],
                             },
                         ],
-                        "restrictions" : ["att1 == b || att1 == a then att2 == d"]   
+                        "restrictions": ["att1 == b || att1 == a then att2 == d"]
 
                     }
                 )
@@ -332,7 +339,7 @@ def create_qualtrics(request):
                 )
             ]
         )
-}, 
+    },
     description="Reversing QSF File into Attribute JSON",
 )
 @api_view(["POST"])
@@ -346,13 +353,14 @@ def qsf_to_attributes(request):
             js = payload.get("QuestionJS")
             attribute_comment = js.split("\n")[0]
             if "\\" in attribute_comment:
-                attribute_comment.replace("\\","")
+                attribute_comment.replace("\\", "")
                 attribute_data = json.loads(attribute_comment)
                 flag = 0
             break
-    if flag: # If QSF invalid, will return empty json
+    if flag:  # If QSF invalid, will return empty json
         attribute_data = {}
     return attribute_data
+
 
 @extend_schema(
     request=ShortSurveySerializer,
@@ -407,11 +415,11 @@ def noDuplicate_csv(request):
         restrictions = request.data.get("restrictions", [])
         profiles = request.data.get("profiles", 2)
 
-        #To calculate the total number of combinations
-        levels_per_attribute = [len(attribute['levels']) for attribute in attributes]
+        # To calculate the total number of combinations
+        levels_per_attribute = [len(attribute['levels'])
+                                for attribute in attributes]
         profiles_per_attribute = [profiles for _ in attributes]
-        
-        
+
         header = []
         for i in range(1, len(attributes) + 1):
             for j in range(1, profiles + 2):
@@ -428,8 +436,9 @@ def noDuplicate_csv(request):
             for attribute in attributes:
                 att_name = attribute['name']
                 row.append(att_name)
-                
-                randomized_levels = [random.choice(attribute['levels'])['name'] for _ in range(profiles + 1)]
+
+                randomized_levels = [random.choice(attribute['levels'])[
+                    'name'] for _ in range(profiles + 1)]
                 row.extend(randomized_levels)
             rows.append(row)
 
@@ -439,8 +448,8 @@ def noDuplicate_csv(request):
             writer = csv.writer(file)
             writer.writerows(previews)
         return _sendFileResponse("profiles.csv")
-        #response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
-        #response["Content-Disposition"] = 'attachment; filename="survey.csv"'
+        # response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
+        # response["Content-Disposition"] = 'attachment; filename="survey.csv"'
 
     except:
         return Response(
