@@ -8,6 +8,7 @@ import { Level } from "./__level/attribute__level";
 import { useAttributes } from "../../context/attributes_context";
 import { DeleteTip, EditTip, ExpandIcon, LightTooltip } from "../ui/icons";
 import { AttributeWeight } from "./__weight/attribute__weight";
+import { Button } from "../ui/button";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -35,8 +36,12 @@ export const Attribute: FC<PropsAttributeComponent> = ({
     setCurrentWeights,
   } = useContext(HighlightedContext);
 
-  const { deleteAttribute, handleAttributeNameChange, addLevelToAttribute } =
-    useAttributes();
+  const {
+    deleteAttribute,
+    handleAttributeNameChange,
+    addLevelToAttribute,
+    updateWeight,
+  } = useAttributes();
 
   const [isEditing, setIsEditing] = useState(false);
   const [attributeName, setAttributeName] = useState<string>(attribute.name);
@@ -77,6 +82,20 @@ export const Attribute: FC<PropsAttributeComponent> = ({
       newWeights[index] = newWeight;
       return newWeights;
     });
+  };
+
+  const saveWeights = () => {
+    const totalWeight = currentWeights.reduce((acc, weight) => acc + weight, 0);
+
+    if (totalWeight === 100) {
+      // Save logic here
+      console.log("Weights are valid and saved.");
+      updateWeight(highlightedAttribute, currentWeights);
+    } else {
+      // TODO make something else
+      alert("Total weight must be 100.");
+    }
+    setShowWeights(false);
   };
 
   return (
@@ -178,8 +197,16 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           </div>
           <div
             className={`${styles.attribute_weights} ${
-              showWeights && show ? "" : styles.notvisible
+              showWeights && show && highlightedAttribute === attribute.key
+                ? ""
+                : styles.notvisible
             }`}
+            style={{
+              border:
+                currentWeights.reduce((acc, weight) => acc + weight, 0) === 100
+                  ? ""
+                  : "2px solid var(--red)",
+            }}
           >
             {show && highlightedAttribute === attribute.key ? (
               <ul className={`${styles.weights}`}>
@@ -202,36 +229,21 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           </div>
           {highlightedAttribute === attribute.key && (
             <div className={styles.handles}>
-              <button
-                className={styles.deleteAttribute}
+              <Button
                 onClick={() => {
-                  setShowWeights(!showWeights);
+                  showWeights ? saveWeights() : setShowWeights(!showWeights);
                 }}
-              >
-                <LightTooltip
-                  disableInteractive
-                  title="Edit Randomization Weights"
-                  arrow
-                  placement="bottom"
-                >
-                  <EditTip />
-                </LightTooltip>
-              </button>
-              <button
-                onClick={() => {
-                  deleteAttribute(attribute.key);
-                }}
-                className={styles.deleteAttribute}
-              >
-                <LightTooltip
-                  disableInteractive
-                  title="Delete Attribute"
-                  arrow
-                  placement="bottom"
-                >
-                  <DeleteTip />
-                </LightTooltip>
-              </button>
+                icon={<EditTip stroke="var(--white)" />}
+                text={showWeights ? "Save Weights" : "Edit Weights"}
+                size="0.75rem"
+              ></Button>
+              <Button
+                onClick={() => deleteAttribute(attribute.key)}
+                icon={<DeleteTip stroke="var(--white)" />}
+                text="Delete Attribute"
+                size="0.75rem"
+                bg="var(--red)"
+              ></Button>
             </div>
           )}
         </li>

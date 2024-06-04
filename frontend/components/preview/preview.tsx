@@ -18,6 +18,7 @@ const Preview = ({
   instructions,
   setRefresh,
 }: IPreview) => {
+  console.log(attributes, previews)
   return (
     <section className={styles.section}>
       <div className={styles.sectionContainer}>

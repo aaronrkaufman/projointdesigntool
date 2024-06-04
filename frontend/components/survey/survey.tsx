@@ -71,19 +71,6 @@ export const Survey: FC = () => {
     setCurrentDoc(docName);
   };
 
-  const saveWeights = () => {
-    const totalWeight = currentWeights.reduce((acc, weight) => acc + weight, 0);
-
-    if (totalWeight >= 0.9 && totalWeight <= 1.1) {
-      // Save logic here
-      console.log("Weights are valid and saved.");
-      updateWeight(highlightedAttribute, currentWeights);
-    } else {
-      // TODO make something else
-      alert("Total weight must be close to 1.");
-    }
-  };
-
   const [description, setDescription] = useState<string>(
     instructions ? instructions.description : ""
   );
@@ -120,18 +107,7 @@ export const Survey: FC = () => {
                 {docName}
               </h2>
             )}
-            {/* {highlightedAttribute === -1 ? (
-            ""
-          ) : (
-            <Button
-              text={showWeights ? "Save weights" : "Edit weights"}
-              onClick={
-                showWeights
-                  ? () => saveWeights()
-                  : () => setShowWeights(!showWeights)
-              }
-            ></Button>
-          )} */}
+
             <div>Last edited: {getTimeElapsed(lastEdited)}</div>
           </div>
           <ExportDropdown size="small" />

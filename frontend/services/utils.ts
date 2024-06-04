@@ -15,6 +15,7 @@ export const preproccessAttributes = (attributes: Attribute[]) => {
       levels: levels,
     };
   });
+  console.log(processedAttributes);
 
   // Return the object in the desired format
   return {

@@ -188,8 +188,6 @@
 }
 
 .handles {
-  background-color: var(--white);
-  border: 1px solid var(--border-gray);
   border-radius: 0.5rem;
   position: absolute;
   bottom: -1rem;
@@ -198,6 +196,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: row;
+  gap: 1rem;
   /* visibility: hidden; */
 }
 
