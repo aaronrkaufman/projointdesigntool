@@ -5,13 +5,30 @@ import { Sidebar } from "@/components/sidebar/sidebar";
 import { GetServerSideProps } from "next";
 import { getTutorial } from "@/services/api";
 import { Tutorial } from "@/components/tutorial/tutorial";
+import { useEffect, useState } from "react";
 
-interface ITutorialProps {
-  tutorialData: string;
-  tutorial: string;
+interface IServerProps {
+  params: {
+    tutorial: string;
+  };
 }
 
-function TutorialPage({ tutorialData, tutorial }: ITutorialProps) {
+function TutorialPage({ params }: IServerProps) {
+  const [tutorialData, setTutorialData] = useState("");
+  const tutorial = params.tutorial;
+
+  useEffect(() => {
+    if (tutorial) {
+      getTutorial(tutorial)
+        .then((data) => {
+          setTutorialData(data);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch tutorial data:", error);
+        });
+    }
+  }, [tutorial]);
+
   return (
     <>
       <main className={styles.main}>
@@ -22,19 +39,26 @@ function TutorialPage({ tutorialData, tutorial }: ITutorialProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const tutorial = context.params?.tutorial as string;
 
-  if (!tutorial) {
-    return { notFound: true };
+//TODO: maybe use static paths and props next time
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const tutorial = context.params?.tutorial;
+
+  // Check if 'tutorial' is a string (or an array of strings if you allow that)
+  if (typeof tutorial !== "string") {
+    // Handle the case where 'tutorial' is not provided or is not a string
+    // return { notFound: true }; // Or redirect to another page
   }
 
-  const tutorialData = await getTutorial(tutorial);
+  // You can perform server-side operations here, like fetching data based on the tutorial name
+  // ...
 
+  // Then return the props
   return {
     props: {
-      tutorialData: tutorialData || "",
-      tutorial,
+      params: {
+        tutorial: tutorial || "",
+      },
     },
   };
 };
