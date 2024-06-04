@@ -45,6 +45,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
 
   const [isEditing, setIsEditing] = useState(false);
   const [attributeName, setAttributeName] = useState<string>(attribute.name);
+  const [totalWeight, setTotalWeight] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
   useEffect(() => {
     highlightedAttribute === attribute.key &&
       setCurrentWeights(attribute.levels.map((lvl) => lvl.weight));
-  }, [highlightedAttribute]);
+  }, [highlightedAttribute, attribute.levels]);
 
   useEffect(() => {
     if (isEditing) {
@@ -93,10 +94,15 @@ export const Attribute: FC<PropsAttributeComponent> = ({
       updateWeight(highlightedAttribute, currentWeights);
     } else {
       // TODO make something else
+      setCurrentWeights(attribute.levels.map((lvl) => lvl.weight));
       alert("Total weight must be 100.");
     }
     setShowWeights(false);
   };
+
+  useEffect(() => {
+    setTotalWeight(currentWeights.reduce((acc, weight) => acc + weight, 0));
+  }, [currentWeights, attribute.levels]);
 
   return (
     <Draggable
@@ -202,24 +208,21 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                 : styles.notvisible
             }`}
             style={{
-              border:
-                currentWeights.reduce((acc, weight) => acc + weight, 0) === 100
-                  ? ""
-                  : "2px solid var(--red)",
+              border: totalWeight === 100 ? "" : "2px solid var(--red)",
             }}
           >
             {show && highlightedAttribute === attribute.key ? (
               <ul className={`${styles.weights}`}>
-                {attribute.levels.map((lvl, index) => (
+                {currentWeights.map((weight, index) => (
                   <AttributeWeight
                     key={index}
                     index={index}
-                    value={lvl.weight}
+                    value={weight}
                     onWeightChange={handleWeightChange}
                   />
                 ))}
                 <li>
-                  {currentWeights.reduce((acc, weight) => acc + weight, 0)}
+                  {totalWeight}
                   <span>%</span>
                 </li>
               </ul>

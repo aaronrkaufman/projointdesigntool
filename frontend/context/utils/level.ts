@@ -39,19 +39,26 @@ export const AddLevelToAttribute = (
           attribute.levels.reduce((maxId, lvl) => Math.max(maxId, lvl.id), 0) +
           1; // Calculate new levelId
         const newNumberOfLevels = attribute.levels.length + 1;
-        const newWeight = parseFloat((1 / newNumberOfLevels).toFixed(2)) * 100;
-        console.log(newWeight);
-        const newLevels = attribute.levels.map((lvl) => {
-          return { ...lvl, weight: newWeight };
+
+        // Calculate weights to sum up to 100, distributed as evenly as possible
+        const baseWeight = Math.floor(100 / newNumberOfLevels);
+        const remainder = 100 % newNumberOfLevels;
+        const newLevels = attribute.levels.map((lvl, index) => {
+          return {
+            ...lvl,
+            weight: index < remainder ? baseWeight + 1 : baseWeight,
+          };
         });
+
         return {
           ...attribute,
           levels: [
             ...newLevels,
             {
               name: newLevel,
-              id: newLevelId, // Use newLevelId instead of length + 1
-              weight: newWeight,
+              id: newLevelId,
+              weight:
+                newNumberOfLevels <= remainder ? baseWeight + 1 : baseWeight,
             },
           ],
         };
@@ -74,13 +81,15 @@ export const DeleteLevelFromAttribute = (
         );
 
         const newNumberOfLevels = newLevels.length;
-        const newWeight =
-          newNumberOfLevels > 0
-            ? parseFloat((1 / newNumberOfLevels).toFixed(2)) * 100
-            : 0;
-
-        newLevels = newLevels.map((lvl) => {
-          return { ...lvl, weight: newWeight, id: lvl.id }; // Keep original id
+        // Calculate weights to sum up to 100, distributed as evenly as possible
+        const baseWeight = Math.floor(100 / newNumberOfLevels);
+        const remainder = 100 % newNumberOfLevels;
+        newLevels = newLevels.map((lvl, index) => {
+          return {
+            ...lvl,
+            weight: index < remainder ? baseWeight + 1 : baseWeight,
+            id: lvl.id, // Keep original id
+          };
         });
 
         return {
