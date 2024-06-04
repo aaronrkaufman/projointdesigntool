@@ -201,22 +201,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
             )}
           </div>
           {highlightedAttribute === attribute.key && (
-            <div className={styles.deleteHandle}>
-              <button
-                onClick={() => { 
-                  deleteAttribute(attribute.key);
-                }}
-                className={styles.deleteAttribute}
-              >
-                <LightTooltip
-                  disableInteractive
-                  title="Delete Attribute"
-                  arrow
-                  placement="right"
-                >
-                  <DeleteTip />
-                </LightTooltip>
-              </button>
+            <div className={styles.handles}>
               <button
                 className={styles.deleteAttribute}
                 onClick={() => {
@@ -227,9 +212,24 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                   disableInteractive
                   title="Edit Randomization Weights"
                   arrow
-                  placement="right"
+                  placement="bottom"
                 >
                   <EditTip />
+                </LightTooltip>
+              </button>
+              <button
+                onClick={() => {
+                  deleteAttribute(attribute.key);
+                }}
+                className={styles.deleteAttribute}
+              >
+                <LightTooltip
+                  disableInteractive
+                  title="Delete Attribute"
+                  arrow
+                  placement="bottom"
+                >
+                  <DeleteTip />
                 </LightTooltip>
               </button>
             </div>

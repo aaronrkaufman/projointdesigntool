@@ -5,7 +5,7 @@ import { StatementProps } from "@/components/restrictions/restrictions";
 export const preproccessAttributes = (attributes: Attribute[]) => {
   const processedAttributes = attributes.map((attribute) => {
     // Combine the levels and weights into one array of objects
-    const levels = attribute.levels.map((level, index) => ({
+    const levels = attribute.levels.map((level, _index) => ({
       name: level.name,
       weight: level.weight || 0, // Use the weight or default to 0 if not available
     }));
@@ -24,22 +24,35 @@ export const preproccessAttributes = (attributes: Attribute[]) => {
 
 export const preprocessRestrictions = (restrictions: RestrictionProps[]) => {
   const processedRestrictions = restrictions.map((restriction) => {
-    const formatStatement = (
+    const formatCondition = (
       statement: StatementProps,
       index: number,
-      array: StatementProps[]
+      _array: StatementProps[]
     ) => {
-      const operand = statement.equals ? "==" : "!=";
-      const joiner =
-        index != 0 ? `;${statement.part == "and" ? "&&" : "||"};` : "";
-      return `${joiner}${statement.attribute};${operand};${statement.level}`;
+      const baseCondition = {
+        attribute: statement.attribute,
+        operation: statement.equals ? "==" : "!=",
+        value: statement.level,
+      };
+      if (index > 0) {
+        return {
+          logical: statement.part === "and" ? "&&" : "||",
+          ...baseCondition,
+        };
+      }
+      return baseCondition;
     };
 
-    const ifPart = restriction.ifStates.map(formatStatement).join("");
-    const thenPart = restriction.elseStates.map(formatStatement).join("");
-    const logicalOperator = restriction.elseStates.length > 0 ? ";then;" : "";
+    const formatResult = (statement: StatementProps) => ({
+      attribute: statement.attribute,
+      operation: statement.equals ? "==" : "!=",
+      value: statement.level,
+    });
 
-    return ifPart + logicalOperator + thenPart;
+    return {
+      condition: restriction.ifStates.map(formatCondition),
+      result: restriction.elseStates.map(formatResult),
+    };
   });
 
   return {

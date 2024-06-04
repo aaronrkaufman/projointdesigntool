@@ -187,9 +187,13 @@
   padding-top: 0;
 }
 
-.deleteHandle {
+.handles {
+  background-color: var(--white);
+  border: 1px solid var(--border-gray);
+  border-radius: 0.5rem;
   position: absolute;
-  bottom: -2rem;
+  bottom: -1rem;
+  left: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -203,7 +207,7 @@
   border: none;
   color: var(--blue);
   font-size: 1.25rem;
-  padding: 0.5rem 0.25rem 0.5rem 0.25rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 
 .input {
