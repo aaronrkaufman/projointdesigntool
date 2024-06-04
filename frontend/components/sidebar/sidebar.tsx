@@ -57,6 +57,21 @@ export const Sidebar = ({ active }: { active: string }) => {
       attributes: [],
       lastEdited: new Date(), // Update last edited time
       name: "Untitled",
+      instructions: {
+        description: "",
+        instructions: "",
+      },
+      restrictions: [],
+      settings: {
+        numProfiles: 2,
+        numTasks: 2,
+        repeatedTasks: true,
+        repeatedTasksFlipped: false,
+        taskToRepeat: 1,
+        whereToRepeat: 1,
+        randomize: false,
+        noFlip: false,
+      },
     };
     localStorage.setItem(`attributes-${uniqueId}`, JSON.stringify(dataToSave));
     setStorageChanged((prev) => prev + 1);

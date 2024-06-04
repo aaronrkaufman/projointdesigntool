@@ -91,6 +91,11 @@ export const Survey: FC = () => {
     instructions ? instructions.instructions : ""
   );
 
+  useEffect(() => {
+    setDescription(instructions ? instructions.description : "");
+    setInstructions(instructions ? instructions.instructions : "");
+  }, [instructions]);
+
   return (
     <section className={styles.survey}>
       <div className={styles.surveyContainer}>
