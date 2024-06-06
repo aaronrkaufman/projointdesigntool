@@ -33,7 +33,8 @@ export const Level = ({ name, index, id, attributeKey }: ILevelComponent) => {
     setIsEditing(false);
 
     if (levelName.trim() === "") {
-      deleteLevelFromAttribute(attributeKey, id);
+      handleLevelNameChange(attributeKey, "Untitled", id);
+      setLevelName("Untitled");
     } else {
       handleLevelNameChange(attributeKey, levelName, id);
     }
@@ -70,6 +71,9 @@ export const Level = ({ name, index, id, attributeKey }: ILevelComponent) => {
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 className={styles.input}
+                onFocus={(e) =>
+                  e.target.value === "Untitled" && e.target.select()
+                }
                 // additional styling or attributes
               />
             ) : (

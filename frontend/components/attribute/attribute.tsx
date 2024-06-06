@@ -154,6 +154,9 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                   onChange={handleInputChange}
                   onBlur={handleBlur}
                   className={styles.input}
+                  onFocus={(e) =>
+                    e.target.value === "Untitled" && e.target.select()
+                  }
                   // additional styling or attributes
                 />
               ) : (
