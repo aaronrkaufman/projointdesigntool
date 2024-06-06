@@ -12,23 +12,32 @@ class AttributeSerializer(serializers.Serializer):
     levels = LevelSerializer(many=True)
 
 
-class ConditionSerializer(serializers.Serializer):
+class SimpleSerializer(serializers.Serializer):
     attribute = serializers.CharField()
     operation = serializers.CharField()
     value = serializers.CharField()
+
+
+class LogicalSerializer(SimpleSerializer):
     logical = serializers.CharField(required=False)
 
 
 class RestrictionSerializer(serializers.Serializer):
-    condition = ConditionSerializer(many=True)
-    result = ConditionSerializer(many=True)
+    condition = LogicalSerializer(many=True)
+    result = SimpleSerializer(many=True)
+
+
+class CrossRestrictionSerializer(serializers.Serializer):
+    condition = SimpleSerializer()
+    result = SimpleSerializer()
 
 
 class ShortSurveySerializer(serializers.ModelSerializer):
     attributes = AttributeSerializer(many=True, required=True)
     restrictions = RestrictionSerializer(
         many=True, required=False, default=list)
-    cross_restrictions = serializers.JSONField(default=list)
+    cross_restrictions = CrossRestrictionSerializer(
+        many=True, required=False, default=list)
     profiles = serializers.IntegerField(default=2, min_value=2)
     csv_lines = serializers.IntegerField(default=500)
 
@@ -62,7 +71,8 @@ class SurveySerializer(serializers.ModelSerializer):
     constraints = serializers.JSONField(default=list, required=False)
     restrictions = RestrictionSerializer(
         many=True, required=False, default=list)
-    cross_restrictions = serializers.JSONField(default=list, required=False)
+    cross_restrictions = CrossRestrictionSerializer(
+        many=True, required=False, default=list)
     filename = serializers.CharField(default='survey.js', allow_blank=True)
     profiles = serializers.IntegerField(
         default=2, min_value=2, allow_null=True)

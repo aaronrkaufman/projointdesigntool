@@ -9,7 +9,7 @@ from rest_framework import status
 Profile = get_user_model()
 
 
-class ExportJsTests(TestCase):
+class ExportJsTest(TestCase):
     def setUp(self):
         # This method will run before every test function.
         self.profile = Profile.objects.create_user(
@@ -167,6 +167,88 @@ class PreviewSurveyTest(TestCase):
         data = {}
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_preview_survey_with_cross_rest_success(self):
+        # Data for a successful request
+        data = {
+            "attributes": [
+                {
+                    "name": "att1",
+                    "levels": [
+                        {"name": "level1"},
+                        {"name": "another1"},
+                    ]
+                },
+                {
+                    "name": "att2",
+                    "levels": [
+                        {"name": "level2"},
+                        {"name": "another2"},
+                    ]
+                },
+                {
+                    "name": "att3",
+                    "levels": [
+                        {"name": "level3"},
+                        {"name": "another3"},
+                    ]
+                }
+            ],
+            "restrictions": [],
+            "cross_restrictions": [
+                {
+                    "condition": {"attribute": "att1", "operation": "!=", "value": "level1"},
+                    "result": {"attribute": "att1", "operation": "==", "value": "another1"},
+                }
+            ],
+            "profiles": 2
+        }
+        for _ in range(100):
+            response = self.client.post(self.url, data, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEqual(response.json()["previews"][0]["att1"], response.json()[
+                             "previews"][1]["att1"])
+
+    def test_preview_survey_with_cross_rest_success_2(self):
+        # Data for a successful request
+        data = {
+            "attributes": [
+                {
+                    "name": "att1",
+                    "levels": [
+                        {"name": "level1"},
+                        {"name": "another1"},
+                    ]
+                },
+                {
+                    "name": "att2",
+                    "levels": [
+                        {"name": "level2"},
+                        {"name": "another2"},
+                    ]
+                },
+                {
+                    "name": "att3",
+                    "levels": [
+                        {"name": "level3"},
+                        {"name": "another3"},
+                    ]
+                }
+            ],
+            "restrictions": [],
+            "cross_restrictions": [
+                {
+                    "condition": {"attribute": "att1", "operation": "==", "value": "level1"},
+                    "result": {"attribute": "att1", "operation": "==", "value": "another1"},
+                }
+            ],
+            "profiles": 2
+        }
+        for _ in range(100):
+            response = self.client.post(self.url, data, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertIn("another1", set((response.json()["previews"][0]["att1"], response.json()[
+                "previews"][1]["att1"])))
 
 
 class ExportCSVTest(TestCase):

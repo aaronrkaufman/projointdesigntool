@@ -450,32 +450,43 @@ def _createFile(request):
         return Response(serializer.errors, status=400)
 
 
-def _checkCrossProfileRestrictions(profiles_list, cross_restrictions):
-    # FORMAT -> prof1;att1;==;b;then;prof2;att2;==;d"
+def _evaluate_cross_condition(profile, condition):
+    """Evaluates a condition based on the profile's attribute values."""
+    attribute_value = profile.get(condition['attribute'])
+    if condition['operation'] == "==":
+        return attribute_value == condition['value']
+    elif condition['operation'] == "!=":
+        return attribute_value != condition['value']
+    else:
+        raise ValueError(f"Unsupported operation: {condition['operation']}")
+
+
+def _evaluate_cross_profile_violation(profiles, restriction):
+    """Evaluates if the given restriction is violated in any pair of profiles."""
+    condition = restriction['condition']
+    result = restriction['result']
+
+    condition_not_entered = True
+
+    for i in range(len(profiles)):
+        for j in range(len(profiles)):
+            if i != j:  # Ensure different profiles are compared
+                if _evaluate_cross_condition(profiles[i], condition):
+                    condition_not_entered = False
+                    if _evaluate_cross_condition(profiles[j], result):
+                        return True  # Restriction is valid
+    if condition_not_entered:
+        return True
+    return False
+
+
+def _check_any_cross_profile_restriction_violated(profiles, cross_restrictions):
+    """Checks if any cross-profile restrictions are violated."""
+    if not cross_restrictions:
+        return True
     for restriction in cross_restrictions:
-        # split if then statement
-        res = restriction.split("then")
-        if_prof, if_attr, if_op, if_lvl, _ = res[0].strip().split(";")
-        _, then_prof, then_attr, then_op, then_lvl = res[1].strip().split(";")
-
-        # Check if both ==/==, then as long as there is an isntance of this case, restriction is not broken
-        restriction_broken = True
-        if if_op == "==" and then_op == "==":
-            if if_lvl in profiles_list[0] and then_lvl in profiles_list[1]:
-                restriction_broken = False
-            if if_lvl in profiles_list[1] and then_lvl in profiles_list[0]:
-                restriction_broken = False
-            return True if restriction_broken else False
-
-        # Check other cases, such as ==/!=, !=/==
-        for i in range(2):
-            broken_profiles_matched = 0
-            if if_lvl in profiles_list[i] and if_op == "==" or if_lvl not in profiles_list[i] and if_op == "!=":
-                broken_profiles_matched += 1
-            if then_lvl in profiles_list[1 - i] and then_op == "!=" or then_lvl not in profiles_list[1 - i] and then_op == "==":
-                broken_profiles_matched += 1
-            if broken_profiles_matched == 2:
-                return True
+        if _evaluate_cross_profile_violation(profiles, restriction):
+            return True
     return False
 
 
@@ -526,33 +537,30 @@ def _check_restrictions(profile, restrictions):
     return True
 
 
-def _createProfiles(profiles_num, attributes, restrictions, cross_restrictions, csv_mode):
-    cross_profile_restriction_broken = True
-    while cross_profile_restriction_broken:
+def _generate_single_profile(attributes):
+    return {attr['name']: random.choices([level['name'] for level in attr['levels']], [level['weight'] for level in attr['levels']], k=1)[0] for attr in attributes}
+
+
+def _create_profiles(profiles_num, attributes, restrictions, cross_restrictions):
+    profiles_valid = False
+    while not profiles_valid:
         profiles_list = []
-        csv_export = []
         while len(profiles_list) < profiles_num:
-            profile = {}
-            for attribute in attributes:
-                attr_name = attribute['name']
-                levels = attribute['levels']
-                # Extract level names and their corresponding weights
-                level_names = [level['name'] for level in levels]
-                weights = [level['weight'] for level in levels]
-                # Use random.choices to select a level based on weights
-                profile[attr_name] = random.choices(
-                    level_names, weights=weights, k=1)[0]
+            profile = _generate_single_profile(attributes)
             if _check_restrictions(profile, restrictions):
-                level = [profile[attr] for attr in profile]
-                profiles_list.append(level[:])
-                for index, name in enumerate(list(profile.keys())):
-                    level.insert(2 * index, name)
-                csv_export.append(level)
-        cross_profile_restriction_broken = _checkCrossProfileRestrictions(
+                profiles_list.append(profile)
+        profiles_valid = _check_any_cross_profile_restriction_violated(
             profiles_list, cross_restrictions)
-    return profiles_list if not csv_mode else csv_export
+    return profiles_list
 
 
+def _create_csv_profiles(num_profiles, attributes, restrictions, cross_restrictions):
+    profiles = _create_profiles(
+        num_profiles, attributes, restrictions, cross_restrictions)
+    return [[item for pair in profile.items() for item in pair] for profile in profiles]
+
+
+# in your generate_profiles you are not calling any of the evaluate or check methods that check whether restrictions are broken
 '''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''QUALTRICS LOGIC''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''

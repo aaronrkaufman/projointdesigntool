@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
-from .helpers import _checkAttributes, _createFile, _createProfiles, _sendFileResponse
+from .helpers import _checkAttributes, _createFile, _create_profiles, _sendFileResponse, _create_csv_profiles
 from .helpers import __CreateSurvey, __DownloadSurvey
 
 from .serializers import ShortSurveySerializer, SurveySerializer
@@ -107,8 +107,8 @@ def preview_survey(request):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
 
         answer = {"attributes": [], "previews": []}
-        answer["previews"] = _createProfiles(
-            profiles, attributes, restrictions, cross_restrictions, False)
+        answer["previews"] = _create_profiles(
+            profiles, attributes, restrictions, cross_restrictions)
         answer["attributes"] = [attribute["name"] for attribute in attributes]
         return Response(answer, status=status.HTTP_201_CREATED)
     else:
@@ -172,9 +172,6 @@ def export_csv(request):
         profiles = validated_data["profiles"]
         csv_lines = validated_data["csv_lines"]
 
-        # To calculate the total number of combinations
-        # levels_per_attribute = [len(attribute['levels']) for attribute in attributes]
-        # profiles_per_attribute = [profiles for _ in attributes]
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -191,8 +188,8 @@ def export_csv(request):
             writer.writerow(header)
 
             for i in range(csv_lines):
-                profiles_list = _createProfiles(
-                    profiles, attributes, restrictions, cross_restrictions, True)
+                profiles_list = _create_csv_profiles(
+                    profiles, attributes, restrictions, cross_restrictions)
                 rearrenged_profiles = []
                 for i in range(len(attributes)):
                     rearrenged_profiles.append(profiles_list[0][i * 2])
