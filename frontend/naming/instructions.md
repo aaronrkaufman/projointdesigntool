@@ -34,7 +34,7 @@ This instructions are designed to help you understand and manage the static text
 
 #### Editing Text Values
 
-To modify the text that appears on the frontend, locate the corresponding key in the `english.json` file and change the text within the "value" or "subtitle" field. !Changes to other parts of the structure may cause the application to behave unexpectedly! After making changes, the server may need to be restarted for the changes to take effect.
+To modify the text that appears on the frontend, locate the corresponding key in the `english.json` file and change the text within the `value` or `subtitle` field. !**Changes to other parts of the structure may cause the application to behave unexpectedly**! After making changes, the server may need to be restarted for the changes to take effect.
 
 #### Future Enhancements
 
