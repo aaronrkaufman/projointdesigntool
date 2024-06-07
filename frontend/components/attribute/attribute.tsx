@@ -6,9 +6,10 @@ import { Draggable, Droppable } from "react-beautiful-dnd";
 import DragButton from "../ui/drag_button";
 import { Level } from "./__level/attribute__level";
 import { useAttributes } from "../../context/attributes_context";
-import { DeleteTip, EditTip, ExpandIcon, LightTooltip } from "../ui/icons";
+import { DeleteTip, EditTip, ExpandIcon } from "../ui/icons";
 import { AttributeWeight } from "./__weight/attribute__weight";
 import { Button } from "../ui/button";
+import naming from "@/naming/english.json";
 
 interface PropsAttributeComponent {
   attribute: IAttribute;
@@ -192,7 +193,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                           addLevelToAttribute(attribute.key, "Untitled")
                         }
                       >
-                        Add level
+                        {naming.surveyPage.attribute.addLevel.value}
                       </button>
                     </li>
                   </ul>
@@ -235,18 +236,24 @@ export const Attribute: FC<PropsAttributeComponent> = ({
           </div>
           {highlightedAttribute === attribute.key && (
             <div className={styles.handles}>
-              <Button
-                onClick={() => {
-                  showWeights ? saveWeights() : setShowWeights(!showWeights);
-                }}
-                icon={<EditTip stroke="var(--white)" />}
-                text={showWeights ? "Save Weights" : "Edit Weights"}
-                size="0.75rem"
-              ></Button>
+              {attribute.levels.length > 0 && (
+                <Button
+                  onClick={() => {
+                    showWeights ? saveWeights() : setShowWeights(!showWeights);
+                  }}
+                  icon={<EditTip stroke="var(--white)" />}
+                  text={
+                    showWeights
+                      ? naming.surveyPage.attribute.saveWeights.value
+                      : naming.surveyPage.attribute.editWeights.value
+                  }
+                  size="0.75rem"
+                ></Button>
+              )}
               <Button
                 onClick={() => deleteAttribute(attribute.key)}
                 icon={<DeleteTip stroke="var(--white)" />}
-                text="Delete Attribute"
+                text={naming.surveyPage.attribute.deleteAttribute.value}
                 size="0.75rem"
                 bg="var(--red)"
               ></Button>

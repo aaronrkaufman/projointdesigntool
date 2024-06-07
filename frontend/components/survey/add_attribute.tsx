@@ -1,5 +1,5 @@
 import styles from "./survey.module.css";
-
+import naming from "@/naming/english.json";
 interface AddAttributeProps {
   onCreate: () => void;
 }
@@ -9,7 +9,7 @@ export const AddAttribute = ({ onCreate }: AddAttributeProps) => {
     <div className={styles.container}>
       <span className={styles.line}></span>
       <button className={styles.btn} onClick={onCreate}>
-        Add Attribute
+        {naming.surveyPage.attribute.addAttribute.value}
       </button>
     </div>
   );

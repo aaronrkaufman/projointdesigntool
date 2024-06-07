@@ -8,6 +8,7 @@ import { SettingsExplanation } from "./__explanation/settings__explanation";
 import { SettingsLine } from "./__line/settings__line";
 import { SettingsNumberRange } from "./__number-range/settings__number-range";
 import ExportDropdown from "../export/export";
+import naming from "@/naming/english.json";
 
 export const Settings = () => {
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =
@@ -118,7 +119,7 @@ export const Settings = () => {
         </div>
         <div className={styles.name}>
           <label>
-            <h3>Name</h3>
+            <h3>{naming.settingsPage.name.value}</h3>
           </label>
           <input
             ref={inputRef}
@@ -129,7 +130,7 @@ export const Settings = () => {
             // additional styling or attributes
           />
           <SettingsExplanation
-            explanation={<p>You can use any name you want. Keep it simple.</p>}
+            explanation={<p>{naming.settingsPage.name.subtitle}</p>}
           />
         </div>
         <SettingsLine />
@@ -138,8 +139,8 @@ export const Settings = () => {
           onChange={handleNumProfilesChange}
           min={1}
           max={10}
-          label="Number of profiles"
-          explanation="Changes the number of profiles in preview section"
+          label={naming.settingsPage.numberProfiles.value}
+          explanation={naming.settingsPage.numberProfiles.subtitle}
         />
 
         <SettingsLine />
@@ -148,14 +149,14 @@ export const Settings = () => {
           onChange={handleNumTasksChange}
           min={1}
           max={10}
-          label="Number of tasks"
-          explanation="Set of choices presented to the respondent in a single screen (i.e. pair of candidates)"
+          label={naming.settingsPage.numberTasks.value}
+          explanation={naming.settingsPage.numberTasks.subtitle}
         />
         <SettingsCheckbox
           checked={repeatedTasks}
           onChange={(e) => handleRepeatedTasksChange(e.target.checked)}
-          label="Repeated tasks"
-          explanation="Option to repeat tasks"
+          label={naming.settingsPage.repeatedTask.value}
+          explanation={naming.settingsPage.repeatedTask.subtitle}
         />
         {repeatedTasks && (
           <>
@@ -164,16 +165,16 @@ export const Settings = () => {
               onChange={(e) =>
                 handleRepeatedTasksFlippedChange(e.target.checked)
               }
-              label="Flipped"
-              explanation="Option to either flip columns same for repeated tasks"
+              label={naming.settingsPage.shuffled.value}
+              explanation={naming.settingsPage.shuffled.subtitle}
             />
             <SettingsNumberRange
               value={taskToRepeat}
               onChange={handleTaskToRepeatChange}
               min={1}
               max={numTasks}
-              label="Which task to repeat?"
-              explanation="A Task to repeat from 1 to N (the chosen number of tasks)"
+              label={naming.settingsPage.whichRepeat.value}
+              explanation={naming.settingsPage.whichRepeat.subtitle}
             />
 
             <SettingsNumberRange
@@ -181,14 +182,14 @@ export const Settings = () => {
               onChange={handleWhereToRepeatChange}
               min={taskToRepeat}
               max={numTasks + 1}
-              label="Where to repeat?"
-              explanation="Where to repeat from i (the chosen task) to N + 1 (the chosen number of tasks)"
+              label={naming.settingsPage.whereRepeat.value}
+              explanation={naming.settingsPage.whereRepeat.subtitle}
             />
           </>
         )}
         <SettingsLine />
         <div className={styles.ordering}>
-          <h3>Ordering of attributes</h3>
+          <h3>{naming.settingsPage.attributesOrdering.value}</h3>
 
           <SettingsRadioGroup
             options={[
@@ -200,7 +201,9 @@ export const Settings = () => {
           />
           <SettingsExplanation
             learnMoreLink
-            explanation={<p>Learn about attribute ordering.</p>}
+            explanation={
+              <p>{naming.settingsPage.attributesOrdering.subtitle}</p>
+            }
           />
           {/* This setting determines the order in which the attributes are presented to the user. The default is non-random, which means the attributes are presented in the order they are defined in the document. The other options randomize the order in different ways. */}
         </div>

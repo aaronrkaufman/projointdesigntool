@@ -4,6 +4,7 @@ import styles from "./preview.module.css"; // Make sure to create this CSS modul
 import { Button } from "../ui/button";
 import { IInstructions } from "../../context/attributes_context";
 import ExportDropdown from "../export/export";
+import naming from "@/naming/english.json";
 
 export interface IPreview {
   attributes: string[];
@@ -18,7 +19,6 @@ const Preview = ({
   instructions,
   setRefresh,
 }: IPreview) => {
-
   return (
     <section className={styles.section}>
       <div className={styles.sectionContainer}>
@@ -26,7 +26,7 @@ const Preview = ({
           <h2>Preview</h2>
           <div className={styles.buttons}>
             <Button
-              text="Refresh"
+              text={naming.previewPage.refreshButton.value}
               onClick={() => setRefresh && setRefresh(true)}
             />
             <ExportDropdown size="small" />

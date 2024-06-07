@@ -5,6 +5,7 @@ import { Statement } from "./statement";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./restrictions.module.css";
 import { useAttributes } from "../../context/attributes_context";
+import naming from "@/naming/english.json";
 
 export interface RestrictionProps {
   ifStates: StatementProps[];
@@ -160,7 +161,8 @@ export const Restriction: React.FC<
             );
           })}
           <div className={styles.addCondition} onClick={addIfStatement}>
-            <PlusIcon stroke={`var(--blue)`} /> Add condition
+            <PlusIcon stroke={`var(--blue)`} />{" "}
+            {naming.restrictionsPage.addCondition.value}
           </div>
         </div>
         <div className={styles.elseStatements}>
@@ -181,9 +183,9 @@ export const Restriction: React.FC<
               />
             );
           })}
-          <div className={styles.addCondition} onClick={addElseStatement}>
+          {/* <div className={styles.addCondition} onClick={addElseStatement}>
             <PlusIcon stroke={`var(--blue)`} /> Add condition
-          </div>
+          </div> */}
         </div>
       </div>
       <div className={styles.svg} onClick={handleDeleteRestriction}>

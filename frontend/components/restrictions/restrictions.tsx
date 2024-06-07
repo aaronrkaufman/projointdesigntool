@@ -6,6 +6,7 @@ import { PlusIcon } from "../ui/icons";
 import { Restriction, RestrictionProps } from "./restriction";
 import { v4 as uuidv4 } from "uuid";
 import ExportDropdown from "../export/export";
+import naming from "@/naming/english.json";
 
 export interface StatementProps {
   part: "if" | "then" | "and" | "or";
@@ -86,12 +87,12 @@ export const Restrictions = () => {
           <h2>Restrictions</h2>
           <ExportDropdown size="small" />
         </div>
-        <p>List of attribute-level pairs that can’t be together in a profile</p>
+        <p>{naming.restrictionsPage.oneProfile.value}</p>
         <div className={styles.container}>
           <div className={styles.left}>
             <ul className={styles.restrictions}>
               {newRestrictions &&
-                newRestrictions.map((restr, index) => (
+                newRestrictions.map((restr, _index) => (
                   <Restriction
                     key={restr.id}
                     {...restr}
@@ -106,7 +107,7 @@ export const Restrictions = () => {
             <div>
               <Button
                 icon={<PlusIcon stroke="white" />}
-                text="Add a restriction statement"
+                text={naming.restrictionsPage.addRestriction.value}
                 disabled={!canAddNewRestriction}
                 onClick={handleAddRestriction}
               />

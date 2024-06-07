@@ -1,0 +1,82 @@
+{
+  "surveyPage": {
+    "description": {
+      "value": "Enter your description here! Example: 'Here are two profiles A and B. "
+    },
+
+    "instructions": {
+      "value": "Enter your instructions here! Example: 'Do you prefer A or B?'"
+    },
+
+    "attribute": {
+      "editWeights": {
+        "value": "Edit Weights"
+      },
+      "saveWeights": {
+        "value": "Save Weights"
+      },
+      "deleteAttribute": {
+        "value": "Delete Attribute"
+      },
+      "addLevel": {
+        "value": "Add Level"
+      },
+      "addAttribute": {
+        "value": "Add Attribute"
+      }
+    }
+  },
+  "previewPage": {
+    "refreshButton": {
+      "value": "Refresh"
+    }
+  },
+  "restrictionsPage": {
+    "oneProfile": {
+      "value": "List of attribute-level pairs that can not be together in a profile"
+    },
+    "crossProfiles": {
+      "value": "List of attribute-level pairs that can not be together in different profiles"
+    },
+    "addCondition": {
+      "value": "Add condition"
+    },
+    "addRestriction": {
+      "value": "Add a restriction statement"
+    }
+  },
+  "settingsPage": {
+    "name": {
+      "value": "Settings",
+      "subtitle": "You can use any name you want. Keep it simple."
+    },
+    "numberProfiles": {
+      "value": "Number of profiles",
+      "subtitle": "Changes the number of profiles in preview section"
+    },
+    "numberTasks": {
+      "value": "Number of tasks",
+      "subtitle": "Set of choices presented to the respondent in a single screen (i.e. pair of candidates)"
+    },
+    "repeatedTask": {
+      "value": "Repeated task",
+      "subtitle": "Option to repeat tasks"
+    },
+    "shuffled": {
+      "value": "Option to either flip columns same for repeated tasks",
+      "subtitle": "Option to either flip columns same for repeated tasks"
+    },
+    "whichRepeat": {
+      "value": "Which task to repeat?",
+      "subtitle": "A Task to repeat from 1 to N (the chosen number of tasks)"
+    },
+    "whereRepeat": {
+      "value": "Where to repeat?",
+      "subtitle": "Where to repeat from i (the chosen task) to N + 1 (the chosen number of tasks)"
+    },
+    "attributesOrdering": {
+      "value": "Ordering of attributes",
+      "subtitle": "Learn about attribute ordering."
+    }
+  }
+}

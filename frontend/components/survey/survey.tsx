@@ -3,11 +3,9 @@ import React, { FC, useContext, useEffect, useRef, useState } from "react";
 import styles from "./survey.module.css";
 import { AddAttribute } from "./add_attribute";
 import { AttributeContainer } from "../attribute/attribute.container";
-import { Button } from "../ui/button";
-import { HighlightedContext } from "../../context/highlighted";
 import { useAttributes } from "../../context/attributes_context";
 import { DocumentContext } from "../../context/document_context";
-
+import naming from "@/naming/english.json";
 import { Droppable } from "react-beautiful-dnd";
 import ExportDropdown from "../export/export";
 
@@ -26,15 +24,11 @@ const getTimeElapsed = (lastEdited: Date) => {
 };
 
 export const Survey: FC = () => {
-  const { highlightedAttribute, setShowWeights, showWeights, currentWeights } =
-    useContext(HighlightedContext);
-
   const {
     setEdited,
     attributes,
     instructions,
     addNewAttribute,
-    updateWeight,
     handleInstructions,
   } = useAttributes();
 
@@ -121,7 +115,7 @@ export const Survey: FC = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onBlur={() => handleInstructions(description, "description")}
-            placeholder="Enter your description here! Example: 'Here are two profiles A and B'"
+            placeholder={naming.surveyPage.description.value}
           ></input>
         </div>
 
@@ -152,7 +146,7 @@ export const Survey: FC = () => {
             value={instructs}
             onChange={(e) => setInstructions(e.target.value)}
             onBlur={() => handleInstructions(instructs, "instructions")}
-            placeholder="Enter your instructions here! Example: 'Do you prefer A or B?'"
+            placeholder={naming.surveyPage.instructions.value}
           ></input>
         </div>
       </div>
