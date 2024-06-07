@@ -5,7 +5,7 @@ import { useAttributes } from "../../context/attributes_context";
 import { PlusIcon } from "../ui/icons";
 import { Restriction, RestrictionProps } from "./restriction";
 import { v4 as uuidv4 } from "uuid";
-import ExportDropdown from "../survey/export";
+import ExportDropdown from "../export/export";
 
 export interface StatementProps {
   part: "if" | "then" | "and" | "or";

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import styles from "./preview.module.css"; // Make sure to create this CSS module
 import { Button } from "../ui/button";
 import { IInstructions } from "../../context/attributes_context";
-import ExportDropdown from "../survey/export";
+import ExportDropdown from "../export/export";
 
 export interface IPreview {
   attributes: string[];

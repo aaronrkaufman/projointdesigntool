@@ -13,7 +13,7 @@ import {
 import { styled } from "@mui/material/styles";
 import React from "react";
 import Image from "next/image";
-import ExportDropdown from "../survey/export";
+import ExportDropdown from "../export/export";
 
 export const FileAdd = forwardRef<SVGSVGElement, { stroke?: string }>(
   (props, ref) => {

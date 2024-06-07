@@ -12,30 +12,46 @@ export default api;
 
 export const downloadSurvey = async (
   attributes: Attribute[],
-  path: "qualtrics" | "export" | "export_csv"
+  path: "qualtrics" | "export" | "export_csv" | "markdown",
+  filename: string,
+  csv_lines?: number,
+  settings?: number
 ): Promise<void> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
     // console.log(processedAttributes);
-    const response = await api.post(`/surveys/${path}/`, processedAttributes, {
-      responseType: "blob",
-    });
+    const response = await api.post(
+      `/surveys/${path}/`,
+      { ...processedAttributes, csv_lines, settings },
+      {
+        responseType: "blob",
+      }
+    );
 
     // console.log(response);
+    const fileExtension = (filename: string) => {
+      switch (path) {
+        case "qualtrics":
+          return filename + ".qsf";
+        case "export":
+          return filename + ".js";
+        case "export_csv":
+          return filename + ".csv";
+        case "markdown":
+          return filename + ".md";
+        default:
+          return filename;
+      }
+    };
 
-    const filename =
-      path === "qualtrics"
-        ? "default-filename.qsf"
-        : path === "export"
-        ? "survey.js"
-        : path === "export_csv"
-        ? "survey.csv"
-        : "survey.js";
+    const file = fileExtension(filename);
+
+    console.log("filename", file);
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", filename); // Choose the correct file name and extension
+    link.setAttribute("download", file); // Choose the correct file name and extension
     document.body.appendChild(link);
     link.click();
     window.URL.revokeObjectURL(url);

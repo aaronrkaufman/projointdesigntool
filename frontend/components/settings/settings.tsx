@@ -7,7 +7,7 @@ import { SettingsRadioGroup } from "./__radio-group/settings__radio-group";
 import { SettingsExplanation } from "./__explanation/settings__explanation";
 import { SettingsLine } from "./__line/settings__line";
 import { SettingsNumberRange } from "./__number-range/settings__number-range";
-import ExportDropdown from "../survey/export";
+import ExportDropdown from "../export/export";
 
 export const Settings = () => {
   const { currentDoc, lastEdited, setLastEdited, setCurrentDoc } =

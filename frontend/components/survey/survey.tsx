@@ -9,7 +9,7 @@ import { useAttributes } from "../../context/attributes_context";
 import { DocumentContext } from "../../context/document_context";
 
 import { Droppable } from "react-beautiful-dnd";
-import ExportDropdown from "./export";
+import ExportDropdown from "../export/export";
 
 const getTimeElapsed = (lastEdited: Date) => {
   const now = new Date();

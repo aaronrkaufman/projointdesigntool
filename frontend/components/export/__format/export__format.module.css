@@ -1,0 +1,38 @@
+.export__format {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.export__format li {
+  padding: 1rem;
+  border: 2px solid var(--border-gray);
+  border-radius: 0.25rem;
+  flex: 1 1 40%;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.25rem;
+  color: var(--dark-blue-p);
+}
+
+.active {
+  background-color: var(--active-blue);
+  border-color: var(--blue) !important;
+}
+
+.notclickable {
+  cursor: not-allowed;
+  background-color: var(--border-gray);
+}
+
+.notclickable:hover {
+  cursor: not-allowed;
+}
+
+.description {
+  font-size: 0.75rem;
+  color: var(--blue-p);
+}

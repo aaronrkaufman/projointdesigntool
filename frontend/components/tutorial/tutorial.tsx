@@ -8,5 +8,9 @@ export interface TutorialProps {
 }
 
 export const Tutorial: FC<TutorialProps> = ({ tutorialData }) => {
-  return <section className={styles.tutorial}>{parse(tutorialData)}</section>;
+  return (
+    <section className={styles.tutorial}>
+      <div className={styles.tutorial__content}>{parse(tutorialData)}</div>
+    </section>
+  );
 };

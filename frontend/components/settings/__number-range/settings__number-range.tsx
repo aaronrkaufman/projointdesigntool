@@ -32,6 +32,32 @@ export const SettingsNumberRange: FC<SettingsNumberRangeProps> = ({
     }
   };
 
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const newValue = Number(e.target.value);
+    if (newValue < min) {
+      onChange(min);
+    } else if (newValue > max) {
+      onChange(max);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let inputStr = e.target.value;
+    // Remove leading zeros and handle empty or zero-only strings
+    let sanitizedInput = inputStr.replace(/^0+/, "") || "0";
+    const newValue = Number(sanitizedInput);
+
+    e.target.value = sanitizedInput;
+
+    if (newValue === 0) {
+      onChange(0);
+      return;
+    }
+    if (Number.isInteger(newValue) && newValue >= min && newValue <= max) {
+      onChange(newValue);
+    }
+  };
+
   return (
     <div className={styles.settings__number_range}>
       <div className={styles.label}>
@@ -45,7 +71,8 @@ export const SettingsNumberRange: FC<SettingsNumberRangeProps> = ({
           min={min}
           max={max}
           value={value}
-          readOnly
+          onChange={handleChange}
+          onBlur={handleBlur}
         />
         <button onClick={handleIncrement} className={styles.arrow}>
           <svg
