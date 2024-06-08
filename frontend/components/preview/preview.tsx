@@ -1,5 +1,5 @@
 // CarSelection.tsx
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styles from "./preview.module.css"; // Make sure to create this CSS module
 import { Button } from "../ui/button";
 import { IInstructions } from "../../context/attributes_context";
@@ -7,6 +7,7 @@ import ExportDropdown from "../export/export";
 import naming from "@/naming/english.json";
 import { PreviewMcq } from "./__mcq/preview__mcq";
 import { PreviewRanking } from "./__ranking/preview__ranking";
+import { PreviewSlider } from "./__slider/preview__slider";
 
 export interface IPreview {
   attributes: string[];
@@ -28,10 +29,14 @@ const Preview = ({
   setRefresh,
   refresh,
 }: IPreview) => {
-  const profiles: IProfile[] = [
-    { value: "Profile 1", id: "1" },
-    { value: "Profile 2", id: "2" },
-  ];
+  const profiles: IProfile[] = useMemo(
+    () =>
+      previews.map((_, index) => ({
+        value: `Profile ${index + 1}`,
+        id: `${index + 1}`,
+      })),
+    [previews]
+  );
   return (
     <section className={styles.section}>
       <div className={styles.sectionContainer}>
@@ -73,6 +78,7 @@ const Preview = ({
           refresh={refresh ? refresh : false}
           profiles={profiles}
         />
+        <PreviewSlider profiles={profiles} />
       </div>
     </section>
   );

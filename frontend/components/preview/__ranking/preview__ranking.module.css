@@ -5,6 +5,10 @@
   gap: 1rem;
 }
 
+.preview__ranking * {
+  user-select: none;
+}
+
 .profiles {
   display: flex;
   flex-direction: column;
