@@ -5,12 +5,14 @@ import { Button } from "../ui/button";
 import { IInstructions } from "../../context/attributes_context";
 import ExportDropdown from "../export/export";
 import naming from "@/naming/english.json";
+import { PreviewMcq } from "./__mcq/preview__mcq";
 
 export interface IPreview {
   attributes: string[];
   previews: string[][];
   instructions: IInstructions;
   setRefresh?: (refresh: boolean) => void;
+  refresh: boolean;
 }
 
 const Preview = ({
@@ -18,6 +20,7 @@ const Preview = ({
   previews,
   instructions,
   setRefresh,
+  refresh,
 }: IPreview) => {
   return (
     <section className={styles.section}>
@@ -55,6 +58,7 @@ const Preview = ({
         <div className={styles.instructions}>
           {instructions && instructions.instructions}
         </div>
+        <PreviewMcq refresh={refresh} />
       </div>
     </section>
   );

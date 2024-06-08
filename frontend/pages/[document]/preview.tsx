@@ -47,7 +47,7 @@ function PreviewPage({ params }: IServerProps) {
       previews: previews,
       instructions: instructions,
     });
-    // console.log("previews:", previews);
+    console.log("previews:", previews);
   };
 
   useEffect(() => {
@@ -66,7 +66,7 @@ function PreviewPage({ params }: IServerProps) {
       <main className={styles.main}>
         <Sidebar active={documentID} />
         {/* <SurveyContainer /> */}
-        {profiles ? <Preview {...profiles} setRefresh={setRefresh} /> : ""}
+        {profiles ? <Preview {...profiles} setRefresh={setRefresh} refresh = {refresh} /> : ""}
       </main>
     </>
   );

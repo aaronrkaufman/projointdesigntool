@@ -8,6 +8,7 @@ import { DocumentContext } from "../../context/document_context";
 import naming from "@/naming/english.json";
 import { Droppable } from "react-beautiful-dnd";
 import ExportDropdown from "../export/export";
+import { SurveyOutcomeTypes } from "./__outcome-types/survey__outcome-types";
 
 const getTimeElapsed = (lastEdited: Date) => {
   const now = new Date();
@@ -149,6 +150,8 @@ export const Survey: FC = () => {
             placeholder={naming.surveyPage.instructions.value}
           ></input>
         </div>
+
+        <SurveyOutcomeTypes />
       </div>
     </section>
   );

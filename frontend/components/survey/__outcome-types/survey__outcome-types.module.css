@@ -1,0 +1,25 @@
+.survey__outcome_types {
+  display: flex;
+  /* flex-direction: column; */
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5rem;
+}
+
+.survey__outcome_types p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--dark-blue-p);
+}
+
+.survey__outcome_types__explanation {
+  display: flex;
+
+  gap: 0rem;
+  flex-direction: column;
+}
+
+.survey__outcome_types button {
+  width: 10rem;
+}
