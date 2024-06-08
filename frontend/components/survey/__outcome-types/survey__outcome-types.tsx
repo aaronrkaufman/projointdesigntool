@@ -4,6 +4,7 @@ import styles from "./survey__outcome-types.module.css";
 import CustomDropdown from "@/components/restrictions/dropdown";
 import { SettingsExplanation } from "@/components/settings/__explanation/settings__explanation";
 import { useAttributes } from "@/context/attributes_context";
+import naming from "@/naming/english.json";
 
 export interface SurveyOutcomeTypesProps {}
 
@@ -31,8 +32,10 @@ export const SurveyOutcomeTypes: FC<SurveyOutcomeTypesProps> = ({}) => {
   return (
     <div className={styles.survey__outcome_types}>
       <div className={styles.survey__outcome_types__explanation}>
-        <p>Select outcome type</p>
-        <SettingsExplanation explanation="Select the type of outcome you want to use for your survey. You can choose between a single outcome, multiple outcomes, or a range of outcomes." />
+        <p>{naming.surveyPage.outcomeType.value}</p>
+        <SettingsExplanation
+          explanation={naming.surveyPage.outcomeType.subtitle}
+        />
       </div>
 
       <CustomDropdown

@@ -24,6 +24,10 @@
       "addAttribute": {
         "value": "Add Attribute"
       }
+    },
+    "outcomeType": {
+      "value": "Select Outcome Type",
+      "subtitle": "Select the type of outcome you want to use for your survey. You can choose between a single outcome, multiple outcomes, or a range of outcomes."
     }
   },
   "previewPage": {
