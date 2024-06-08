@@ -60,6 +60,7 @@ export const Sidebar = ({ active }: { active: string }) => {
       instructions: {
         description: "",
         instructions: "",
+        outcomeType: "mcq",
       },
       restrictions: [],
       settings: {

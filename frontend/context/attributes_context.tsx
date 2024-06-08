@@ -35,6 +35,7 @@ interface RestrictionProps {
 export interface IInstructions {
   description: string;
   instructions: string;
+  outcomeType: "ranking" | "slider" | "mcq";
 }
 
 export interface Attribute {
@@ -68,7 +69,7 @@ interface AttributeContextType {
   handleCreateAttribute: () => void;
   handleInstructions: (
     value: string,
-    setting: "instructions" | "description"
+    setting: "instructions" | "description" | "outcomeType",
   ) => void;
   handleLevelNameChange: (
     attributeKey: number,
@@ -115,6 +116,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   const [instructions, setInstructions] = useState<IInstructions>({
     description: "",
     instructions: "",
+    outcomeType: "mcq",
   });
 
   const [settings, setSettings] = useState<Settings>({
@@ -193,17 +195,32 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
 
   const handleInstructions = (
     value: string,
-    setting: "instructions" | "description"
+    setting: "instructions" | "description" | "outcomeType"
   ) => {
-    setting == "instructions"
-      ? setInstructions({
+    switch (setting) {
+      case "instructions":
+        setInstructions({
           instructions: value,
           description: instructions?.description || "",
-        })
-      : setInstructions({
+          outcomeType: instructions?.outcomeType || "mcq",
+        });
+        break;
+      case "description":
+        setInstructions({
           instructions: instructions?.instructions || "",
           description: value,
+          outcomeType: instructions?.outcomeType || "mcq",
         });
+        break;
+      case "outcomeType":
+        setInstructions({
+          instructions: instructions?.instructions || "",
+          description: instructions?.description || "",
+          outcomeType: value as "ranking" | "slider" | "mcq",
+        });
+        break;
+    }
+
     setEdited(true);
   };
 

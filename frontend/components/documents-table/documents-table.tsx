@@ -55,6 +55,7 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
       instructions: {
         description: "",
         instructions: "",
+        outcomeType: "mcq",
       },
       settings: {
         numProfiles: 2,

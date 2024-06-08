@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from "react";
 import styles from "./preview.module.css"; // Make sure to create this CSS module
 import { Button } from "../ui/button";
-import { IInstructions } from "../../context/attributes_context";
+import { IInstructions, useAttributes } from "../../context/attributes_context";
 import ExportDropdown from "../export/export";
 import naming from "@/naming/english.json";
 import { PreviewMcq } from "./__mcq/preview__mcq";
@@ -37,6 +37,25 @@ const Preview = ({
       })),
     [previews]
   );
+
+  const renderOutcome = () => {
+    switch (instructions?.outcomeType) {
+      case "mcq":
+        return (
+          <PreviewMcq refresh={refresh ? refresh : false} options={profiles} />
+        );
+      case "ranking":
+        return (
+          <PreviewRanking
+            refresh={refresh ? refresh : false}
+            profiles={profiles}
+          />
+        );
+      case "slider":
+        return <PreviewSlider profiles={profiles} />;
+    }
+  };
+
   return (
     <section className={styles.section}>
       <div className={styles.sectionContainer}>
@@ -73,12 +92,7 @@ const Preview = ({
         <div className={styles.instructions}>
           {instructions && instructions.instructions}
         </div>
-        <PreviewMcq refresh={refresh ? refresh : false} options={profiles} />
-        <PreviewRanking
-          refresh={refresh ? refresh : false}
-          profiles={profiles}
-        />
-        <PreviewSlider profiles={profiles} />
+        {renderOutcome()}
       </div>
     </section>
   );
