@@ -4,7 +4,7 @@ import { Survey } from "./survey";
 import { IAttribute } from "../attribute/attribute.container";
 import { HighlightedProvider } from "../../context/highlighted";
 import { Attribute, useAttributes } from "../../context/attributes_context";
-import { DragDropContext } from "react-beautiful-dnd";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
 
 const reorder = (
   list: IAttribute[],
@@ -20,7 +20,7 @@ const reorder = (
 export const SurveyContainer: FC = () => {
   const { attributes, setAttributes, setEdited } = useAttributes();
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     const { source, destination, type } = result;
     // Dropped outside the list
     if (!destination || source.droppableId !== destination.droppableId) {
@@ -33,7 +33,7 @@ export const SurveyContainer: FC = () => {
       const reorderedItems = reorder(
         attributes,
         result.source.index,
-        result.destination.index
+        result.destination!.index
       );
       setEdited(true);
       // console.log("what????", attributes, reorderedItems);

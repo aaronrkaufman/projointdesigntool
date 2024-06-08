@@ -6,13 +6,19 @@ import { IInstructions } from "../../context/attributes_context";
 import ExportDropdown from "../export/export";
 import naming from "@/naming/english.json";
 import { PreviewMcq } from "./__mcq/preview__mcq";
+import { PreviewRanking } from "./__ranking/preview__ranking";
 
 export interface IPreview {
   attributes: string[];
   previews: string[][];
   instructions: IInstructions;
   setRefresh?: (refresh: boolean) => void;
-  refresh: boolean;
+  refresh?: boolean;
+}
+
+export interface IProfile {
+  value: string;
+  id: string;
 }
 
 const Preview = ({
@@ -22,6 +28,10 @@ const Preview = ({
   setRefresh,
   refresh,
 }: IPreview) => {
+  const profiles: IProfile[] = [
+    { value: "Profile 1", id: "1" },
+    { value: "Profile 2", id: "2" },
+  ];
   return (
     <section className={styles.section}>
       <div className={styles.sectionContainer}>
@@ -58,7 +68,11 @@ const Preview = ({
         <div className={styles.instructions}>
           {instructions && instructions.instructions}
         </div>
-        <PreviewMcq refresh={refresh} />
+        <PreviewMcq refresh={refresh ? refresh : false} options={profiles} />
+        <PreviewRanking
+          refresh={refresh ? refresh : false}
+          profiles={profiles}
+        />
       </div>
     </section>
   );
