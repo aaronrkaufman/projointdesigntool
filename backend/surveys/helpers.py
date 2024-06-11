@@ -574,8 +574,7 @@ def _create_profiles(profiles_num, attribute_list, restrictions, cross_restricti
     while not profiles_valid:
         profiles_list = []
         while len(profiles_list) < profiles_num:
-            profile = _generate_single_profile(
-                attribute_list)
+            profile = _generate_single_profile(attribute_list)
             if _check_restrictions(profile, restrictions):
                 profiles_list.append(profile)
         profiles_valid = _check_any_cross_profile_restriction_violated(

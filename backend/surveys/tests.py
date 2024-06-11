@@ -277,7 +277,8 @@ class ExportCSVTest(TestCase):
                            {"name": "att6", "levels": [{"name": "lvl6"}, {"name": "another6"}, {"name": "bruh6"}]}],
             "restrictions": [],
             "cross_restrictions": [],
-            "profiles": 2
+            "profiles": 2,
+            "csv_lines": 10000,
         }
         with patch('surveys.views._sendFileResponse') as mock_sendFileResponse:
             mock_sendFileResponse.return_value = HttpResponse(
