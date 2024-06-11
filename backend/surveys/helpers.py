@@ -2,6 +2,7 @@
 THIS IS A HELPER FUNCTION TO CLEAR UP THE VIEWS FILE
 '''
 
+import csv
 import os
 from django.http import FileResponse
 from rest_framework import status
@@ -537,16 +538,44 @@ def _check_restrictions(profile, restrictions):
     return True
 
 
-def _generate_single_profile(attributes):
-    return {attr['name']: random.choices([level['name'] for level in attr['levels']], [level['weight'] for level in attr['levels']], k=1)[0] for attr in attributes}
+def _generate_unlocked_order(attributes):
+    """ Generate and return a fixed order for unlocked attributes and positions of locked attributes. """
+    locked_attrs = []
+    unlocked_attrs = []
+
+    for index, attr in enumerate(attributes):
+        if attr.get('locked', False):
+            locked_attrs.append((index, attr))
+        else:
+            unlocked_attrs.append((index, attr))
+
+    # Shuffle only once to fix the order for all profiles
+    random.shuffle(unlocked_attrs)
+
+    # Prepare the full attribute list including locked positions
+    attribute_list = [None] * len(attributes)
+    for index, attr in locked_attrs:
+        attribute_list[index] = attr
+
+    j = 0  # Iterator for unlocked attributes
+    for i in range(len(attribute_list)):
+        if attribute_list[i] is None:
+            attribute_list[i] = unlocked_attrs[j][1]
+            j += 1
+    return attribute_list
 
 
-def _create_profiles(profiles_num, attributes, restrictions, cross_restrictions):
+def _generate_single_profile(attribute_list):
+    return {attr['name']: random.choices([level['name'] for level in attr['levels']], [level['weight'] for level in attr['levels']], k=1)[0] for attr in attribute_list}
+
+
+def _create_profiles(profiles_num, attribute_list, restrictions, cross_restrictions):
     profiles_valid = False
     while not profiles_valid:
         profiles_list = []
         while len(profiles_list) < profiles_num:
-            profile = _generate_single_profile(attributes)
+            profile = _generate_single_profile(
+                attribute_list)
             if _check_restrictions(profile, restrictions):
                 profiles_list.append(profile)
         profiles_valid = _check_any_cross_profile_restriction_violated(
@@ -554,10 +583,44 @@ def _create_profiles(profiles_num, attributes, restrictions, cross_restrictions)
     return profiles_list
 
 
-def _create_csv_profiles(num_profiles, attributes, restrictions, cross_restrictions):
+def _write_header(writer, attributes, profiles):
+    header = []
+    for i in range(1, len(attributes) + 1):
+        for j in range(1, profiles + 2):
+
+            if j == 1:
+                header.append(f'ATT{i}')
+            else:
+                header.append(f'ATT{i}P{j-1}')
+    writer.writerow(header)
+
+
+def _rearrange_and_write_profiles(writer, profiles_list, profiles):
+    rearrenged_profiles = []
+    for i in range(len(profiles_list[0])//2):
+        rearrenged_profiles.append(profiles_list[0][i * 2])
+        for j in range(profiles):
+            rearrenged_profiles.append(profiles_list[j][i * 2 + 1])
+    writer.writerow(rearrenged_profiles)
+
+
+def _create_csv_profiles(profiles_num, attribute_list, restrictions, cross_restrictions):
     profiles = _create_profiles(
-        num_profiles, attributes, restrictions, cross_restrictions)
+        profiles_num, attribute_list, restrictions, cross_restrictions)
     return [[item for pair in profile.items() for item in pair] for profile in profiles]
+
+
+def _populate_csv(attributes, profiles, restrictions, cross_restrictions, csv_lines):
+    with open("profiles.csv", "w") as file:
+        writer = csv.writer(file)
+
+        _write_header(writer, attributes, profiles)
+
+        attribute_list = _generate_unlocked_order(attributes)
+        for _ in range(csv_lines):
+            profiles_list = _create_csv_profiles(
+                profiles, attribute_list, restrictions, cross_restrictions)
+            _rearrange_and_write_profiles(writer, profiles_list, profiles)
 
 
 # in your generate_profiles you are not calling any of the evaluate or check methods that check whether restrictions are broken

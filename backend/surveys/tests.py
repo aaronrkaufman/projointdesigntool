@@ -102,10 +102,10 @@ class PreviewSurveyTest(TestCase):
     def test_preview_survey_success(self):
         # Data for a successful request
         data = {
-            "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}]},
-                           {"name": "att2", "levels": [
-                               {"name": "level2"}, {"name": "another2"}]},
-                           {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}]}],
+            "attributes": [{"name": "att1", "levels": [{"name": "level1"}, {"name": "another1"}], "locked": True},
+                           {"name": "att2", "levels": [{"name": "level2"}, {
+                               "name": "another2"}], "locked": False},
+                           {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}], "locked": False}],
             "restrictions": [],
             "cross_restrictions": [],
             "profiles": 2

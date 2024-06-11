@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
-from .helpers import _checkAttributes, _createFile, _create_profiles, _sendFileResponse, _create_csv_profiles
+from .helpers import _checkAttributes, _createFile, _create_profiles, _generate_unlocked_order, _populate_csv, _sendFileResponse
 from .helpers import __CreateSurvey, __DownloadSurvey
 
 from .serializers import ShortSurveySerializer, SurveySerializer
@@ -106,10 +106,12 @@ def preview_survey(request):
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
 
+        attributes_list = _generate_unlocked_order(attributes)
         answer = {"attributes": [], "previews": []}
         answer["previews"] = _create_profiles(
-            profiles, attributes, restrictions, cross_restrictions)
-        answer["attributes"] = [attribute["name"] for attribute in attributes]
+            profiles, attributes_list, restrictions, cross_restrictions)
+        answer["attributes"] = [key
+                                for key in answer["previews"][0].keys()]
         return Response(answer, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=400)
@@ -175,27 +177,8 @@ def export_csv(request):
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
 
-        with open("profiles.csv", "w") as file:
-            writer = csv.writer(file)
-
-            header = []
-            for i in range(1, len(attributes) + 1):
-                for j in range(1, profiles + 2):
-                    if j == 1:
-                        header.append(f'ATT{i}')
-                    else:
-                        header.append(f'ATT{i}P{j-1}')
-            writer.writerow(header)
-
-            for i in range(csv_lines):
-                profiles_list = _create_csv_profiles(
-                    profiles, attributes, restrictions, cross_restrictions)
-                rearrenged_profiles = []
-                for i in range(len(attributes)):
-                    rearrenged_profiles.append(profiles_list[0][i * 2])
-                    for j in range(profiles):
-                        rearrenged_profiles.append(profiles_list[j][i * 2 + 1])
-                writer.writerow(rearrenged_profiles)
+        _populate_csv(attributes, profiles, restrictions,
+                      cross_restrictions, csv_lines)
         return _sendFileResponse("profiles.csv")
     else:
         return Response(serializer.errors, status=400)

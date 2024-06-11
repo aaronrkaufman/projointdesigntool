@@ -10,6 +10,7 @@ class LevelSerializer(serializers.Serializer):
 class AttributeSerializer(serializers.Serializer):
     name = serializers.CharField()
     levels = LevelSerializer(many=True)
+    locked = serializers.BooleanField(default=False)
 
 
 class SimpleSerializer(serializers.Serializer):
