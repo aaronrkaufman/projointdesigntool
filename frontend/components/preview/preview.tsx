@@ -56,6 +56,8 @@ const Preview = ({
     }
   };
 
+  console.log(previews);
+
   return (
     <section className={styles.section}>
       <div className={styles.sectionContainer}>
@@ -82,9 +84,10 @@ const Preview = ({
             <div key={index} className={styles.card}>
               <ul className={styles.cardContent}>
                 <li className={styles.profile_name}>Profile {index + 1}</li>
-                {preview.map((choice, index) => (
-                  <li key={choice + index}>{choice}</li>
-                ))}
+                {preview &&
+                  Object.entries(preview).map(([key, value], index) => (
+                    <li key={key + index}>{` ${value}`}</li>
+                  ))}
               </ul>
             </div>
           ))}
