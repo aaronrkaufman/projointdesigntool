@@ -110,8 +110,7 @@ def preview_survey(request):
         answer = {"attributes": [], "previews": []}
         answer["previews"] = _create_profiles(
             profiles, attributes, restrictions, cross_restrictions)
-        answer["attributes"] = [key
-                                for key in answer["previews"][0].keys()]
+        answer["attributes"] = [attribute["name"] for attribute in attributes]
         return Response(answer, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=400)
