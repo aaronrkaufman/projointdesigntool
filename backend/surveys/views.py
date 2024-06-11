@@ -106,10 +106,10 @@ def preview_survey(request):
         if any(not attribute["levels"] for attribute in attributes):
             return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
 
-        attributes_list = _generate_unlocked_order(attributes)
+        # attributes_list = _generate_unlocked_order(attributes)
         answer = {"attributes": [], "previews": []}
         answer["previews"] = _create_profiles(
-            profiles, attributes_list, restrictions, cross_restrictions)
+            profiles, attributes, restrictions, cross_restrictions)
         answer["attributes"] = [key
                                 for key in answer["previews"][0].keys()]
         return Response(answer, status=status.HTTP_201_CREATED)
