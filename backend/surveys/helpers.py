@@ -628,7 +628,7 @@ def _populate_csv(attributes, profiles, restrictions, cross_restrictions, csv_li
 '''''''''''''''''''''''''''''''''''''''''''''
 
 
-def __CreateHTML(i, num_attr, profiles, qNum, noFlip):
+def __CreateHTML(i, num_attr, profiles, qNum, noFlip, qText):
     if i == 0:
         text_out = "<span>Blank page</span>"
         return text_out
@@ -636,7 +636,9 @@ def __CreateHTML(i, num_attr, profiles, qNum, noFlip):
     top = (
         "<span>Question "
         + str(qNum + 1)
-        + '</span>\n<br /><br />\n<span>Please carefully review the options detailed below, then please answer the questions.</span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?</span>\n<br />\n<div>\n<br />\n<table class="UserTable">\n<tbody>\n'
+        + '</span>\n<br /><br />\n<span>'
+        + qText
+        + '</span>\n<br />\n<div>\n<br />\n<table class="UserTable">\n<tbody>\n'
     )
 
     # Create a header row
@@ -707,7 +709,7 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, dup
         blockID = __CreateBlock(surveyID, bl, user_token)
         currText += qText
         currText += "\n"
-        currText = __CreateHTML(i, num_attr, profiles, i-1, 0)
+        currText = __CreateHTML(i, num_attr, profiles, i-1, 0, qText)
         # if i==d2:
         # currText = __CreateHTML(d1, num_attr, profiles, i-1, repeatFlip)
         currQ = __CreateQuestion(
