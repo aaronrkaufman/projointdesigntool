@@ -7,7 +7,7 @@ import Slider from "@mui/material/Slider";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 
-const MAX = 100;
+const MAX = 10;
 const MIN = 0;
 const marks = [
   {
@@ -25,7 +25,9 @@ export interface PreviewSliderProps {
 }
 
 export const PreviewSlider: FC<PreviewSliderProps> = ({ profiles }) => {
-  const [profileValues, setProfileValues] = useState<number[]>([]);
+  const [profileValues, setProfileValues] = useState<number[]>(
+    profiles.map(() => 5)
+  );
   const handleChange = (
     _: Event,
     newValue: number | number[],
@@ -52,7 +54,6 @@ export const PreviewSlider: FC<PreviewSliderProps> = ({ profiles }) => {
             //   step={10}
             value={profileValues[index]}
             valueLabelDisplay="on"
-            defaultValue={50}
             min={MIN}
             max={MAX}
             onChange={(e, value) => handleChange(e, value, index)}

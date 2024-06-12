@@ -86,7 +86,13 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
             onClick={handleAddDoc}
           />
         </div>
-        <Paper sx={{ width: "100%" }}>
+        <Paper
+          sx={{
+            width: "100%",
+            boxShadow: "none",
+            border: "1px solid var(--border-gray)",
+          }}
+        >
           <TableContainer sx={{ maxHeight: 900 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
@@ -95,7 +101,11 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
                     <TableCell
                       key={column.id}
                       align={column.align}
-                      style={{ top: 0, minWidth: column.minWidth }}
+                      style={{
+                        top: 0,
+                        minWidth: column.minWidth,
+                        color: "var(--dark-blue-h)",
+                      }}
                     >
                       <p>{column.label}</p>
                     </TableCell>
@@ -123,16 +133,20 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
                               <TableCell key={column.id} align={column.align}>
                                 {column.id === "name" ? (
                                   <div className={styles.file}>
-                                    <FileIcon stroke="var(--dark-blue-h)" />
+                                    <FileIcon stroke="var(--dark-blue-p)" />
                                     <p className={styles.table_docName}>
                                       {value}
                                     </p>
                                   </div>
                                 ) : column.format &&
                                   typeof value === "number" ? (
-                                  <p>{column.format(value)}</p>
+                                  <p className={styles.table_docValue}>
+                                    {column.format(value)}
+                                  </p>
                                 ) : (
-                                  <p>{value}</p>
+                                  <p className={styles.table_docValue}>
+                                    {value}
+                                  </p>
                                 )}
                               </TableCell>
                             );

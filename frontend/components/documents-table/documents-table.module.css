@@ -19,6 +19,10 @@
   gap: 1.5rem;
 }
 
+.tableContainer * {
+  border-color: var(--border-gray);
+}
+
 .tableContainer tbody tr {
   cursor: pointer;
 }
@@ -43,7 +47,11 @@
 }
 
 .table_docName {
-  color: var(--dark-blue-h);
+  color: var(--dark-blue-p);
+  font-weight: 500;
+}
+.table_docValue {
+  color: var(--dark-blue-p);
 }
 
 .file {

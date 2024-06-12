@@ -64,7 +64,7 @@ export const downloadSurvey = async (
 export const getPreview = async (
   attributes: Attribute[],
   restrictions: RestrictionProps[]
-): Promise<string[][]> => {
+): Promise<{ attributes: string[]; previews: string[][] }> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
     const processedRestrictions = preprocessRestrictions(restrictions);
@@ -74,12 +74,20 @@ export const getPreview = async (
       ...processedAttributes,
     });
 
-    // console.log(response);
-    return response.data.previews;
+    // Extract attributes and previews from the response
+    const { attributes: responseAttributes, previews } = response.data;
+
+    // Convert each object in previews to an array of its values
+    const simplifiedPreviews = previews.map(
+      (preview: { [key: string]: string }) =>
+        responseAttributes.map((attribute: string) => preview[attribute])
+    );
+
+    return { attributes: responseAttributes, previews: simplifiedPreviews };
   } catch (error) {
     console.error("Error during file download", error);
   }
-  return [];
+  return { attributes: [], previews: [] };
 };
 
 export const getTutorials = async () => {

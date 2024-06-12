@@ -43,8 +43,8 @@ function PreviewPage({ params }: IServerProps) {
     // const previews = await getPreview(attributes, restrictions);
     const previews = await getPreview(attributes, restrictions);
     setProfiles({
-      attributes: attributes.map((el) => el.name),
-      previews: previews,
+      attributes: previews.attributes,
+      previews: previews.previews,
       instructions: instructions,
     });
   };
