@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
+import { useState } from "react";
 import styles from "./restrictions.module.css";
-import { useAttributes } from "../../context/attributes_context";
-import { PlusIcon } from "../ui/icons";
-import { Restriction, RestrictionProps } from "./restriction";
-import { v4 as uuidv4 } from "uuid";
+
 import ExportDropdown from "../export/export";
 import naming from "@/naming/english.json";
+import { RestrictionsProfile } from "./__profile/restrictions__profile";
+import { RestrictionsCrossProfile } from "./__cross-profile/restrictions__cross-profile";
 
 export interface StatementProps {
   part: "if" | "then" | "and" | "or";
@@ -17,68 +15,7 @@ export interface StatementProps {
 }
 
 export const Restrictions = () => {
-  const { restrictions, saveRestriction } = useAttributes();
-
-  const isRestrictionDone = (restriction: RestrictionProps) => {
-    const notDone = ({ attribute, level }: any) => {
-      return attribute == "select attribute" || level == "select level";
-    };
-    return (
-      restriction.ifStates.some(notDone) || restriction.elseStates.some(notDone)
-    );
-  };
-
-  const [newRestrictions, setNewRestrictions] = useState<RestrictionProps[]>(
-    restrictions ? restrictions : []
-  );
-
-  const handleUpdate = (change: boolean) => {
-    setCanAddNewRestriction(change);
-  };
-
-  const [canAddNewRestriction, setCanAddNewRestriction] =
-    useState<boolean>(true);
-
-  useEffect(() => {
-    setNewRestrictions(restrictions ? restrictions : []);
-  }, [restrictions]);
-
-  const handleSave = (restriction: RestrictionProps) => {
-    saveRestriction(restriction);
-  };
-
-  const handleAddRestriction = () => {
-    if (canAddNewRestriction) {
-      setNewRestrictions((prev) => [
-        ...prev,
-        {
-          ifStates: [
-            {
-              part: "if",
-              attribute: "select attribute",
-              level: "select level",
-              equals: true,
-              id: uuidv4(),
-            },
-          ],
-          elseStates: [
-            {
-              part: "then",
-              attribute: "select attribute",
-              level: "select level",
-              equals: false,
-              id: uuidv4(),
-            },
-          ],
-          id: uuidv4(),
-        },
-      ]);
-    }
-  };
-
-  const handleRestrictions = (id: string) => {
-    setNewRestrictions((prev) => prev.filter((r) => r.id !== id));
-  };
+  const [activeChoose, setActiveChoose] = useState<"one" | "cross">("one");
 
   return (
     <section className={styles.section}>
@@ -87,32 +24,44 @@ export const Restrictions = () => {
           <h2>Restrictions</h2>
           <ExportDropdown size="small" />
         </div>
-        <p>{naming.restrictionsPage.oneProfile.value}</p>
+        <div className={styles.choose}>
+          <div className={styles.chooseContainer}>
+            {[
+              {
+                value: "one",
+                title: naming.restrictionsPage.oneProfile.value,
+                subtitle: naming.restrictionsPage.oneProfile.subtitle,
+              },
+              {
+                value: "cross",
+                title: naming.restrictionsPage.crossProfiles.value,
+                subtitle: naming.restrictionsPage.crossProfiles.subtitle,
+              },
+            ].map((item) => (
+              <p
+                key={item.value}
+                className={`${
+                  activeChoose == item.value ? styles.activeChoose : ""
+                } ${styles.chooseItem}`}
+                onClick={() => setActiveChoose(item.value as "one" | "cross")}
+              >
+                {item.title}
+              </p>
+            ))}
+          </div>
+        </div>
+        <p>
+          {activeChoose == "one"
+            ? naming.restrictionsPage.oneProfile.subtitle
+            : naming.restrictionsPage.crossProfiles.subtitle}
+        </p>
         <div className={styles.container}>
-          <div className={styles.left}>
-            <ul className={styles.restrictions}>
-              {newRestrictions &&
-                newRestrictions.map((restr, _index) => (
-                  <Restriction
-                    key={restr.id}
-                    {...restr}
-                    handleUpdate={handleUpdate}
-                    saveRestriction={handleSave}
-                    handleRestrictions={handleRestrictions}
-                  />
-                ))}
-            </ul>
-          </div>
-          <div className={styles.right}>
-            <div>
-              <Button
-                icon={<PlusIcon stroke="white" />}
-                text={naming.restrictionsPage.addRestriction.value}
-                disabled={!canAddNewRestriction}
-                onClick={handleAddRestriction}
-              />
-            </div>
-          </div>
+          {activeChoose == "one" ? (
+            <RestrictionsProfile />
+          ) : (
+            // <RestrictionsProfile />
+            <RestrictionsCrossProfile />
+          )}
         </div>
       </div>
     </section>

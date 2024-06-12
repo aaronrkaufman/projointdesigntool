@@ -69,7 +69,7 @@ interface AttributeContextType {
   handleCreateAttribute: () => void;
   handleInstructions: (
     value: string,
-    setting: "instructions" | "description" | "outcomeType",
+    setting: "instructions" | "description" | "outcomeType"
   ) => void;
   handleLevelNameChange: (
     attributeKey: number,
@@ -81,8 +81,9 @@ interface AttributeContextType {
   storageChanged: number;
   setStorageChanged: React.Dispatch<React.SetStateAction<number>>;
   restrictions: RestrictionProps[];
-  saveRestriction: (restriction: RestrictionProps) => void;
-  deleteRestriction: (restrictionId: string) => void;
+  crossRestrictions: RestrictionProps[];
+  saveRestriction: (restriction: RestrictionProps, cross?: boolean) => void;
+  deleteRestriction: (restrictionId: string, cross?: boolean) => void;
   instructions: IInstructions;
   settings: Settings;
   updateSettings: (newSettings: Settings) => void;
@@ -112,6 +113,9 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
   const [storageChanged, setStorageChanged] = useState<number>(0);
 
   const [restrictions, setRestrictions] = useState<RestrictionProps[]>([]);
+  const [crossRestrictions, setCrossRestrictions] = useState<
+    RestrictionProps[]
+  >([]);
 
   const [instructions, setInstructions] = useState<IInstructions>({
     description: "",
@@ -141,6 +145,9 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         setLastEdited(new Date(parsedData.lastEdited));
         setCurrentDoc(parsedData.name);
         setRestrictions(parsedData.restrictions ? parsedData.restrictions : []);
+        setCrossRestrictions(
+          parsedData.crossRestrictions ? parsedData.crossRestrictions : []
+        );
         setInstructions(parsedData.instructions);
         setSettings(parsedData.settings ? parsedData.settings : settings);
       } else {
@@ -161,6 +168,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
         restrictions: restrictions,
         instructions: instructions,
         settings: settings,
+        crossRestrictions: crossRestrictions,
       };
       localStorage.setItem(
         `attributes-${currentDocID}`,
@@ -272,34 +280,65 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     setEdited(true);
   };
 
-  const saveRestriction = (restriction: RestrictionProps) => {
+  const saveRestriction = (restriction: RestrictionProps, cross?: boolean) => {
     // Assuming we have a function to save the entire array of restrictions to local storage
-    setRestrictions((prevRestrictions) => {
-      const index = prevRestrictions.findIndex((r) => r.id === restriction.id);
-      if (index !== -1) {
-        // Update existing restriction
-        return prevRestrictions.map((r) =>
-          r.id === restriction.id ? restriction : r
+    if (!cross) {
+      setRestrictions((prevRestrictions) => {
+        const index = prevRestrictions.findIndex(
+          (r) => r.id === restriction.id
         );
-      } else {
-        // Add new restriction
-        return [...prevRestrictions, restriction];
-      }
-    });
+        if (index !== -1) {
+          // Update existing restriction
+          return prevRestrictions.map((r) =>
+            r.id === restriction.id ? restriction : r
+          );
+        } else {
+          // Add new restriction
+          return [...prevRestrictions, restriction];
+        }
+      });
+    } else {
+      setCrossRestrictions((prevRestrictions) => {
+        const index = prevRestrictions.findIndex(
+          (r) => r.id === restriction.id
+        );
+        if (index !== -1) {
+          // Update existing restriction
+          return prevRestrictions.map((r) =>
+            r.id === restriction.id ? restriction : r
+          );
+        } else {
+          // Add new restriction
+          return [...prevRestrictions, restriction];
+        }
+      });
+    }
     setEdited(true);
   };
 
   // // Function to delete a restriction from an attribute
-  const deleteRestriction = (restrictionID: string) => {
-    setRestrictions((prev) => {
-      const index = prev.findIndex((r) => r.id === restrictionID);
-      if (index !== -1) {
-        // Update existing restriction
-        return prev.filter((r) => r.id !== restrictionID);
-      } else {
-        return [...prev];
-      }
-    });
+  const deleteRestriction = (restrictionID: string, cross?: boolean) => {
+    if (!cross) {
+      setRestrictions((prev) => {
+        const index = prev.findIndex((r) => r.id === restrictionID);
+        if (index !== -1) {
+          // Update existing restriction
+          return prev.filter((r) => r.id !== restrictionID);
+        } else {
+          return [...prev];
+        }
+      });
+    } else {
+      setCrossRestrictions((prev) => {
+        const index = prev.findIndex((r) => r.id === restrictionID);
+        if (index !== -1) {
+          // Update existing restriction
+          return prev.filter((r) => r.id !== restrictionID);
+        } else {
+          return [...prev];
+        }
+      });
+    }
 
     setEdited(true);
   };
@@ -350,6 +389,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     deleteAttribute,
     restrictions,
     saveRestriction,
+    crossRestrictions,
     deleteRestriction,
     instructions,
     settings,

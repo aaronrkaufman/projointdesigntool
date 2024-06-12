@@ -1,7 +1,11 @@
 // services/api.ts
 import axios from "axios";
 import { Attribute } from "../context/attributes_context";
-import { preproccessAttributes, preprocessRestrictions } from "./utils";
+import {
+  preproccessAttributes,
+  preprocessCrossRestrictions,
+  preprocessRestrictions,
+} from "./utils";
 import { RestrictionProps } from "@/components/restrictions/restriction";
 
 const api = axios.create({
@@ -63,15 +67,19 @@ export const downloadSurvey = async (
 
 export const getPreview = async (
   attributes: Attribute[],
-  restrictions: RestrictionProps[]
+  restrictions: RestrictionProps[],
+  crossRestrictions: RestrictionProps[]
 ): Promise<{ attributes: string[]; previews: string[][] }> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
     const processedRestrictions = preprocessRestrictions(restrictions);
+    const processedCrossRestrictions =
+      preprocessCrossRestrictions(crossRestrictions);
 
     const response = await api.post("/surveys/preview/", {
-      ...processedRestrictions,
       ...processedAttributes,
+      restrictions: processedRestrictions,
+      cross_restrictions: processedCrossRestrictions,
     });
 
     // Extract attributes and previews from the response

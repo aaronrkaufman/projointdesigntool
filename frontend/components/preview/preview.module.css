@@ -22,7 +22,7 @@
   display: flex;
   gap: 2rem;
   align-items: center;
-  padding-bottom: 1rem;
+  padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--border-gray);
   font-size: 1.25rem;
   justify-content: space-between;
