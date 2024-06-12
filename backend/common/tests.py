@@ -1,6 +1,5 @@
 import os
 
-from common.models import Documentation
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse

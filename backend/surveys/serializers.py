@@ -102,10 +102,12 @@ class SurveySerializer(serializers.ModelSerializer):
         Custom validation that checks each restriction for logic errors or inconsistencies.
         """
         restrictions = data['restrictions']
+        attributes = set([attribute['name']
+                         for attribute in data["attributes"]])
+
         for restriction in restrictions:
-            # Example validation logic
             for cond in restriction['condition']:
-                if cond['attribute'] not in ['expected', 'attribute', 'list']:
+                if cond['attribute'] not in attributes:
                     raise serializers.ValidationError(
                         "Invalid attribute in condition.")
             for res in restriction['result']:

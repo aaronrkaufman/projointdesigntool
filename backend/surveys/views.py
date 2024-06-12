@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 
-from .helpers import _checkAttributes, _createFile, _create_profiles, _generate_unlocked_order, _populate_csv, _sendFileResponse
+from .helpers import _checkAttributes, _createJSFile, _create_profiles, _generate_unlocked_order, _populate_csv, _sendFileResponse
 from .helpers import __CreateSurvey, __DownloadSurvey
 
 from .serializers import ShortSurveySerializer, SurveySerializer
@@ -44,7 +44,7 @@ import csv
 )
 @api_view(["POST"])
 def export_js(request):
-    return _sendFileResponse(_createFile(request))
+    return _sendFileResponse(_createJSFile(request))
 
 
 @extend_schema(
@@ -104,7 +104,7 @@ def preview_survey(request):
         profiles = validated_data["profiles"]
 
         if any(not attribute["levels"] for attribute in attributes):
-            return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Error": "Cannot generate Preview. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
 
         attributes_list = _generate_unlocked_order(attributes)
         answer = {"attributes": [], "previews": []}
@@ -113,6 +113,64 @@ def preview_survey(request):
         answer["attributes"] = [key
                                 for key in answer["previews"][0].keys()]
         return Response(answer, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=400)
+
+
+@extend_schema(
+    request=SurveySerializer,
+    responses={
+        status.HTTP_201_CREATED: OpenApiResponse(
+            response="text/json",
+            description="A JSON file containing the validated survey data.",
+            examples=[
+                OpenApiExample(
+                    name="JSONFileExample",
+                    summary="Exported JSON File",
+                    description="A JSON file stream containing the validated survey data.",
+                    value={
+                        "content_type": "application/json",
+                        "headers": {
+                            "Content-Disposition": 'attachment; filename="survey_export.json"'
+                        },
+                    },
+                    response_only=True,
+                    status_codes=[str(status.HTTP_201_CREATED)],
+                ),
+            ],
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Bad Request, no survey data or invalid data provided.",
+            examples=[
+                OpenApiExample(
+                    name="SurveyExportFailEmpty",
+                    description="The survey data provided is empty.",
+                    value={"message": "Survey data is empty."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+                OpenApiExample(
+                    name="SurveyExportFailInvalid",
+                    description="The survey data provided is invalid.",
+                    value={"message": "Invalid survey data."},
+                    response_only=True,
+                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
+                ),
+            ],
+        ),
+    },
+    description="Generates and returns a JSON file based on the provided survey data if valid.",
+    tags=["Survey Export"]
+)
+@api_view(["POST"])
+def export_json(request):
+    serializer = SurveySerializer(data=request.data)
+    if serializer.is_valid():
+        filename = 'survey_export.json'
+        with open(filename, "w", encoding="utf-8") as file:
+            json.dump(request.data, file, ensure_ascii=False, indent=4)
+            response = _sendFileResponse(filename)
+        return response
     else:
         return Response(serializer.errors, status=400)
 

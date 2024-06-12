@@ -1,10 +1,9 @@
 from django.urls import path
 from .views import (
     export_js,
-    # list_user_surveys,
-    # save_user_survey,
     preview_survey,
     export_csv,
+    export_json,
     create_qualtrics,
 )
 
@@ -12,10 +11,9 @@ from .views import (
 app_name = "surveys"
 
 urlpatterns = [
-    path("export/", export_js, name="export"),
-    # path("list/", list_user_surveys, name="list"),
-    # path("save/", save_user_survey, name="save"),
-    path("preview/", preview_survey, name="preview"),
+    path("export_js/", export_js, name="export_js"),
+    path("export_json/", export_json, name="export_json"),
+    path("preview_survey/", preview_survey, name="preview_survey"),
     path("export_csv/", export_csv, name="export_csv"),
-    path("qualtrics/", create_qualtrics, name="qualtrics"),
+    path("create_qualtrics/", create_qualtrics, name="create_qualtrics"),
 ]

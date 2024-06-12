@@ -322,7 +322,7 @@ def _sendFileResponse(file_path):
     return response
 
 
-def _createFile(request):
+def _createJSFile(request):
     serializer = SurveySerializer(data=request.data)
     if serializer.is_valid():
         validated_data = serializer.validated_data

@@ -20,7 +20,7 @@ class ExportJsTest(TestCase):
 
         self.client = APIClient()
         self.client.force_authenticate(user=self.profile)
-        self.url = reverse("surveys:export")
+        self.url = reverse("surveys:export_js")
 
         self.payloadSuccess = {
             "attributes": [
@@ -97,7 +97,7 @@ class PreviewSurveyTest(TestCase):
             password="testpassword123",
         )
         self.client.force_authenticate(user=self.profile)
-        self.url = reverse('surveys:preview')
+        self.url = reverse('surveys:preview_survey')
 
     def test_preview_survey_success(self):
         # Data for a successful request
@@ -106,8 +106,6 @@ class PreviewSurveyTest(TestCase):
                            {"name": "att2", "levels": [{"name": "level2"}, {
                                "name": "another2"}], "locked": False},
                            {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}], "locked": False}],
-            "restrictions": [],
-            "cross_restrictions": [],
             "profiles": 2
         }
         response = self.client.post(self.url, data, format='json')
@@ -124,7 +122,6 @@ class PreviewSurveyTest(TestCase):
                 "condition": [{"attribute": "att1", "operation": "==", "value": "level1"},
                               {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
-            "cross_restrictions": [],
             "profiles": 2
         }
         response = self.client.post(self.url, data, format='json')
@@ -140,7 +137,6 @@ class PreviewSurveyTest(TestCase):
             "restrictions": [{
                 "condition": [{"attribute": "att1", "operation": "=", "value": "level1"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
-            "cross_restrictions": [],
             "profiles": 2
         }
         response = self.client.post(self.url, data, format='json')
@@ -153,14 +149,12 @@ class PreviewSurveyTest(TestCase):
         # Data where an attribute has no levels
         data = {
             "attributes": [{"name": "attr1", "levels": []}],
-            "restrictions": [],
-            "cross_restrictions": [],
             "profiles": 2
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertDictEqual(response.data, {
-                             "Error": "Cannot export to JavaScript. Some attributes have no levels."})
+                             "Error": "Cannot generate Preview. Some attributes have no levels."})
 
     def test_preview_survey_invalid_data(self):
         # Data with no attributes
@@ -194,7 +188,6 @@ class PreviewSurveyTest(TestCase):
                     ]
                 }
             ],
-            "restrictions": [],
             "cross_restrictions": [
                 {
                     "condition": {"attribute": "att1", "operation": "!=", "value": "level1"},
@@ -235,7 +228,6 @@ class PreviewSurveyTest(TestCase):
                     ]
                 }
             ],
-            "restrictions": [],
             "cross_restrictions": [
                 {
                     "condition": {"attribute": "att1", "operation": "==", "value": "level1"},
@@ -275,8 +267,6 @@ class ExportCSVTest(TestCase):
                            {"name": "att5", "levels": [{"name": "lvl5"}, {
                                "name": "another5"}, {"name": "bruh5"}]},
                            {"name": "att6", "levels": [{"name": "lvl6"}, {"name": "another6"}, {"name": "bruh6"}]}],
-            "restrictions": [],
-            "cross_restrictions": [],
             "profiles": 2,
             "csv_lines": 10000,
         }
@@ -298,7 +288,6 @@ class ExportCSVTest(TestCase):
                 "condition": [{"attribute": "att1", "operation": "==", "value": "level1"},
                               {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
-            "cross_restrictions": [],
             "profiles": 2
         }
         with patch('surveys.views._sendFileResponse') as mock_sendFileResponse:
@@ -312,8 +301,6 @@ class ExportCSVTest(TestCase):
         # Data where an attribute has no levels
         data = {
             "attributes": [{"name": "attr1", "levels": []}],
-            "restrictions": [],
-            "cross_restrictions": [],
             "profiles": 2
         }
         response = self.client.post(self.url, data, format='json')
@@ -326,3 +313,93 @@ class ExportCSVTest(TestCase):
         data = {}
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class ExportJSONTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.profile = Profile.objects.create_user(
+            username="testprofile",
+            email="testprofile@example.com",
+            password="testpassword123",
+        )
+        self.client.force_authenticate(user=self.profile)
+        self.url = reverse('surveys:export_json')
+        self.data = {
+            "attributes": [
+                {
+                    "name": "att1",
+                    "locked": True,
+                    "levels": [
+                        {
+                            "name": "level1",
+                            "weight": 0.5
+                        },
+                        {
+                            "name": "another1",
+                            "weight": 0.5
+                        }
+                    ]
+                },
+                {
+                    "name": "att2",
+                    "locked": False,
+                    "levels": [
+                        {
+                            "name": "level2",
+                            "weight": 0.2
+                        },
+                        {
+                            "name": "another2",
+                            "weight": 0.8
+                        }
+                    ]
+                },
+                {
+                    "name": "att3",
+                    "locked": False,
+                    "levels": [
+                        {
+                            "name": "level3",
+                            "weight": 0.9
+                        },
+                        {
+                            "name": "another3",
+                            "weight": 0.1
+                        }
+                    ]
+                }
+            ],
+            "restrictions": [
+                {
+                    "condition": [
+                        {
+                            "attribute": "att1",
+                            "operation": "==",
+                            "value": "level1"
+                        },
+                        {
+                            "logical": "||",
+                            "attribute": "att2",
+                            "operation": "==",
+                            "value": "level2"
+                        }
+                    ],
+                    "result": [
+                        {
+                            "attribute": "att3",
+                            "operation": "!=",
+                            "value": "level3"
+                        }
+                    ]
+                }
+            ],
+            "cross_restrictions": [],
+            "profiles": 2
+        }
+
+    def test_export_json_success(self):
+        response = self.client.post(self.url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(response['Content-Disposition'],
+                          'attachment; filename="survey_export.json"')
