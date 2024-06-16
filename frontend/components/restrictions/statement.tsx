@@ -10,6 +10,7 @@ interface IStatement {
   // part: "IF" | "THEN" | "AND";
   statement: StatementProps;
   index: number;
+  cross?: boolean;
 
   changeStatement: (
     index: number,
@@ -30,6 +31,7 @@ export const Statement: React.FC<IStatement> = ({
   changeStatement,
   index,
   deleteStatement,
+  cross,
 }) => {
   // Define the state with TypeScript type
   const [selectedAttr, setSelectedAttr] = useState<string>(statement.attribute);
@@ -67,8 +69,14 @@ export const Statement: React.FC<IStatement> = ({
   return (
     <div className={styles.statement_container}>
       <div className={styles.statement}>
-        {statement.part == "if" || statement.part == "then" ? (
-          <p className={styles.part}>{capitalize(statement.part)}</p>
+        {statement.part === "if" || statement.part === "then" ? (
+          <p className={`${styles.part} ${cross ? styles.crossPart : ""}`}>
+            {cross
+              ? statement.part == "if"
+                ? "If One Profile's"
+                : "Then Others'"
+              : capitalize(statement.part)}
+          </p>
         ) : (
           <CustomDropdown
             value={capitalize(proposition)}

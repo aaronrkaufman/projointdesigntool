@@ -1,0 +1,20 @@
+.left {
+  display: flex;
+  flex-direction: column;
+  /* gap: 1rem; */
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.restrictions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  /* border: 1px solid black; */
+  /* border-radius: 1rem; */
+  /* padding: 1rem; */
+}

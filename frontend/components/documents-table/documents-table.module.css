@@ -19,6 +19,10 @@
   gap: 1.5rem;
 }
 
+.tableContainer * {
+  border-color: var(--border-gray);
+}
+
 .tableContainer tbody tr {
   cursor: pointer;
 }
@@ -28,7 +32,7 @@
   gap: 2rem;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 1rem;
+  padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--border-gray);
 }
 
@@ -43,7 +47,11 @@
 }
 
 .table_docName {
-  color: var(--dark-blue-h);
+  color: var(--dark-blue-p);
+  font-weight: 500;
+}
+.table_docValue {
+  color: var(--dark-blue-p);
 }
 
 .file {

@@ -22,40 +22,55 @@ export const preproccessAttributes = (attributes: Attribute[]) => {
   };
 };
 
+const formatCondition = (
+  statement: StatementProps,
+  index: number,
+  _array: StatementProps[]
+) => {
+  const baseCondition = {
+    attribute: statement.attribute,
+    operation: statement.equals ? "==" : "!=",
+    value: statement.level,
+  };
+  if (index > 0) {
+    return {
+      logical: statement.part === "and" ? "&&" : "||",
+      ...baseCondition,
+    };
+  }
+  return baseCondition;
+};
+
+const formatResult = (statement: StatementProps) => ({
+  attribute: statement.attribute,
+  operation: statement.equals ? "==" : "!=",
+  value: statement.level,
+});
+
 export const preprocessRestrictions = (restrictions: RestrictionProps[]) => {
   const processedRestrictions = restrictions.map((restriction) => {
-    const formatCondition = (
-      statement: StatementProps,
-      index: number,
-      _array: StatementProps[]
-    ) => {
-      const baseCondition = {
-        attribute: statement.attribute,
-        operation: statement.equals ? "==" : "!=",
-        value: statement.level,
-      };
-      if (index > 0) {
-        return {
-          logical: statement.part === "and" ? "&&" : "||",
-          ...baseCondition,
-        };
-      }
-      return baseCondition;
-    };
-
-    const formatResult = (statement: StatementProps) => ({
-      attribute: statement.attribute,
-      operation: statement.equals ? "==" : "!=",
-      value: statement.level,
-    });
-
     return {
       condition: restriction.ifStates.map(formatCondition),
       result: restriction.elseStates.map(formatResult),
     };
   });
 
-  return {
-    restrictions: processedRestrictions,
-  };
+  return processedRestrictions;
+};
+
+export const preprocessCrossRestrictions = (
+  crossRestrictions: RestrictionProps[]
+) => {
+  const processedCrossRestrictions = crossRestrictions.map((restriction) => {
+    return {
+      condition: formatCondition(
+        restriction.ifStates[0],
+        0,
+        restriction.ifStates
+      ),
+      result: formatResult(restriction.elseStates[0]),
+    };
+  });
+
+  return processedCrossRestrictions;
 };

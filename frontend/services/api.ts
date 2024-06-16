@@ -1,7 +1,11 @@
 // services/api.ts
 import axios from "axios";
 import { Attribute } from "../context/attributes_context";
-import { preproccessAttributes, preprocessRestrictions } from "./utils";
+import {
+  preproccessAttributes,
+  preprocessCrossRestrictions,
+  preprocessRestrictions,
+} from "./utils";
 import { RestrictionProps } from "@/components/restrictions/restriction";
 
 const api = axios.create({
@@ -63,23 +67,35 @@ export const downloadSurvey = async (
 
 export const getPreview = async (
   attributes: Attribute[],
-  restrictions: RestrictionProps[]
-): Promise<string[][]> => {
+  restrictions: RestrictionProps[],
+  crossRestrictions: RestrictionProps[]
+): Promise<{ attributes: string[]; previews: string[][] }> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
     const processedRestrictions = preprocessRestrictions(restrictions);
+    const processedCrossRestrictions =
+      preprocessCrossRestrictions(crossRestrictions);
 
     const response = await api.post("/surveys/preview/", {
-      ...processedRestrictions,
       ...processedAttributes,
+      restrictions: processedRestrictions,
+      cross_restrictions: processedCrossRestrictions,
     });
 
-    // console.log(response);
-    return response.data.previews;
+    // Extract attributes and previews from the response
+    const { attributes: responseAttributes, previews } = response.data;
+
+    // Convert each object in previews to an array of its values
+    const simplifiedPreviews = previews.map(
+      (preview: { [key: string]: string }) =>
+        responseAttributes.map((attribute: string) => preview[attribute])
+    );
+
+    return { attributes: responseAttributes, previews: simplifiedPreviews };
   } catch (error) {
     console.error("Error during file download", error);
   }
-  return [];
+  return { attributes: [], previews: [] };
 };
 
 export const getTutorials = async () => {

@@ -11,6 +11,7 @@ export interface RestrictionProps {
   ifStates: StatementProps[];
   elseStates: StatementProps[];
   id: string;
+  cross?: boolean;
 }
 
 export const Restriction: React.FC<
@@ -26,6 +27,7 @@ export const Restriction: React.FC<
   saveRestriction,
   handleUpdate,
   handleRestrictions,
+  cross,
 }) => {
   const [ifStatements, setIfStatements] = useState<StatementProps[]>(ifStates);
   const [elseStatements, setElseStatements] =
@@ -132,7 +134,7 @@ export const Restriction: React.FC<
   const handleDeleteRestriction = () => {
     if (!isRestrictionDone()) {
       handleRestrictions(id);
-      deleteRestriction(id);
+      deleteRestriction(id, cross);
     } else {
       handleRestrictions(id);
       handleUpdate(true);
@@ -147,6 +149,7 @@ export const Restriction: React.FC<
             statement={ifStatements[0]}
             index={0}
             changeStatement={changeIfStatement}
+            cross={cross}
           />
           {ifStatements.map((item, index) => {
             if (index === 0) return "";
@@ -160,16 +163,19 @@ export const Restriction: React.FC<
               />
             );
           })}
-          <div className={styles.addCondition} onClick={addIfStatement}>
-            <PlusIcon stroke={`var(--blue)`} />{" "}
-            {naming.restrictionsPage.addCondition.value}
-          </div>
+          {!cross && (
+            <div className={styles.addCondition} onClick={addIfStatement}>
+              <PlusIcon stroke={`var(--blue)`} />{" "}
+              {naming.restrictionsPage.addCondition.value}
+            </div>
+          )}
         </div>
         <div className={styles.elseStatements}>
           <Statement
             statement={elseStatements[0]}
             index={0}
             changeStatement={changeElseStatement}
+            cross={cross}
           />
           {elseStatements.map((item, index) => {
             if (index === 0) return "";

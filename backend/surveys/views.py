@@ -287,7 +287,7 @@ def export_csv(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 def create_qualtrics(request):
-    print("h")
+   
     attributes = request.data.get("attributes", [])
     filename = request.data.get("filename", "export survey")
     profiles = request.data.get("profiles", 2)
@@ -297,7 +297,7 @@ def create_qualtrics(request):
     doubleQ = request.data.get("doubleQ", False)
     resp = _checkAttributes(attributes)
     qType = request.data.get("qType", "MC")
-    qText = request.data.get("qText", "")
+    qText = request.data.get("qText", "Please carefully review the options detailed below, then please answer the questions </span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?")
     if resp:
         return resp
     jsname = _createFile(request)
