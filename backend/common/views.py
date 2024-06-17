@@ -17,14 +17,13 @@ from .serializer import DocumentationSerializer
     request=DocumentationSerializer,
     responses={
         status.HTTP_201_CREATED: OpenApiResponse(
+            response=DocumentationSerializer,
             description="HTML content of the requested document file.",
-            response="text/html",
             examples=[
                 OpenApiExample(
                     name="Example Document",
                     description="An example document",
                     value="<h1>Example Document</h1>\n<p>This is an example document content.</p>\n",
-                    status_codes=[status.HTTP_201_CREATED],
                 )
             ]
         ),
@@ -32,7 +31,7 @@ from .serializer import DocumentationSerializer
             description="Document not found."
         ),
     },
-    description="Returns a markdown page of the requested identifier",
+    description="Returns the HTML content of the requested document file.",
     tags=['Documentation']
 )
 @api_view(['GET'])
@@ -52,18 +51,17 @@ def get_doc(request, identifier):
 
 @extend_schema(
     summary="List all documentation files",
-    description="Returns a list of all Markdown files available in the documentation directory.",
+    description="Returns a list of all Markdown files in the documentation directory.",
     request=None,
     responses={
         status.HTTP_200_OK: OpenApiResponse(
+            response=DocumentationSerializer,
             description="List of all Markdown files in the documentation directory.",
-            response="application/json",
             examples=[
                 OpenApiExample(
-                    name="List of Markdown files",
-                    description="List of all Markdown files in the documentation directory.",
+                    name="ExampleDocumentList",
+                    description="A list of Markdown files in the documentation directory.",
                     value=["example.md", "tutorial.md", "settings.md"],
-                    status_codes=[status.HTTP_200_OK],
                 )
             ]
         ),

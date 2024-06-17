@@ -1,5 +1,7 @@
 import os
+
 from dotenv import load_dotenv
+
 # Load secret .env file
 load_dotenv()
 # Store credentials

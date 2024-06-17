@@ -3,27 +3,16 @@ import os
 from unittest.mock import patch
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient, APITestCase
-
-Profile = get_user_model()
+from rest_framework.test import APIClient
 
 
-class ExportJsTest(TestCase):
+class ExportJsTests(TestCase):
     def setUp(self):
-        # This method will run before every test function.
-        self.profile = Profile.objects.create_user(
-            username="testprofile",
-            email="testprofile@example.com",
-            password="testpassword123",
-        )
-
         self.client = APIClient()
-        self.client.force_authenticate(user=self.profile)
         self.url = reverse("surveys:export_js")
 
         self.payloadSuccess = {
@@ -49,8 +38,7 @@ class ExportJsTest(TestCase):
                         {"name": "g"},
                     ],
                 },
-            ],
-            "advanced": {"att1": 0, "att2": 0, "att3": 1}
+            ]
         }
 
         self.payloadFailure = {
@@ -77,30 +65,10 @@ class ExportJsTest(TestCase):
             self.url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 405)
 
-    # def test_qsf_to_attributes_success(self):
-    #    qsf_path = "./test.qf"
-    #    with open(qsf_path, 'r') as qsf:
-    #        qsf_content = qsf.read()
-    #    url = reverse("surveys:qsf_to_attribute")
-    #    payload = {'qsf_content': qsf_content}
-    #    response = self.client.post(url, payload, format="json")
-    #    self.assertEqual(response.status_code, 201)
 
-    # def test_create_qualtrics(self):
-    #     url = reverse("surveys:qualtrics")
-    #     response = self.client.post(url, self.payloadSuccess, format="json")
-    #     self.assertEqual(response.status_code, 201)
-
-
-class PreviewSurveyTest(TestCase):
+class PreviewSurveyTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.profile = Profile.objects.create_user(
-            username="testprofile",
-            email="testprofile@example.com",
-            password="testpassword123",
-        )
-        self.client.force_authenticate(user=self.profile)
         self.url = reverse('surveys:preview_survey')
 
     def test_preview_survey_success(self):
@@ -247,15 +215,9 @@ class PreviewSurveyTest(TestCase):
                 "previews"][1]["att1"])))
 
 
-class ExportCSVTest(TestCase):
+class ExportCsvTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.profile = Profile.objects.create_user(
-            username="testprofile",
-            email="testprofile@example.com",
-            password="testpassword123",
-        )
-        self.client.force_authenticate(user=self.profile)
         self.url = reverse('surveys:export_csv')
 
     def test_export_csv_success(self):
@@ -274,12 +236,12 @@ class ExportCSVTest(TestCase):
             "profiles": 2,
             "csv_lines": 10000,
         }
-        with patch('surveys.views._sendFileResponse') as mock_sendFileResponse:
-            mock_sendFileResponse.return_value = HttpResponse(
+        with patch('surveys.views._send_file_response') as mock_send_file_response:
+            mock_send_file_response.return_value = HttpResponse(
                 status=status.HTTP_201_CREATED)
             response = self.client.post(self.url, data, format='json')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-            mock_sendFileResponse.assert_called_once()
+            mock_send_file_response.assert_called_once()
 
     def test_export_csv_with_rest_success(self):
         # Data for a successful request
@@ -294,12 +256,12 @@ class ExportCSVTest(TestCase):
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
             "profiles": 2
         }
-        with patch('surveys.views._sendFileResponse') as mock_sendFileResponse:
-            mock_sendFileResponse.return_value = HttpResponse(
+        with patch('surveys.views._send_file_response') as mock_send_file_response:
+            mock_send_file_response.return_value = HttpResponse(
                 status=status.HTTP_201_CREATED)
             response = self.client.post(self.url, data, format='json')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-            mock_sendFileResponse.assert_called_once()
+            mock_send_file_response.assert_called_once()
 
     def test_export_csv_no_levels(self):
         # Data where an attribute has no levels
@@ -319,15 +281,9 @@ class ExportCSVTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class ExportJSONTest(TestCase):
+class ExportJsonTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.profile = Profile.objects.create_user(
-            username="testprofile",
-            email="testprofile@example.com",
-            password="testpassword123",
-        )
-        self.client.force_authenticate(user=self.profile)
         self.url = reverse('surveys:export_json')
         self.data = {
             "attributes": [
@@ -409,8 +365,9 @@ class ExportJSONTest(TestCase):
                           'attachment; filename="survey_export.json"')
 
 
-class ImportJsonTest(APITestCase):
+class ImportJsonTests(TestCase):
     def setUp(self):
+        self.client = APIClient()
         self.url = reverse('surveys:import_json')
         self.file_path = os.path.join(
             settings.BASE_DIR, 'surveys', 'tests', 'test_data', 'valid_survey.json')
@@ -444,3 +401,48 @@ class ImportJsonTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
         self.assertTrue('Invalid JSON data' in response.data['error'])
+
+
+class CreateQualtricsTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("surveys:qsf_to_attribute")
+        self.payloadSuccess = {
+            "attributes": [
+                {
+                    "name": "att1",
+                    "levels": [
+                        {"name": "b"},
+                        {"name": "a"},
+                    ],
+                },
+                {
+                    "name": "att2",
+                    "levels": [
+                        {"name": "d"},
+                        {"name": "e"},
+                    ],
+                },
+                {
+                    "name": "att3",
+                    "levels": [
+                        {"name": "f"},
+                        {"name": "g"},
+                    ],
+                },
+            ],
+            "advanced": {"att1": 0, "att2": 0, "att3": 1}
+        }
+
+    # def test_qsf_to_attributes_success(self):
+    #     qsf_path = "./test.qf"
+    #     with open(qsf_path, 'r') as qsf:
+    #         qsf_content = qsf.read()
+    #     payload = {'qsf_content': qsf_content}
+    #     response = self.client.post(self.url, payload, format="json")
+    #     self.assertEqual(response.status_code, 201)
+
+    # def test_create_qualtrics(self):
+    #     response = self.client.post(
+    #         self.url, self.payloadSuccess, format="json")
+    #     self.assertEqual(response.status_code, 201)

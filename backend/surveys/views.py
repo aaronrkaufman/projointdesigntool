@@ -1,58 +1,56 @@
+import json
+
+from drf_spectacular.utils import (OpenApiExample, OpenApiResponse,
+                                   extend_schema)
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
-
-from .helpers import _checkAttributes, _createJSFile, _create_profiles, _generate_unlocked_order, _populate_csv, _sendFileResponse
-from .helpers import __CreateSurvey, __DownloadSurvey
-
+from .helpers import (_check_attributes, _create_js_file, _create_profiles,
+                      _create_survey, _download_survey,
+                      _generate_unlocked_order, _populate_csv,
+                      _send_file_response)
 from .serializers import ShortSurveySerializer, SurveySerializer
-
-import random
-import json
-import csv
 
 
 @extend_schema(
     request=SurveySerializer,
     responses={
-        201: OpenApiResponse(
-            response="application/javascript",
-            description="A JavaScript file containing the exported survey data.",
+        status.HTTP_201_CREATED: OpenApiResponse(
+            response=SurveySerializer,
+            description="A JavaScript file containing the survey data.",
             examples=[
                 OpenApiExample(
-                    "SurveyJSFileExample",
-                    summary="Exported Survey JS File",
-                    description="A JavaScript file stream named survey.js containing the exported survey data.",
+                    name="JSFileExample",
+                    description="A JavaScript file containing the survey data.",
                     value={
                         "content_type": "application/javascript",
                         "headers": {
-                            "Content-Disposition": 'attachment; filename="{filename}"'
+                            "Content-Disposition": 'attachment; filename="survey_export.js"'
                         },
                     },
                 )
             ],
         ),
-        400: OpenApiResponse(
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
             description="An error response indicating that the request was invalid.",
         ),
     },
-    description="Export survey to JS. Creates a file on the server and returns it to the user",
-    summary='Export Survey Data as JavaScript File',
-    methods=['POST'],
+    description="Generates and returns a JavaScript file based on the provided survey data if valid.",
+    summary="Export a survey to JavaScript",
+    tags=["Export"]
 )
 @api_view(["POST"])
 def export_js(request):
-    return _sendFileResponse(_createJSFile(request))
+    return _send_file_response(_create_js_file(request))
 
 
 @extend_schema(
     request=ShortSurveySerializer,
     responses={
         status.HTTP_201_CREATED: OpenApiResponse(
+            response=ShortSurveySerializer,
             description="Preview of survey generated",
-            response="application/json",
             examples=[
                 OpenApiExample(
                     name="SurveyPreviewSuccess",
@@ -60,37 +58,33 @@ def export_js(request):
                     value={
                         "attributes": ["attribute1", "attribute2"],
                         "previews": [
-                            ["a1n1", "a2n1"],
-                            ["a1n1", "a2n2"],
+                            ["profile1value1", "profile1value2"],
+                            ["profile2value1", "profile2value2"],
                         ],
                     },
-                    response_only=True,
-                    status_codes=[str(status.HTTP_201_CREATED)],
                 )
             ],
         ),
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            response=ShortSurveySerializer,
             description="Bad Request, no survey data or invalid data provided",
-            response="application/json",
             examples=[
                 OpenApiExample(
                     name="SurveyPreviewFailEmpty",
                     description="The survey data provided is empty.",
                     value={"message": "Survey is empty."},
-                    response_only=True,
-                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
                 ),
                 OpenApiExample(
                     name="SurveyPreviewFailInvalid",
                     description="The survey data provided is invalid.",
                     value={"message": "Invalid survey data."},
-                    response_only=True,
-                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
                 ),
             ],
         ),
     },
-    description="Generates a preview of survey answers based on provided attributes",
+    description="Generates and returns a preview of the survey based on the provided survey data if valid.",
+    summary="Preview a survey",
+    tags=["Preview"]
 )
 @api_view(["POST"])
 def preview_survey(request):
@@ -121,14 +115,13 @@ def preview_survey(request):
     request=SurveySerializer,
     responses={
         status.HTTP_200_OK: OpenApiResponse(
+            response=ShortSurveySerializer,
             description="Validated survey data",
-            response="application/json",
             examples=[
                 OpenApiExample(
                     name='ValidatedSurveyData',
                     description='Validated Survey Data',
                     value=SurveySerializer().data,
-                    status_codes=[200]
                 )
             ]
         ),
@@ -138,7 +131,7 @@ def preview_survey(request):
     },
     description="Imports a JSON file and validates it against the Survey model. Returns the validated data if successful.",
     summary="Import a JSON formatted survey",
-    tags=['Import']
+    tags=["Import"]
 )
 @api_view(["POST"])
 def import_json(request):
@@ -158,46 +151,41 @@ def import_json(request):
     request=SurveySerializer,
     responses={
         status.HTTP_201_CREATED: OpenApiResponse(
-            response="text/json",
+            response=ShortSurveySerializer,
             description="A JSON file containing the validated survey data.",
             examples=[
                 OpenApiExample(
                     name="JSONFileExample",
-                    summary="Exported JSON File",
-                    description="A JSON file stream containing the validated survey data.",
+                    description="A JSON file containing the validated survey data.",
                     value={
                         "content_type": "application/json",
                         "headers": {
                             "Content-Disposition": 'attachment; filename="survey_export.json"'
                         },
                     },
-                    response_only=True,
-                    status_codes=[str(status.HTTP_201_CREATED)],
                 ),
             ],
         ),
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            response=ShortSurveySerializer,
             description="Bad Request, no survey data or invalid data provided.",
             examples=[
                 OpenApiExample(
                     name="SurveyExportFailEmpty",
                     description="The survey data provided is empty.",
                     value={"message": "Survey data is empty."},
-                    response_only=True,
-                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
                 ),
                 OpenApiExample(
                     name="SurveyExportFailInvalid",
                     description="The survey data provided is invalid.",
                     value={"message": "Invalid survey data."},
-                    response_only=True,
-                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
                 ),
             ],
         ),
     },
-    description="Generates and returns a JSON file based on the provided survey data if valid.",
-    tags=["Survey Export"]
+    description="Exports the validated survey data to a JSON file.",
+    summary="Export a survey to JSON",
+    tags=["Export"]
 )
 @api_view(["POST"])
 def export_json(request):
@@ -206,7 +194,7 @@ def export_json(request):
         filename = 'survey_export.json'
         with open(filename, "w", encoding="utf-8") as file:
             json.dump(request.data, file, ensure_ascii=False, indent=4)
-            response = _sendFileResponse(filename)
+            response = _send_file_response(filename)
         return response
     else:
         return Response(serializer.errors, status=400)
@@ -216,46 +204,41 @@ def export_json(request):
     request=ShortSurveySerializer,
     responses={
         status.HTTP_201_CREATED: OpenApiResponse(
-            response="text/csv",
+            response=ShortSurveySerializer,
             description="A CSV file containing the preview of survey data.",
             examples=[
                 OpenApiExample(
                     name="PreviewCSVFileExample",
-                    summary="Exported Preview CSV File",
-                    description="A CSV file stream containing the preview of survey data.",
+                    description="A CSV file stream containing the preview of survey data of all possible combinations.",
                     value={
                         "content_type": "text/csv",
                         "headers": {
                             "Content-Disposition": 'attachment; filename="preview.csv"'
                         },
-                    },
-                    response_only=True,
-                    status_codes=[str(status.HTTP_201_CREATED)],
+                    }
                 ),
             ],
         ),
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            response=ShortSurveySerializer,
             description="Bad Request, no survey data or invalid data provided",
-            response="application/json",
             examples=[
                 OpenApiExample(
                     name="SurveyPreviewFailEmpty",
                     description="The survey data provided is empty.",
                     value={"message": "Survey is empty."},
-                    response_only=True,
-                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
                 ),
                 OpenApiExample(
                     name="SurveyPreviewFailInvalid",
                     description="The survey data provided is invalid.",
                     value={"message": "Invalid survey data."},
-                    response_only=True,
-                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
                 ),
             ],
         ),
     },
-    description="Generates and sends a CSV file based on provided attributes.",
+    description="Generates and sends a CSV file of profile combinations based on provided attributes.",
+    summary="Export a survey to CSV",
+    tags=["Export"]
 )
 @api_view(["POST"])
 def export_csv(request):
@@ -274,7 +257,7 @@ def export_csv(request):
 
         _populate_csv(attributes, profiles, restrictions,
                       cross_restrictions, csv_lines)
-        return _sendFileResponse("profiles.csv")
+        return _send_file_response("profiles.csv")
     else:
         return Response(serializer.errors, status=400)
 
@@ -287,9 +270,9 @@ def export_csv(request):
 @extend_schema(
     request=SurveySerializer,
     responses={
-        201: OpenApiResponse(
-            response="application/octet-stream",
-            description="Creating Qualtrics survey and exporting QSF file",
+        status.HTTP_201_CREATED: OpenApiResponse(
+            response=SurveySerializer,
+            description="A QSF file containing the survey data.",
             examples=[
                 OpenApiExample(
                     name="CreateQualtricsExample",
@@ -303,13 +286,12 @@ def export_csv(request):
                 )
             ]
         ),
-        400: OpenApiResponse(
-            response="application/octet-stream",
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            response=SurveySerializer,
             description="Error in creating Qualtrics survey and exporting QSF file",
             examples=[
                 OpenApiExample(
                     name="CreateQualtricsErrorExample",
-                    summary="Bad Request Response",
                     description="This response is returned when request to create Qualtrics survey and export QSF file is invalid",
                     value={
                         "error": "Invalid data provided.",
@@ -319,10 +301,11 @@ def export_csv(request):
             ]
         )
     },
-    description="Creating Qualtrics survey and exporting QSF file",
+    description="Creates a Qualtrics survey and exports it to a QSF file.",
+    summary="Create a Qualtrics survey",
+    tags=["Qualtrics"]
 )
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 def create_qualtrics(request):
 
     attributes = request.data.get("attributes", [])
@@ -332,13 +315,13 @@ def create_qualtrics(request):
     duplicates = request.data.get("duplicates", [2, 4])
     repeatFlip = request.data.get("repeatFlip", 1)
     doubleQ = request.data.get("doubleQ", False)
-    resp = _checkAttributes(attributes)
+    resp = _check_attributes(attributes)
     qType = request.data.get("qType", "MC")
     qText = request.data.get(
         "qText", "Please carefully review the options detailed below, then please answer the questions </span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?")
     if resp:
         return resp
-    jsname = _createJSFile(request)
+    jsname = _create_js_file(request)
     js_py = json.dumps(request.data)
     with open(jsname, "r", encoding="utf-8") as file_js:
         js_text = file_js.read()
@@ -351,19 +334,19 @@ def create_qualtrics(request):
     js_text = "//" + js_py + "\n" + js_text
     # FIGURE OUT BETTER WAY TO STORE THIS
     user_token = "Vy99DuC4A57FSg4tzvoejFdE0sDgaBH8cAouYF6h"
-    created = __CreateSurvey(
+    created = _create_survey(
         filename, user_token, tasks, len(
             attributes), profiles, "", js_text, duplicates, repeatFlip, doubleQ, qText
     )
 
-    __DownloadSurvey(created, user_token, doubleQ, qType)
-    return _sendFileResponse("survey.qsf")
+    _download_survey(created, user_token, doubleQ, qType)
+    return _send_file_response("survey.qsf")
 
 
 @extend_schema(
     request=None,
     responses={
-        201: OpenApiResponse(
+        status.HTTP_201_CREATED: OpenApiResponse(
             response="application/octet-stream",
             description="Reversing QSF File into Attribute JSON",
             examples=[
@@ -400,13 +383,12 @@ def create_qualtrics(request):
                 )
             ]
         ),
-        400: OpenApiResponse(
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
             response="application/octet-stream",
             description="Error in Reversing QSF File into Attribute JSON",
             examples=[
                 OpenApiExample(
                     name="ReverseQualtricsErrorExample",
-                    summary="Bad Request Response",
                     description="This response is returned when request to reverse QSF File is unsuccessful",
                     value={
                         "error": "Invalid QSF provided.",
@@ -416,7 +398,9 @@ def create_qualtrics(request):
             ]
         )
     },
-    description="Reversing QSF File into Attribute JSON",
+    description="Reverses a QSF file into an attribute JSON.",
+    summary="Reverse QSF File",
+    tags=["Qualtrics"]
 )
 @api_view(["POST"])
 def qsf_to_attributes(request):
@@ -438,6 +422,7 @@ def qsf_to_attributes(request):
     return attribute_data
 
 
+'''
 @extend_schema(
     request=ShortSurveySerializer,
     responses={
@@ -447,7 +432,6 @@ def qsf_to_attributes(request):
             examples=[
                 OpenApiExample(
                     name="PreviewCSVFileExample",
-                    summary="Exported Preview CSV File (No duplicates)",
                     description="A CSV file stream containing the preview of survey data of all possible combinations.",
                     value={
                         "content_type": "text/csv",
@@ -455,8 +439,6 @@ def qsf_to_attributes(request):
                             "Content-Disposition": 'attachment; filename="preview.csv"'
                         },
                     },
-                    response_only=True,
-                    status_codes=[str(status.HTTP_201_CREATED)],
                 ),
             ],
         ),
@@ -468,15 +450,11 @@ def qsf_to_attributes(request):
                     name="SurveyPreviewFailEmpty",
                     description="The survey data provided is empty.",
                     value={"message": "Survey is empty."},
-                    response_only=True,
-                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
                 ),
                 OpenApiExample(
                     name="SurveyPreviewFailInvalid",
                     description="The survey data provided is invalid.",
                     value={"message": "Invalid survey data."},
-                    response_only=True,
-                    status_codes=[str(status.HTTP_400_BAD_REQUEST)],
                 ),
             ],
         ),
@@ -523,7 +501,7 @@ def noDuplicate_csv(request):
         with open("unique_profiles.csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows(previews)
-        return _sendFileResponse("profiles.csv")
+        return _send_file_response("profiles.csv")
         # response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
         # response["Content-Disposition"] = 'attachment; filename="survey.csv"'
 
@@ -532,3 +510,4 @@ def noDuplicate_csv(request):
             {"message": "Invalid survey data."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+'''

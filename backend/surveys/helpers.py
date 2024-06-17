@@ -3,17 +3,16 @@ THIS IS A HELPER FUNCTION TO CLEAR UP THE VIEWS FILE
 '''
 
 import csv
+import json
 import os
+import random
+
+import requests
 from django.http import FileResponse
 from rest_framework import status
 from rest_framework.response import Response
 
 from .serializers import SurveySerializer
-
-import requests
-import random
-import json
-
 
 temp_1 = """// Code to randomly generate conjoint profiles in a Qualtrics survey
 
@@ -285,7 +284,7 @@ for (var pr = 0; pr < returnarrayKeys.length; pr++) {
 '''''''''''''''''''''''''''''''''''''''''''''
 
 
-def _checkAttributes(attributes):
+def _check_attributes(attributes):
     # Raise error if level is missing
     for attribute in attributes:
         if len(attribute["levels"]) == 0:
@@ -293,12 +292,12 @@ def _checkAttributes(attributes):
     return None
 
 
-def _cleanConstraints(constraints):
+def _clean_constraints(constraints):
     # Drop any Null constraints
     return [constraint for constraint in constraints if constraint != []]
 
 
-def _createArrayOrProbString(attributes, isArray):
+def _create_array_or_prob_string(attributes, isArray):
     arrayString = {}
     for attribute in attributes:
         arrayString[attribute["name"]] = [
@@ -307,7 +306,7 @@ def _createArrayOrProbString(attributes, isArray):
     return f"var {'featurearray' if isArray else 'probabilityarray'} = " + str(arrayString) + ";\n\n"
 
 
-def _sendFileResponse(file_path):
+def _send_file_response(file_path):
     file_js = open(file_path, "rb")
     response = FileResponse(
         file_js,
@@ -322,7 +321,7 @@ def _sendFileResponse(file_path):
     return response
 
 
-def _createJSFile(request):
+def _create_js_file(request):
     serializer = SurveySerializer(data=request.data)
     if serializer.is_valid():
         validated_data = serializer.validated_data
@@ -345,19 +344,19 @@ def _createJSFile(request):
 
         noFlip = validated_data['noFlip']
 
-        resp = _checkAttributes(attributes)
+        resp = _check_attributes(attributes)
         if resp:
             return resp
-        constraints = _cleanConstraints(constraints)
+        constraints = _clean_constraints(constraints)
 
         """ Write into file """
         with open(filename, "w", encoding="utf-8") as file_js:
             file_js.write(temp_1)
 
-            file_js.write(_createArrayOrProbString(attributes, True))
+            file_js.write(_create_array_or_prob_string(attributes, True))
             file_js.write("var restrictionarray = " +
                           str(restrictions) + ";\n\n")
-            file_js.write(_createArrayOrProbString(attributes, False)
+            file_js.write(_create_array_or_prob_string(attributes, False)
                           if random == 1 else "var probabilityarray = {};\n\n")
 
             file_js.write(
@@ -628,7 +627,7 @@ def _populate_csv(attributes, profiles, restrictions, cross_restrictions, csv_li
 '''''''''''''''''''''''''''''''''''''''''''''
 
 
-def __CreateHTML(i, num_attr, profiles, qNum, noFlip, qText):
+def _create_html(i, num_attr, profiles, qNum, noFlip, qText):
     if i == 0:
         text_out = "<span>Blank page</span>"
         return text_out
@@ -696,7 +695,7 @@ def __CreateBlock(surveyID, bl, user_token):
     return response["result"]["BlockID"]
 
 
-def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, duplicates, repeatFlip, doubleQ, qText):
+def _create_survey(name, user_token, task, num_attr, profiles, currText, js, duplicates, repeatFlip, doubleQ, qText):
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions"
     payload = {"SurveyName": name, "Language": "AR", "ProjectCategory": "CORE"}
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
@@ -705,25 +704,25 @@ def __CreateSurvey(name, user_token, task, num_attr, profiles, currText, js, dup
     surveyID = response["result"]["SurveyID"]
     d1, d2 = duplicates
     for i in range(task+1):
-        bl = __GetFlow(surveyID, user_token)
+        bl = _get_flow(surveyID, user_token)
         blockID = __CreateBlock(surveyID, bl, user_token)
         currText += qText
         currText += "\n"
-        currText = __CreateHTML(i, num_attr, profiles, i-1, 0, qText)
+        currText = _create_html(i, num_attr, profiles, i-1, 0, qText)
         # if i==d2:
-        # currText = __CreateHTML(d1, num_attr, profiles, i-1, repeatFlip)
-        currQ = __CreateQuestion(
+        # currText = _create_html(d1, num_attr, profiles, i-1, repeatFlip)
+        currQ = _create_question(
             surveyID, currText, blockID, user_token, profiles, js, i
         )
         if doubleQ:
-            currQ = __CreateQuestion(
+            currQ = _create_question(
                 surveyID, " ", blockID, user_token, profiles, js, i
             )
-    __EmbFields(surveyID, user_token, num_attr, profiles, task)
+    _emb_fields(surveyID, user_token, num_attr, profiles, task)
     return surveyID
 
 
-def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js, i):
+def _create_question(surveyID, text, blockID, user_token, profiles, js, i):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}/questions"
     querystring = {"blockId": blockID}
     headers = {
@@ -760,7 +759,7 @@ def __CreateQuestion(surveyID, text, blockID, user_token, profiles, js, i):
         url, json=payload, headers=headers, params=querystring)
 
 
-def __GetFlow(surveyID, user_token):
+def _get_flow(surveyID, user_token):
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions/" + surveyID + "/flow"
 
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
@@ -769,7 +768,7 @@ def __GetFlow(surveyID, user_token):
     return response["result"]["Flow"][0]["ID"]
 
 
-def __EmbFields(surveyID, user_token, num_attr, profiles, tasks):
+def _emb_fields(surveyID, user_token, num_attr, profiles, tasks):
     url = "https://yul1.qualtrics.com/API/v3/surveys/" + \
         surveyID + "/embeddeddatafields"
     headers = {
@@ -804,7 +803,7 @@ def __EmbFields(surveyID, user_token, num_attr, profiles, tasks):
     response = requests.post(url, json=payload, headers=headers)
 
 
-def __DownloadSurvey(surveyID, user_token, doubleQ, qType):
+def _download_survey(surveyID, user_token, doubleQ, qType):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}"
     headers = {
         "Content-Type": "application/json",
