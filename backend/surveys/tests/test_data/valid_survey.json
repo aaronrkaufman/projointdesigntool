@@ -1,0 +1,83 @@
+{
+    "attributes": [
+        {
+            "name": "att1",
+            "levels": [
+                {
+                    "name": "level1",
+                    "weight": 0.5
+                },
+                {
+                    "name": "another1",
+                    "weight": 0.5
+                }
+            ],
+            "locked" : true
+        },
+        {
+            "name": "att2",
+            "levels": [
+                {
+                    "name": "level2",
+                    "weight": 0.2
+                },
+                {
+                    "name": "another2",
+                    "weight": 0.8
+                }
+            ],
+            "locked" : true
+        },
+        {
+            "name": "att3",
+            "levels": [
+                {
+                    "name": "level3",
+                    "weight": 0.9
+                },
+                {
+                    "name": "another3",
+                    "weight": 0.1
+                }
+            ],
+            "locked" : true
+        }
+    ],
+    "constraints" : [],
+    "restrictions": [
+        {
+            "condition": [
+                {
+                    "attribute": "att1",
+                    "operation": "==",
+                    "value": "level1"
+                },
+                {
+                    "logical": "||",
+                    "attribute": "att2",
+                    "operation": "==",
+                    "value": "level2"
+                }
+            ],
+            "result": [
+                {
+                    "attribute": "att3",
+                    "operation": "!=",
+                    "value": "level3"
+                }
+            ]
+        }
+    ],
+    "cross_restrictions": [],
+    "filename" : "survey.js",
+    "advanced" : {},
+    "profiles": 2,
+    "tasks" : 5,
+    "randomize" : false,
+    "repeat_task" : false,
+    "random" : false,
+    "duplicate_first" : 0,
+    "duplicate_second" : 0,
+    "noFlip" : false,
+    "csv_lines" : 500
+}

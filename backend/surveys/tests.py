@@ -1,10 +1,14 @@
+import json
+import os
 from unittest.mock import patch
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
-from rest_framework.test import APIClient
-from django.contrib.auth import get_user_model
 from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
 
 Profile = get_user_model()
 
@@ -403,3 +407,40 @@ class ExportJSONTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(response['Content-Disposition'],
                           'attachment; filename="survey_export.json"')
+
+
+class ImportJsonTest(APITestCase):
+    def setUp(self):
+        self.url = reverse('surveys:import_json')
+        self.file_path = os.path.join(
+            settings.BASE_DIR, 'surveys', 'tests', 'test_data', 'valid_survey.json')
+
+    def test_import_valid_json(self):
+        # JSON data to be sent to the view
+        with open(self.file_path, 'r') as file:
+            json_data = json.load(file)
+
+        json_string = json.dumps(json_data)
+
+        # Make POST request with JSON data
+        response = self.client.post(
+            self.url, json_string, content_type='application/json')
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Now compare the JSON strings
+        self.assertDictEqual(json.loads(
+            response.content.decode('utf-8')), json_data)
+
+    def test_import_invalid_json(self):
+        # Incorrect JSON data (malformed)
+        invalid_json_data = '{"key": "value"'
+
+        # Make POST request with malformed JSON data
+        response = self.client.post(
+            self.url, invalid_json_data, content_type='application/json')
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
+        self.assertTrue('Invalid JSON data' in response.data['error'])

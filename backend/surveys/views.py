@@ -120,6 +120,43 @@ def preview_survey(request):
 @extend_schema(
     request=SurveySerializer,
     responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Validated survey data",
+            response="application/json",
+            examples=[
+                OpenApiExample(
+                    name='ValidatedSurveyData',
+                    description='Validated Survey Data',
+                    value=SurveySerializer().data,
+                    status_codes=[200]
+                )
+            ]
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="An error response indicating that the request was invalid.",
+        ),
+    },
+    description="Imports a JSON file and validates it against the Survey model. Returns the validated data if successful.",
+    summary="Import a JSON formatted survey",
+    tags=['Import']
+)
+@api_view(["POST"])
+def import_json(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except json.JSONDecodeError as e:
+        return Response({'error': f'Invalid JSON data: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = SurveySerializer(data=data)
+    if serializer.is_valid():
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(
+    request=SurveySerializer,
+    responses={
         status.HTTP_201_CREATED: OpenApiResponse(
             response="text/json",
             description="A JSON file containing the validated survey data.",
@@ -287,7 +324,7 @@ def export_csv(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 def create_qualtrics(request):
-   
+
     attributes = request.data.get("attributes", [])
     filename = request.data.get("filename", "export survey")
     profiles = request.data.get("profiles", 2)
@@ -297,10 +334,11 @@ def create_qualtrics(request):
     doubleQ = request.data.get("doubleQ", False)
     resp = _checkAttributes(attributes)
     qType = request.data.get("qType", "MC")
-    qText = request.data.get("qText", "Please carefully review the options detailed below, then please answer the questions </span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?")
+    qText = request.data.get(
+        "qText", "Please carefully review the options detailed below, then please answer the questions </span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?")
     if resp:
         return resp
-    jsname = _createFile(request)
+    jsname = _createJSFile(request)
     js_py = json.dumps(request.data)
     with open(jsname, "r", encoding="utf-8") as file_js:
         js_text = file_js.read()
