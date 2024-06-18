@@ -37,11 +37,11 @@
   },
   "restrictionsPage": {
     "oneProfile": {
-      "value": "One profile",
+      "value": "Within-profile",
       "subtitle": "List of attribute-level pairs that can not be together in a profile"
     },
     "crossProfiles": {
-      "value": "Cross profiles",
+      "value": "Across-profile",
       "subtitle": "List of attribute-level pairs that can not be together in different profiles"
     },
     "addCondition": {
