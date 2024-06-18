@@ -7,7 +7,8 @@ import { IDocument } from "../documents/__item/documents__item";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 import { useAttributes } from "../../context/attributes_context";
-import { FileAdd, LightTooltip } from "../ui/icons";
+import { LightTooltip } from "../ui/icons";
+import { FileAdd } from "../ui/file-add";
 import { SidebarFolder } from "./__folder/sidebar__folder";
 import { getTutorials } from "@/services/api";
 import { SidebarTutorials } from "./__tutorials/sidebar__tutorials";
@@ -83,18 +84,22 @@ export const Sidebar = ({ active }: { active: string }) => {
     router.push("/");
   };
 
+  const handleImportDoc = () => {
+    console.log("Importing document");
+  };
+
   return (
     <div className={styles.sidebar}>
       <div className={styles.top}>
         <h3 onClick={handleHome}>Projoint</h3>
-        <div className={styles.addDoc} onClick={handleAddDoc}>
+        <div className={styles.addDoc}>
           <LightTooltip
             disableInteractive
             title="New survey"
             arrow
             placement="right"
           >
-            <FileAdd />
+            <FileAdd onAddDoc={handleAddDoc} onImport={handleImportDoc} />
           </LightTooltip>
         </div>
       </div>

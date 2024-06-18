@@ -10,7 +10,7 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Link from "next/link";
 import styles from "./documents-table.module.css";
-import { FileAdd, FileIcon } from "../ui/icons";
+import { FileAddIcon, FileIcon } from "../ui/icons";
 import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 import { useAttributes } from "@/context/attributes_context";
@@ -82,7 +82,7 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
           </div>
           <Button
             text="New survey"
-            icon={<FileAdd stroke="var(--white)" />}
+            icon={<FileAddIcon stroke="var(--white)" />}
             onClick={handleAddDoc}
           />
         </div>

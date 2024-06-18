@@ -5,7 +5,7 @@
   padding: 1rem;
   padding-right: 0;
   position: fixed;
-  z-index: 2;
+  z-index: 3;
 }
 
 .sidebar * {
@@ -35,7 +35,7 @@
 
 .addDoc {
   padding: 0.5rem;
-  border-radius: 0.25r;
+  border-radius: 0.25rem;
 }
 
 .addDoc:hover {

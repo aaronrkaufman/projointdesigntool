@@ -12,20 +12,19 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import React from "react";
-import Image from "next/image";
 import ExportDropdown from "../export/export";
 
-export const FileAdd = forwardRef<SVGSVGElement, { stroke?: string }>(
+export const FileAddIcon = forwardRef<SVGSVGElement, { stroke?: string }>(
   (props, ref) => {
     const { stroke = "#0095FF", ...rest } = props;
     return (
       <svg
         ref={ref}
-        height="26"
-        viewBox="0 0 16 21"
+        height="20"
+        viewBox="0 0 16 20"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        width="18"
+        width="16"
         {...rest}
       >
         <path
@@ -40,7 +39,7 @@ export const FileAdd = forwardRef<SVGSVGElement, { stroke?: string }>(
   }
 );
 
-FileAdd.displayName = "FileAdd";
+FileAddIcon.displayName = "FileAddIcon";
 
 export const FileIcon = ({ stroke }: { stroke: string }) => {
   return (
