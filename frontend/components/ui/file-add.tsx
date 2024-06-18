@@ -166,3 +166,6 @@ export const ImportIcon = () => {
     </svg>
   );
 };
+
+FileAdd.displayName = "FileAdd";
+
