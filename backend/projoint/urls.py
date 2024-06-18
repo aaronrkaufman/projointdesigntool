@@ -12,7 +12,7 @@ urlpatterns = [
     path("api/common/", include("common.urls")),
 
     path(
-        "api/docs/",
+        "api/swagger-ui/",
         SpectacularSwaggerView.as_view(url_name="schema")
     ),
 ]
