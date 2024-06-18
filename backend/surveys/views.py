@@ -4,6 +4,7 @@ from drf_spectacular.utils import (OpenApiExample, OpenApiResponse,
                                    extend_schema)
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 from .helpers import (_check_attributes, _create_js_file, _create_profiles,
@@ -135,9 +136,20 @@ def preview_survey(request):
 )
 @api_view(["POST"])
 def import_json(request):
+    if 'file' not in request.FILES:
+        return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
-        data = json.loads(request.body.decode('utf-8'))
-    except json.JSONDecodeError as e:
+        file = request.FILES['file']
+    except KeyError as e:
+        return Response({'error': f'Invalid file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if file.content_type != 'application/json':
+        return Response({'error': 'Invalid file type. A JSON file is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        data = JSONParser().parse(file)
+    except Exception as e:
         return Response({'error': f'Invalid JSON data: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
     serializer = SurveySerializer(data=data)
