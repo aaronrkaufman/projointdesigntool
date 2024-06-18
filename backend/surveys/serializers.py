@@ -70,7 +70,8 @@ class ShortSurveySerializer(serializers.ModelSerializer):
 
 class SurveySerializer(serializers.ModelSerializer):
     attributes = AttributeSerializer(many=True, required=True)
-    constraints = serializers.JSONField(default=list, required=False)
+    constraints = serializers.ListField(
+        child=serializers.JSONField(), required=False, default=list)
     restrictions = RestrictionSerializer(
         many=True, required=False, default=list)
     cross_restrictions = CrossRestrictionSerializer(
