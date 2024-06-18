@@ -16,7 +16,7 @@ export default api;
 
 export const downloadSurvey = async (
   attributes: Attribute[],
-  path: "qualtrics" | "export" | "export_csv" | "markdown",
+  path: "create_qualtrics" | "export_js" | "export_csv" | "export_json",
   filename: string,
   csv_lines?: number,
   settings?: number
@@ -26,6 +26,7 @@ export const downloadSurvey = async (
     // console.log(processedAttributes);
     const response = await api.post(
       `/surveys/${path}/`,
+
       { ...processedAttributes, csv_lines, settings },
       {
         responseType: "blob",
@@ -35,14 +36,14 @@ export const downloadSurvey = async (
     // console.log(response);
     const fileExtension = (filename: string) => {
       switch (path) {
-        case "qualtrics":
+        case "create_qualtrics":
           return filename + ".qsf";
-        case "export":
+        case "export_js":
           return filename + ".js";
         case "export_csv":
           return filename + ".csv";
-        case "markdown":
-          return filename + ".md";
+        case "export_json":
+          return filename + ".json";
         default:
           return filename;
       }
@@ -51,6 +52,7 @@ export const downloadSurvey = async (
     const file = fileExtension(filename);
 
     console.log("filename", file);
+    // console.log("response", response.data);
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
@@ -76,7 +78,7 @@ export const getPreview = async (
     const processedCrossRestrictions =
       preprocessCrossRestrictions(crossRestrictions);
 
-    const response = await api.post("/surveys/preview/", {
+    const response = await api.post("/surveys/preview_survey/", {
       ...processedAttributes,
       restrictions: processedRestrictions,
       cross_restrictions: processedCrossRestrictions,

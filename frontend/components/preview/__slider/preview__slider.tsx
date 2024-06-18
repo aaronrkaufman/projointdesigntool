@@ -51,7 +51,6 @@ export const PreviewSlider: FC<PreviewSliderProps> = ({ profiles }) => {
           <IOSSlider
             key={profile.id}
             marks={marks}
-            //   step={10}
             value={profileValues[index]}
             valueLabelDisplay="on"
             min={MIN}

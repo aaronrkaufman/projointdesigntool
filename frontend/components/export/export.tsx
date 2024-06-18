@@ -16,7 +16,7 @@ interface IExportDropdown {
 
 export interface IFormat {
   name: string;
-  path: "qualtrics" | "export" | "export_csv" | "markdown";
+  path: "create_qualtrics" | "export_js" | "export_csv" | "export_json";
   description: string;
   clickable: boolean;
 }
@@ -24,7 +24,7 @@ export interface IFormat {
 const formats: IFormat[] = [
   {
     name: "Qualtrics",
-    path: "qualtrics",
+    path: "create_qualtrics",
     clickable: false,
     description: "Export your survey to Qualtrics",
   },
@@ -36,15 +36,16 @@ const formats: IFormat[] = [
   },
   {
     name: "JS",
-    path: "export",
+    path: "export_js",
     clickable: true,
     description: "Export your survey to a JavaScript file",
   },
   {
-    name: "Markdown",
-    path: "markdown",
-    clickable: false,
-    description: "Export your survey to a Markdown file",
+    name: "JSON",
+    path: "export_json",
+    clickable: true,
+    description:
+      "Export your survey to a JSON file that you can import in your own app",
   },
 ];
 
@@ -149,7 +150,7 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
                   value={numRows}
                   onChange={handleNumRowsChange}
                   min={1}
-                  max={1000}
+                  max={100000}
                   label="How many rows?"
                   explanation="Set the amount of rows to export in the CSV"
                 />

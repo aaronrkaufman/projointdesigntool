@@ -73,6 +73,9 @@ export const SettingsNumberRange: FC<SettingsNumberRangeProps> = ({
           value={value}
           onChange={handleChange}
           onBlur={handleBlur}
+          style={{
+            width: `${Math.max((value.toString().length + 1) * 14, 64)}px`,
+          }}
         />
         <button onClick={handleIncrement} className={styles.arrow}>
           <svg
