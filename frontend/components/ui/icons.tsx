@@ -133,6 +133,22 @@ export const ThreeDots = forwardRef<
         placement="right-start"
         transition
         disablePortal
+        modifiers={[
+          {
+            name: "flip",
+            enabled: false, // This disables flipping the Popper's placement when there is not enough space
+          },
+          {
+            name: "preventOverflow",
+            options: {
+              altAxis: false, // Prevents the Popper from moving into the alternative axis (y-axis if primary is x)
+              boundary: "clippingParents", // Can be 'scrollParent', 'window', or an HTML element
+              tether: false, // Whether the Popper can be detached from its anchor element
+              altBoundary: false, // Allows the Popper to overflow its boundaries to stay near the anchor
+              rootBoundary: "document", // Defines which boundary to consider as the viewport
+            },
+          },
+        ]}
       >
         {({ TransitionProps, placement }) => (
           <Grow

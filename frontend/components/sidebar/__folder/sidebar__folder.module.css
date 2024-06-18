@@ -1,5 +1,6 @@
 .sidebar__folder {
   padding-left: 0.5rem;
+  overflow: visible;
 }
 
 .sidebar__folder__header {
@@ -22,6 +23,7 @@
   margin-right: 0.25rem;
   max-height: 40vh;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--border-gray) transparent;
 }
