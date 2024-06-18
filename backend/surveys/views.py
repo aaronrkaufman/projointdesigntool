@@ -194,8 +194,7 @@ def export_json(request):
         filename = 'survey_export.json'
         with open(filename, "w", encoding="utf-8") as file:
             json.dump(request.data, file, ensure_ascii=False, indent=4)
-            response = _send_file_response(filename)
-        return response
+        return _send_file_response(filename)
     else:
         return Response(serializer.errors, status=400)
 
