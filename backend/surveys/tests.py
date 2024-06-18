@@ -3,6 +3,7 @@ import os
 from unittest.mock import patch
 
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
@@ -373,34 +374,35 @@ class ImportJsonTests(TestCase):
             settings.BASE_DIR, 'surveys', 'tests', 'test_data', 'valid_survey.json')
 
     def test_import_valid_json(self):
-        # JSON data to be sent to the view
-        with open(self.file_path, 'r') as file:
-            json_data = json.load(file)
+        with open(self.file_path, 'rb') as file:
+            uploaded_file = SimpleUploadedFile(
+                "valid_survey.json", file.read(), content_type="application/json")
 
-        json_string = json.dumps(json_data)
-
-        # Make POST request with JSON data
+        # Make POST request with the uploaded file
         response = self.client.post(
-            self.url, json_string, content_type='application/json')
+            self.url, {'file': uploaded_file}, format='multipart')
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Now compare the JSON strings
-        self.assertDictEqual(json.loads(
-            response.content.decode('utf-8')), json_data)
+        self.assertDictEqual(json.loads(response.content.decode(
+            'utf-8')), json.load(open(self.file_path, 'r')))
 
     def test_import_invalid_json(self):
-        # Incorrect JSON data (malformed)
-        invalid_json_data = '{"key": "value"'
+        # Malformed JSON data as bytes
+        invalid_json_data = b'{"key": "value"'  # Missing closing brace
 
-        # Make POST request with malformed JSON data
+        # Wrap the malformed data in SimpleUploadedFile
+        uploaded_file = SimpleUploadedFile(
+            "invalid_survey.json", invalid_json_data, content_type="application/json")
+
+        # Make POST request with the uploaded file
         response = self.client.post(
-            self.url, invalid_json_data, content_type='application/json')
+            self.url, {'file': uploaded_file}, format='multipart')
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
-        self.assertTrue('Invalid JSON data' in response.data['error'])
+        self.assertIn('error', response.json())
+        self.assertTrue('Invalid JSON data' in response.json()['error'])
 
 
 class CreateQualtricsTests(TestCase):
