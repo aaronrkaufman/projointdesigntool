@@ -1,9 +1,6 @@
 "use client";
 
-import styles from "../../styles/page.module.css";
-import { Sidebar } from "../../components/sidebar/sidebar";
 import { SurveyContainer } from "../../components/survey/survey.container";
-import { IDocument } from "../../components/documents/__item/documents__item";
 import { DocumentContext } from "../../context/document_context";
 import { useContext, useEffect } from "react";
 
@@ -19,8 +16,7 @@ function DocumentPage({ params }: IServerProps) {
   const documentID = decodeURIComponent(params.document as string);
 
   // console.log(documentName);
-  const { setCurrentDoc, setCurrentDocID, currentDoc } =
-    useContext(DocumentContext);
+  const { setCurrentDoc, setCurrentDocID } = useContext(DocumentContext);
 
   useEffect(() => {
     const localData = localStorage.getItem(`attributes-${documentID}`);
@@ -34,14 +30,7 @@ function DocumentPage({ params }: IServerProps) {
     // console.log("whatis happening", currentDoc)
   }, [documentID]);
 
-  return (
-    <>
-      <main className={styles.main}>
-        <Sidebar active={documentID} />
-        <SurveyContainer />
-      </main>
-    </>
-  );
+  return <SurveyContainer />;
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {

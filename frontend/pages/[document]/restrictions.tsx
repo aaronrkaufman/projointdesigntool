@@ -1,7 +1,5 @@
 "use client";
 
-import styles from "../../styles/page.module.css";
-import { Sidebar } from "../../components/sidebar/sidebar";
 import { DocumentContext } from "../../context/document_context";
 import { useContext, useEffect } from "react";
 
@@ -33,14 +31,7 @@ function RestrictionsPage({ params }: IServerProps) {
     // console.log("whatis happening", currentDoc)
   }, [documentID]);
 
-  return (
-    <>
-      <main className={styles.main}>
-        <Sidebar active={documentID} />
-        <Restrictions />
-      </main>
-    </>
-  );
+  return <Restrictions />;
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {

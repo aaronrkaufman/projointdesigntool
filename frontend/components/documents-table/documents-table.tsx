@@ -12,12 +12,13 @@ import Link from "next/link";
 import styles from "./documents-table.module.css";
 import { FileAddIcon, FileIcon } from "../ui/icons";
 import { useRouter } from "next/router";
-import { v4 as uuidv4 } from "uuid";
+
 import { useAttributes } from "@/context/attributes_context";
 import { columns } from "./__columns/documents-table__columns";
 import { Button } from "../ui/button";
 import { DocumentData, fetchDocuments } from "./documents-table.constants";
 import { DocumentsImport } from "../documents/__import/documents__import";
+import { addSurvey } from "../utils/add-survey";
 
 export interface DocumentsTableProps {}
 
@@ -46,32 +47,8 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
 
   const router = useRouter();
 
-  const handleAddDoc = () => {
-    const uniqueId = uuidv4();
-    const dataToSave = {
-      attributes: [],
-      lastEdited: new Date(), // Update last edited time
-      name: "Untitled",
-      restrictions: [],
-      instructions: {
-        description: "",
-        instructions: "",
-        outcomeType: "mcq",
-      },
-      settings: {
-        numProfiles: 2,
-        numTasks: 2,
-        repeatedTasks: true,
-        repeatedTasksFlipped: false,
-        taskToRepeat: 1,
-        whereToRepeat: 1,
-        randomize: false,
-        noFlip: false,
-      },
-    };
-    localStorage.setItem(`attributes-${uniqueId}`, JSON.stringify(dataToSave));
-    setStorageChanged((prev) => prev + 1);
-    router.push(`/${encodeURIComponent(uniqueId)}`);
+  const handleAddSurvey = () => {
+    addSurvey({ router: router, onStorageChange: setStorageChanged });
   };
 
   return (
@@ -86,7 +63,7 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
             <Button
               text="New survey"
               icon={<FileAddIcon stroke="var(--white)" />}
-              onClick={handleAddDoc}
+              onClick={handleAddSurvey}
             />
           </div>
         </div>

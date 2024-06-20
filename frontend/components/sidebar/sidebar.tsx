@@ -5,18 +5,28 @@ import { Documents } from "../documents/documents";
 import styles from "./sidebar.module.css";
 import { IDocument } from "../documents/__item/documents__item";
 import { useRouter } from "next/router";
-import { v4 as uuidv4 } from "uuid";
 import { useAttributes } from "../../context/attributes_context";
 import { LightTooltip } from "../ui/icons";
 import { FileAdd } from "../ui/file-add";
 import { SidebarFolder } from "./__folder/sidebar__folder";
 import { getTutorials } from "@/services/api";
 import { SidebarTutorials } from "./__tutorials/sidebar__tutorials";
+import { addSurvey } from "../utils/add-survey";
+
+import { useSidebarFoldersStore } from "@/context/sidebar_folders";
 
 export const Sidebar = ({ active }: { active: string }) => {
   const [documents, setDocuments] = useState<IDocument[]>([]);
   const { storageChanged, setStorageChanged } = useAttributes();
   const [tutorials, setTutorials] = useState([]);
+
+  const {
+    surveyFolderOpened,
+    setSurveyFolderOpened,
+    tutorialFolderOpened,
+    setTutorialFolderOpened,
+  } = useSidebarFoldersStore();
+  
 
   useEffect(() => {
     const fetchTutorials = async () => {
@@ -52,32 +62,8 @@ export const Sidebar = ({ active }: { active: string }) => {
 
   const router = useRouter();
 
-  const handleAddDoc = () => {
-    const uniqueId = uuidv4();
-    const dataToSave = {
-      attributes: [],
-      lastEdited: new Date(), // Update last edited time
-      name: "Untitled",
-      instructions: {
-        description: "",
-        instructions: "",
-        outcomeType: "mcq",
-      },
-      restrictions: [],
-      settings: {
-        numProfiles: 2,
-        numTasks: 2,
-        repeatedTasks: true,
-        repeatedTasksFlipped: false,
-        taskToRepeat: 1,
-        whereToRepeat: 1,
-        randomize: false,
-        noFlip: false,
-      },
-    };
-    localStorage.setItem(`attributes-${uniqueId}`, JSON.stringify(dataToSave));
-    setStorageChanged((prev) => prev + 1);
-    router.push(`/${encodeURIComponent(uniqueId)}`);
+  const handleAddSurvey = () => {
+    addSurvey({ router: router, onStorageChange: setStorageChanged });
   };
 
   const handleHome = () => {
@@ -99,19 +85,21 @@ export const Sidebar = ({ active }: { active: string }) => {
             arrow
             placement="right"
           >
-            <FileAdd onAddDoc={handleAddDoc} onImport={handleImportDoc} />
+            <FileAdd onAddSurvey={handleAddSurvey} onImport={handleImportDoc} />
           </LightTooltip>
         </div>
       </div>
       <span className={styles.line}></span>
       <SidebarFolder
         name="My surveys"
-        active={!active.includes("tutorial") && !active.includes("index")}
+        active={surveyFolderOpened}
+        toggleFolder={setSurveyFolderOpened}
         element={<Documents documents={documents} active={active} />}
       />
       <SidebarFolder
-        active={active.includes("tutorial")}
+        active={tutorialFolderOpened}
         name="Tutorials"
+        toggleFolder={setTutorialFolderOpened}
         element={<SidebarTutorials tutorials={tutorials} active={active} />}
       />
     </div>

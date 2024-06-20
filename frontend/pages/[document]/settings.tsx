@@ -1,14 +1,9 @@
 // "use client";
 
-import styles from "../../styles/page.module.css";
-import { Sidebar } from "../../components/sidebar/sidebar";
 import { DocumentContext } from "../../context/document_context";
-import { useContext, useEffect, useState } from "react";
-import Preview, { IPreview } from "../../components/preview/preview";
+import { useContext, useEffect } from "react";
 
 import { GetServerSideProps } from "next";
-import { useAttributes } from "../../context/attributes_context";
-import { getPreview } from "../../services/api";
 import { Settings } from "../../components/settings/settings";
 
 interface IServerProps {
@@ -34,14 +29,7 @@ function SettingsPage({ params }: IServerProps) {
     // console.log("whatis happening", currentDoc)
   }, [documentID]);
 
-  return (
-    <>
-      <main className={styles.main}>
-        <Sidebar active={documentID} />
-        <Settings />
-      </main>
-    </>
-  );
+  return <Settings />;
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {

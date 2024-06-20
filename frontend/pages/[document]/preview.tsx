@@ -1,7 +1,5 @@
 // "use client";
 
-import styles from "../../styles/page.module.css";
-import { Sidebar } from "../../components/sidebar/sidebar";
 import { DocumentContext } from "../../context/document_context";
 import { useContext, useEffect, useState } from "react";
 import Preview, { IPreview } from "../../components/preview/preview";
@@ -65,18 +63,10 @@ function PreviewPage({ params }: IServerProps) {
     }
   }, [refresh]);
 
-  return (
-    <>
-      <main className={styles.main}>
-        <Sidebar active={documentID} />
-        {/* <SurveyContainer /> */}
-        {profiles ? (
-          <Preview {...profiles} setRefresh={setRefresh} refresh={refresh} />
-        ) : (
-          ""
-        )}
-      </main>
-    </>
+  return profiles ? (
+    <Preview {...profiles} setRefresh={setRefresh} refresh={refresh} />
+  ) : (
+    ""
   );
 }
 

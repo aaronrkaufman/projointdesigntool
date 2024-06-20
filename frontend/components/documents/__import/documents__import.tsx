@@ -11,6 +11,7 @@ import styles from "./documents__import.module.css";
 import { LinearProgress, TextField } from "@mui/material";
 import { ImportIcon } from "@/components/ui/file-add";
 import { useAttributes } from "@/context/attributes_context";
+import { addSurvey } from "@/components/utils/add-survey";
 
 export interface DocumentsImportProps {
   size: "big" | "small";
@@ -35,6 +36,8 @@ export const DocumentsImport: FC<DocumentsImportProps> = ({ size }) => {
     }
   };
 
+  const router = useRouter();
+
   const handleImport = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(true);
     event.preventDefault();
@@ -55,40 +58,9 @@ export const DocumentsImport: FC<DocumentsImportProps> = ({ size }) => {
     const response = await importDocument(formData, (progress: number) => {
       setUploadProgress(progress);
     });
-    handleAddDoc(response);
-    setIsOpen(false);
-
+    addSurvey({ router, value: response, onStorageChange: setStorageChanged });
     setIsLoading(false);
-  };
-
-  const router = useRouter();
-
-  const handleAddDoc = (value: any) => {
-    const uniqueId = uuidv4();
-    const dataToSave = {
-      attributes: value.attributes,
-      lastEdited: new Date(), // Update last edited time
-      name: "Untitled",
-      instructions: {
-        description: "",
-        instructions: "",
-        outcomeType: "mcq",
-      },
-      restrictions: [],
-      settings: {
-        numProfiles: value.profiles,
-        numTasks: value.tasks,
-        repeatedTasks: value.repeat_task,
-        repeatedTasksFlipped: value.noFlip,
-        taskToRepeat: value.duplicate_first,
-        whereToRepeat: value.duplicate_second,
-        randomize: value.randomize,
-        noFlip: value.noFlip,
-      },
-    };
-    localStorage.setItem(`attributes-${uniqueId}`, JSON.stringify(dataToSave));
-    setStorageChanged((prev) => prev + 1);
-    router.push(`/${encodeURIComponent(uniqueId)}`);
+    setIsOpen(false);
   };
 
   useEffect(() => {
@@ -105,10 +77,11 @@ export const DocumentsImport: FC<DocumentsImportProps> = ({ size }) => {
       ) : (
         <Button
           text="Import from JSON"
-          icon={<ImportIcon />}
+          icon={<ImportIcon stroke="var(--white)" />}
           onClick={toggleOpen}
         ></Button>
       )}
+
       <Modal
         open={isOpen}
         onClose={() => setIsOpen(false)}

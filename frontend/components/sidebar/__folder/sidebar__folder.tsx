@@ -6,35 +6,34 @@ import { ExpandIcon } from "@/components/ui/icons";
 export interface SidebarFolderProps {
   name: string;
   element: React.ReactNode;
-  active?: boolean;
+  active: boolean;
+  toggleFolder: () => void;
 }
 
 export const SidebarFolder: FC<SidebarFolderProps> = ({
   name,
   element,
   active,
+  toggleFolder,
 }) => {
-  const [isOpen, setIsOpen] = useState(active ? active : false);
-
-  const toggleFolder = () => setIsOpen(!isOpen);
-
   return (
+
     <div className={styles.sidebar__folder}>
       <div
         className={`${styles.sidebar__folder__header} ${
-          isOpen ? styles.active : ""
+          active ? styles.active : ""
         }`}
         onClick={toggleFolder}
       >
         <p>{name}</p>
         <ExpandIcon
-          fill={isOpen ? "var(--blue)" : "#778C9F"}
+          fill={active ? "var(--blue)" : "#778C9F"}
           onClick={toggleFolder}
-          expand={!isOpen}
+          expand={!active}
           size={1.25}
         />
       </div>
-      {isOpen && (
+      {active && (
         <div className={styles.sidebar__folder__content}>{element}</div>
       )}
     </div>
