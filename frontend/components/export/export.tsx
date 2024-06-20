@@ -5,10 +5,11 @@ import { useAttributes } from "@/context/attributes_context";
 import { Button } from "@/components/ui/button";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import { CodeFileIcon, ExportIcon, XIcon } from "@/components/ui/icons";
+import { ExportIcon, XIcon } from "@/components/ui/icons";
 import { DocumentContext } from "@/context/document_context";
 import { ExportFormat } from "./__format/export__format";
 import { SettingsNumberRange } from "../settings/__number-range/settings__number-range";
+import english from "@/naming/english.json";
 
 interface IExportDropdown {
   size: "big" | "small";
@@ -23,29 +24,28 @@ export interface IFormat {
 
 const formats: IFormat[] = [
   {
-    name: "Qualtrics",
+    name: english.export.methods.qualtrics.value,
     path: "create_qualtrics",
     clickable: false,
-    description: "Export your survey to Qualtrics",
+    description: english.export.methods.qualtrics.subtitle,
   },
   {
-    name: "CSV",
+    name: english.export.methods.csv.value,
     path: "export_csv",
     clickable: true,
-    description: "Export your survey to a CSV file",
+    description: english.export.methods.csv.subtitle,
   },
   {
-    name: "JS",
+    name: english.export.methods.js.value,
     path: "export_js",
     clickable: true,
-    description: "Export your survey to a JavaScript file",
+    description: english.export.methods.js.subtitle,
   },
   {
-    name: "JSON",
+    name: english.export.methods.json.value,
     path: "export_json",
     clickable: true,
-    description:
-      "Export your survey to a JSON file that you can import in your own app",
+    description: english.export.methods.json.subtitle,
   },
 ];
 
@@ -151,8 +151,8 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
                   onChange={handleNumRowsChange}
                   min={1}
                   max={100000}
-                  label="How many rows?"
-                  explanation="Set the amount of rows to export in the CSV"
+                  label={english.export.methods.csv.rows.value}
+                  explanation={english.export.methods.csv.rows.subtitle}
                 />
               </>
             )}

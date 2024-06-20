@@ -122,7 +122,7 @@ export const FileAdd = forwardRef<
                   >
                     <FileAddIcon stroke="var(--dark-blue-h)" />{" "}
                     <div>
-                      <p>New Document</p>
+                      <p>New Survey</p>
                     </div>
                   </MenuItem>
                   <MenuItem
@@ -168,4 +168,3 @@ export const ImportIcon = () => {
 };
 
 FileAdd.displayName = "FileAdd";
-

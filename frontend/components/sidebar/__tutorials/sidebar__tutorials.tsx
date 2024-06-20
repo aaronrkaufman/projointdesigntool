@@ -8,6 +8,15 @@ export interface SidebarTutorialsProps {
   active: string;
 }
 
+const formatTutorial = (tutorial: string) => {
+  const tutorialName = tutorial.replace(".md", "");
+  const tutorialTitle = tutorialName.split("_").map((word, index, array) => {
+    if (index === 0 && array.length > 1) return "";
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  });
+  return tutorialTitle.join(" ");
+};
+
 export const SidebarTutorials: FC<SidebarTutorialsProps> = ({
   tutorials,
   active,
@@ -19,7 +28,9 @@ export const SidebarTutorials: FC<SidebarTutorialsProps> = ({
         className={active.includes(tutorial) ? styles.active : ""}
       >
         <Link href={`/tutorials/${tutorial}`}>
-          <p className={styles.sidebar__tutorials__link}>{tutorial}</p>
+          <p className={styles.sidebar__tutorials__link}>
+            {formatTutorial(tutorial)}
+          </p>
         </Link>
       </li>
     ))}

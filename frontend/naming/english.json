@@ -1,4 +1,29 @@
 {
+  "export": {
+    "value": "Export",
+    "methods": {
+      "qualtrics": {
+        "value": "Qualtrics",
+        "subtitle": "Export this survey to QSF file"
+      },
+      "csv": {
+        "value": "CSV",
+        "subtitle": "Export this survey to CSV file",
+        "rows": {
+          "value": "Rows",
+          "subtitle": "Set the amount of rows to export in CSV file"
+        }
+      },
+      "js": {
+        "value": "JS",
+        "subtitle": "Export this survey to JavaScript file"
+      },
+      "json": {
+        "value": "JSON",
+        "subtitle": "Export this survey to JSON file that you can import afterwards"
+      }
+    }
+  },
   "surveyPage": {
     "description": {
       "value": "Enter your description here! Example: 'Here are two profiles A and B. "

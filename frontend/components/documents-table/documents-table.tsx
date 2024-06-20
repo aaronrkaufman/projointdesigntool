@@ -17,6 +17,7 @@ import { useAttributes } from "@/context/attributes_context";
 import { columns } from "./__columns/documents-table__columns";
 import { Button } from "../ui/button";
 import { DocumentData, fetchDocuments } from "./documents-table.constants";
+import { DocumentsImport } from "../documents/__import/documents__import";
 
 export interface DocumentsTableProps {}
 
@@ -80,11 +81,14 @@ export const DocumentsTable: FC<DocumentsTableProps> = ({}) => {
           <div className={styles.docName}>
             <h2>Surveys</h2>
           </div>
-          <Button
-            text="New survey"
-            icon={<FileAddIcon stroke="var(--white)" />}
-            onClick={handleAddDoc}
-          />
+          <div className={styles.docActions}>
+            <DocumentsImport size="small" />
+            <Button
+              text="New survey"
+              icon={<FileAddIcon stroke="var(--white)" />}
+              onClick={handleAddDoc}
+            />
+          </div>
         </div>
         <Paper
           sx={{
