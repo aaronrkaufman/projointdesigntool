@@ -19,15 +19,27 @@ export const downloadSurvey = async (
   path: "create_qualtrics" | "export_js" | "export_csv" | "export_json",
   filename: string,
   csv_lines?: number,
+  restrictions?: RestrictionProps[],
+  crossRestrictions?: RestrictionProps[],
   settings?: number
 ): Promise<void> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
+    const processedRestrictions = preprocessRestrictions(restrictions || []);
+    const processedCrossRestrictions = preprocessCrossRestrictions(
+      crossRestrictions || []
+    );
     // console.log(processedAttributes);
     const response = await api.post(
       `/surveys/${path}/`,
 
-      { ...processedAttributes, csv_lines, settings },
+      {
+        ...processedAttributes,
+        csv_lines,
+        settings,
+        restrictions: processedRestrictions,
+        cross_restrictions: processedCrossRestrictions,
+      },
       {
         responseType: "blob",
       }

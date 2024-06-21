@@ -54,7 +54,7 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
   const [activeItem, setActiveItem] = useState<IFormat>(formats[1]);
   const { currentDoc } = useContext(DocumentContext);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { attributes } = useAttributes();
+  const { attributes, restrictions, crossRestrictions } = useAttributes();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [docName, setDocName] = useState<string>(currentDoc);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -74,7 +74,14 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
 
   const handleDownload = async (path: IFormat["path"]) => {
     setIsLoading(true);
-    await downloadSurvey(attributes, path, docName, numRows);
+    await downloadSurvey(
+      attributes,
+      path,
+      docName,
+      numRows,
+      restrictions,
+      crossRestrictions
+    );
     setIsLoading(false);
   };
 
@@ -104,12 +111,9 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
   return (
     <>
       {size === "big" ? (
-        <div
-          className={styles.modalBefore}
-          onClick={() => setExportModalOpen(true)}
-        >
-          <ExportIcon /> <p>Export</p>{" "}
-        </div>
+        <>
+          <ExportIcon /> <p>Export</p>
+        </>
       ) : (
         <Button
           text="Export"

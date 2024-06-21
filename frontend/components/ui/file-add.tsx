@@ -114,7 +114,7 @@ export const FileAdd = forwardRef<
                       gap: "0.75rem",
                       padding: " 1rem",
                       alignItems: "center",
-                      fontSize: "1rem",
+                      fontSize: "0.875rem",
                       fontWeight: "medium",
                       textWrap: "wrap",
                     }}
@@ -130,12 +130,12 @@ export const FileAdd = forwardRef<
                       gap: "0.75rem",
                       alignItems: "center",
                       padding: " 1rem",
-                      fontSize: "1rem",
+                      fontSize: "0.875rem",
                       width: "100%",
                       height: "100%",
                       fontWeight: "medium",
                     }}
-                    onClick={() => setImportModalOpen()}
+                    onClick={() => setImportModalOpen(true)}
                   >
                     <DocumentsImport size="big" />
                   </MenuItem>
