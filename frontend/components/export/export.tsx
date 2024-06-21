@@ -10,6 +10,7 @@ import { DocumentContext } from "@/context/document_context";
 import { ExportFormat } from "./__format/export__format";
 import { SettingsNumberRange } from "../settings/__number-range/settings__number-range";
 import english from "@/naming/english.json";
+import { useModalStore } from "@/context/modal_store";
 
 interface IExportDropdown {
   size: "big" | "small";
@@ -50,7 +51,6 @@ const formats: IFormat[] = [
 ];
 
 const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<IFormat>(formats[1]);
   const { currentDoc } = useContext(DocumentContext);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -59,15 +59,14 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
   const [docName, setDocName] = useState<string>(currentDoc);
   const inputRef = useRef<HTMLInputElement>(null);
   const [numRows, setNumRows] = useState<number>(500);
-
-  const toggleOpen = () => setIsOpen(!isOpen);
+  const { exportModalOpen, setExportModalOpen } = useModalStore();
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
       dropdownRef.current &&
       !dropdownRef.current.contains(event.target as Node)
     ) {
-      setIsOpen(false);
+      setExportModalOpen(false);
     }
   };
 
@@ -105,26 +104,29 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
   return (
     <>
       {size === "big" ? (
-        <div className={styles.modalBefore} onClick={toggleOpen}>
+        <div
+          className={styles.modalBefore}
+          onClick={() => setExportModalOpen(true)}
+        >
           <ExportIcon /> <p>Export</p>{" "}
         </div>
       ) : (
         <Button
           text="Export"
           icon={<ExportIcon stroke="white" />}
-          onClick={toggleOpen}
+          onClick={() => setExportModalOpen(true)}
         ></Button>
       )}
       <Modal
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
+        open={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
         aria-labelledby="export-modal-title"
         aria-describedby="export-modal-description"
       >
         <Box sx={modalStyle}>
           <div className={styles.modalHeader}>
             <h2 id="export-modal-title">Export this survey</h2>
-            <XIcon onClick={() => setIsOpen(false)} />
+            <XIcon onClick={() => setExportModalOpen(false)} />
           </div>
           <div className={styles.modalContent}>
             <label>

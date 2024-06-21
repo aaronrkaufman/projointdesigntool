@@ -116,14 +116,18 @@ export const importDocument = async (
   file: FormData,
   onProgress: (percentage: number) => void
 ) => {
-  const response = await api.post("/surveys/import_json/", file, {
-    onUploadProgress: (progressEvent) => {
-      const percentCompleted = Math.round(
-        (progressEvent.loaded * 100) / progressEvent.total!
-      );
-      onProgress(percentCompleted);
-    },
-  });
-
-  return response.data;
+  try {
+    const response = await api.post("/surveys/import_json/", file, {
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total!
+        );
+        onProgress(percentCompleted);
+      },
+    });
+    return response.data; // This assumes the response structure has `data`
+  } catch (error) {
+    console.error("Upload error", error);
+    throw error; // Throw the error to be caught in the component
+  }
 };

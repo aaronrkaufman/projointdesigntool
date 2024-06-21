@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Documents } from "../documents/documents";
 import styles from "./sidebar.module.css";
 import { IDocument } from "../documents/__item/documents__item";
@@ -26,7 +26,6 @@ export const Sidebar = ({ active }: { active: string }) => {
     tutorialFolderOpened,
     setTutorialFolderOpened,
   } = useSidebarFoldersStore();
-  
 
   useEffect(() => {
     const fetchTutorials = async () => {
@@ -73,6 +72,13 @@ export const Sidebar = ({ active }: { active: string }) => {
   const handleImportDoc = () => {
     console.log("Importing document");
   };
+
+  useEffect(() => {
+    const doc = documents.find((doc) => doc.key === active);
+    if (doc && !surveyFolderOpened) {
+      setSurveyFolderOpened();
+    }
+  }, [active]);
 
   return (
     <div className={styles.sidebar}>

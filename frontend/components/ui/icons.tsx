@@ -380,6 +380,10 @@ export const DeleteTip = forwardRef<SVGSVGElement, { stroke?: string }>(
 
 DeleteTip.displayName = "DeleteTip";
 
+export const DeleteIcon = ({ stroke = "var(--red)" }: { stroke?: string }) => {
+  return <DeleteTip stroke={stroke} />;
+};
+
 export const EditTip = forwardRef<SVGSVGElement, { stroke: string }>(
   ({ stroke, ...props }, ref) => {
     return (

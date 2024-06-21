@@ -9,6 +9,7 @@ import {
 import React, { forwardRef } from "react";
 import { FileAddIcon } from "./icons";
 import { DocumentsImport } from "../documents/__import/documents__import";
+import { useModalStore } from "@/context/modal_store";
 
 export const FileAdd = forwardRef<
   HTMLDivElement,
@@ -16,6 +17,7 @@ export const FileAdd = forwardRef<
 >(({ onAddSurvey, onImport, ...props }, ref) => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLDivElement>(null);
+  const { importModalOpen, setImportModalOpen } = useModalStore();
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -23,6 +25,7 @@ export const FileAdd = forwardRef<
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
     if (
+      !importModalOpen &&
       anchorRef.current &&
       anchorRef.current.contains(event.target as HTMLElement)
     ) {
@@ -46,11 +49,6 @@ export const FileAdd = forwardRef<
     onAddSurvey();
   };
 
-  const handleImport = () => {
-    handleToggle();
-    onImport && onImport();
-  };
-
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = React.useRef(open);
   React.useEffect(() => {
@@ -62,6 +60,7 @@ export const FileAdd = forwardRef<
   }, [open]);
 
   const { stroke = "#0095FF", ...rest } = props;
+
   return (
     <div ref={anchorRef}>
       <div
@@ -132,8 +131,11 @@ export const FileAdd = forwardRef<
                       alignItems: "center",
                       padding: " 1rem",
                       fontSize: "1rem",
+                      width: "100%",
+                      height: "100%",
                       fontWeight: "medium",
                     }}
+                    onClick={() => setImportModalOpen()}
                   >
                     <DocumentsImport size="big" />
                   </MenuItem>

@@ -4,6 +4,7 @@
   align-items: center;
   gap: 0.75rem;
   flex-direction: row;
+  height: 100%;
 }
 
 .modalHeader {
@@ -58,4 +59,56 @@
 .modalButton:hover {
   cursor: pointer;
   background-color: var(--dark-blue-p);
+}
+
+.dropzone {
+  border: 2px dashed var(--blue-p);
+  padding: 20px;
+  text-align: center;
+}
+
+.dropzoneActive {
+  border-color: var(--blue);
+  background-color: var(--active-blue);
+  color: var(--blue);
+}
+
+.fileInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.fileInfoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+  font-weight: bold;
+}
+
+.fileInfoProgress {
+  width: 100%;
+}
+
+.fileInfoHeaderClose {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.fileInfoHeaderClose:hover {
+  background-color: var(--active-blue);
+  border-radius: 0.25rem;
+}
+
+.fileInfoHeaderClose:hover path {
+  stroke: var(--blue);
+}
+
+.error {
+  color: var(--red);
 }

@@ -1,66 +1,109 @@
-import React, { FC, useState, useRef, useEffect, useContext } from "react";
+import React, { FC, useState, useRef, useEffect, useCallback } from "react";
 import { importDocument } from "@/services/api";
 import { useRouter } from "next/router";
-import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import { XIcon } from "@/components/ui/icons";
+import { DeleteIcon, XIcon } from "@/components/ui/icons";
 
 import styles from "./documents__import.module.css";
 import { LinearProgress, TextField } from "@mui/material";
 import { ImportIcon } from "@/components/ui/file-add";
 import { useAttributes } from "@/context/attributes_context";
 import { addSurvey } from "@/components/utils/add-survey";
+import { useDropzone } from "react-dropzone";
+import { useModalStore } from "@/context/modal_store";
 
 export interface DocumentsImportProps {
   size: "big" | "small";
 }
 
 export const DocumentsImport: FC<DocumentsImportProps> = ({ size }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { importModalOpen, setImportModalOpen } = useModalStore();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { setStorageChanged } = useAttributes();
 
-  const toggleOpen = () => setIsOpen(!isOpen);
+  const [file, setFile] = useState<File | null>(null);
+  const [fileUpload, setFileUpload] = useState(0);
+
+  const [error, setError] = useState<string | null>(null);
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      // Check if multiple files were dropped and inform the user
+      if (acceptedFiles.length > 1) {
+        setError("Only one file can be uploaded at a time.");
+        return;
+      }
+
+      const file = acceptedFiles[acceptedFiles.length - 1]; // Take the last file dropped
+      const reader = new FileReader();
+
+      reader.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          setFileUpload(progress);
+        }
+      };
+
+      reader.onloadstart = () => {
+        setIsLoading(true);
+        setFileUpload(0);
+      };
+
+      reader.onloadend = () => {
+        setIsLoading(false);
+        setFile(file);
+        setError(null);
+        // Optionally, here you can automatically start uploading to the backend
+      };
+
+      reader.readAsDataURL(file); // or reader.readAsArrayBuffer(file) for binary files
+    },
+    [importDocument, addSurvey, setStorageChanged]
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
       dropdownRef.current &&
       !dropdownRef.current.contains(event.target as Node)
     ) {
-      setIsOpen(false);
+      console.log("clicked outside");
+      setImportModalOpen(false);
     }
   };
 
   const router = useRouter();
 
-  const handleImport = async (event: React.FormEvent<HTMLFormElement>) => {
-    setIsLoading(true);
-    event.preventDefault();
-    const target = event.target as HTMLFormElement;
-    const fileInput = target.querySelector(
-      'input[type="file"]'
-    ) as HTMLInputElement;
-
-    const file = fileInput.files?.[0];
-
+  const handleImport = async () => {
     if (!file) {
-      setIsLoading(false);
       return;
     }
+
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await importDocument(formData, (progress: number) => {
-      setUploadProgress(progress);
-    });
-    addSurvey({ router, value: response, onStorageChange: setStorageChanged });
-    setIsLoading(false);
-    setIsOpen(false);
+    try {
+      const response = await importDocument(formData, (progress: number) => {
+        setUploadProgress(progress);
+      });
+      addSurvey({
+        router,
+        value: response,
+        onStorageChange: setStorageChanged,
+      });
+      setImportModalOpen(false);
+    } catch (error: any) {
+      console.error("Failed to upload", error);
+      setError("Failed to upload file: " + error.message); // Adjust according to how much error detail you want to display
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -71,38 +114,69 @@ export const DocumentsImport: FC<DocumentsImportProps> = ({ size }) => {
   return (
     <>
       {size === "big" ? (
-        <div className={styles.modalBefore} onClick={toggleOpen}>
+        <>
           <ImportIcon /> <p>Import from JSON</p>{" "}
-        </div>
+        </>
       ) : (
         <Button
           text="Import from JSON"
           icon={<ImportIcon stroke="var(--white)" />}
-          onClick={toggleOpen}
+          onClick={() => setImportModalOpen()}
         ></Button>
       )}
 
       <Modal
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
+        open={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
         aria-labelledby="import-modal-title"
         aria-describedby="import-modal-description"
       >
         <Box sx={modalStyle}>
           <div className={styles.modalHeader}>
             <h2 id="import-modal-title">Import a JSON file</h2>
-            <XIcon onClick={() => setIsOpen(false)} />
+            <XIcon onClick={() => setImportModalOpen(false)} />
           </div>
           <div className={styles.modalContent}>
-            <form onSubmit={handleImport}>
-              <TextField type="file" />
-              <LinearProgress variant="determinate" value={uploadProgress} />
-              <div className={styles.modalButtonContainer}>
-                <button type="submit" className={styles.modalButton}>
-                  Import
-                </button>
+            <div
+              {...getRootProps()}
+              className={`${styles.dropzone} ${
+                isDragActive ? styles.dropzoneActive : ""
+              }`}
+            >
+              <input {...getInputProps()} />
+              {isDragActive ? (
+                <p>Drop the file here</p>
+              ) : (
+                <p>Drag a file here, or click to select a file</p>
+              )}
+            </div>
+            {file && (
+              <div className={styles.fileInfo}>
+                <div className={styles.fileInfoHeader}>
+                  <p>{file.name}</p>
+                  <div
+                    onClick={() => {
+                      setFile(null);
+                      setError(null);
+                    }}
+                    className={styles.fileInfoHeaderClose}
+                  >
+                    <DeleteIcon />
+                  </div>
+                </div>
+                <LinearProgress
+                  className={styles.fileInfoProgress}
+                  variant="determinate"
+                  value={fileUpload}
+                />
               </div>
-            </form>
+            )}
+            {error && <div className={styles.error}>{error}</div>}
+            <div className={styles.modalButtonContainer}>
+              <button onClick={handleImport} className={styles.modalButton}>
+                Import
+              </button>
+            </div>
           </div>
         </Box>
       </Modal>
