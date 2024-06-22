@@ -12,7 +12,7 @@ from django.http import FileResponse
 from rest_framework import status
 from rest_framework.response import Response
 
-from .serializers import SurveySerializer
+from .serializers import QualtricsSerializer, SurveySerializer
 
 temp_1 = """// Code to randomly generate conjoint profiles in a Qualtrics survey
 
@@ -284,14 +284,6 @@ for (var pr = 0; pr < returnarrayKeys.length; pr++) {
 '''''''''''''''''''''''''''''''''''''''''''''
 
 
-def _check_attributes(attributes):
-    # Raise error if level is missing
-    for attribute in attributes:
-        if len(attribute["levels"]) == 0:
-            return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-    return None
-
-
 def _clean_constraints(constraints):
     # Drop any Null constraints
     return [constraint for constraint in constraints if constraint != []]
@@ -322,7 +314,7 @@ def _send_file_response(file_path):
 
 
 def _create_js_file(request):
-    serializer = SurveySerializer(data=request.data)
+    serializer = QualtricsSerializer(data=request.data)
     if serializer.is_valid():
         validated_data = serializer.validated_data
 
@@ -344,9 +336,6 @@ def _create_js_file(request):
 
         noFlip = validated_data['noFlip']
 
-        resp = _check_attributes(attributes)
-        if resp:
-            return resp
         constraints = _clean_constraints(constraints)
 
         """ Write into file """
@@ -695,14 +684,13 @@ def __CreateBlock(surveyID, bl, user_token):
     return response["result"]["BlockID"]
 
 
-def _create_survey(name, user_token, task, num_attr, profiles, currText, js, duplicates, repeatFlip, doubleQ, qText):
-    url = "https://yul1.qualtrics.com/API/v3/survey-definitions"
+def _create_survey(name, user_token, task, num_attr, profiles, currText, js, d1, d2, repeatFlip, doubleQ, qText):
+    url = "https://yul1.qualtrics.com/API/v3/survey-definitions"  # CHANGE DATA CENTER
     payload = {"SurveyName": name, "Language": "AR", "ProjectCategory": "CORE"}
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
     response = requests.request(
         "POST", url, json=payload, headers=headers).json()
     surveyID = response["result"]["SurveyID"]
-    d1, d2 = duplicates
     for i in range(task+1):
         bl = _get_flow(surveyID, user_token)
         blockID = __CreateBlock(surveyID, bl, user_token)

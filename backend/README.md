@@ -91,19 +91,7 @@ for example
 python3 manage.py test surveys
 ```
 
-## Markdown Pages
+## Environment Setup
+To run this project locally, you need to set up the following environment variables in your `.env` file:
 
-To load the pages
-
-```bash
-python3 manage.py loaddata markdown_pages.json
-```
-
-To upload the pages
-
-```bash
-python3 manage.py dumpdata dmd_app.MarkdownContent > markdown_pages.json
-git add markdown_pages.json
-git commit -m "docs: Add markdown pages data"
-git push
-```
+- `QUALTRICS_API_KEY`: API key for accessing Qualtrics service.
