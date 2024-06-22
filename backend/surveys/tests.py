@@ -405,46 +405,133 @@ class ImportJsonTests(TestCase):
         self.assertTrue('Invalid JSON data' in response.json()['error'])
 
 
-class CreateQualtricsTests(TestCase):
+class QualtricsTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse("surveys:qsf_to_attribute")
+        self.url_import = reverse('surveys:import_qsf')
+        self.url_export = reverse('surveys:export_qsf')
         self.payloadSuccess = {
             "attributes": [
                 {
                     "name": "att1",
                     "levels": [
-                        {"name": "b"},
-                        {"name": "a"},
+                        {
+                            "name": "level1",
+                            "weight": 0.5
+                        },
+                        {
+                            "name": "another1",
+                            "weight": 0.5
+                        }
                     ],
+                    "locked": True
                 },
                 {
                     "name": "att2",
                     "levels": [
-                        {"name": "d"},
-                        {"name": "e"},
+                        {
+                            "name": "level2",
+                            "weight": 0.2
+                        },
+                        {
+                            "name": "another2",
+                            "weight": 0.8
+                        }
                     ],
+                    "locked": True
                 },
                 {
                     "name": "att3",
                     "levels": [
-                        {"name": "f"},
-                        {"name": "g"},
+                        {
+                            "name": "level3",
+                            "weight": 0.9
+                        },
+                        {
+                            "name": "another3",
+                            "weight": 0.1
+                        }
                     ],
-                },
+                    "locked": True
+                }
             ],
-            "advanced": {"att1": 0, "att2": 0, "att3": 1}
+            "constraints": [],
+            "restrictions": [
+                {
+                    "condition": [
+                        {
+                            "attribute": "att1",
+                            "operation": "==",
+                            "value": "level1"
+                        },
+                        {
+                            "logical": "||",
+                            "attribute": "att2",
+                            "operation": "==",
+                            "value": "level2"
+                        }
+                    ],
+                    "result": [
+                        {
+                            "attribute": "att3",
+                            "operation": "!=",
+                            "value": "level3"
+                        }
+                    ]
+                }
+            ],
+            "cross_restrictions": [],
+            "filename": "survey.js",
+            "advanced": {},
+            "profiles": 2,
+            "tasks": 5,
+            "randomize": False,
+            "repeat_task": False,
+            "random": False,
+            "duplicate_first": 0,
+            "duplicate_second": 0,
+            "noFlip": False,
+            "csv_lines": 500
         }
+        self.valid_survey_path = os.path.join(
+            settings.BASE_DIR, 'surveys', 'tests', 'test_data', 'valid_survey.json')
+        self.qsf_path = os.path.join(
+            settings.BASE_DIR, 'surveys', 'tests', 'test_data', 'survey.qsf')
 
-    # def test_qsf_to_attributes_success(self):
-    #     qsf_path = "./test.qf"
-    #     with open(qsf_path, 'r') as qsf:
-    #         qsf_content = qsf.read()
-    #     payload = {'qsf_content': qsf_content}
-    #     response = self.client.post(self.url, payload, format="json")
-    #     self.assertEqual(response.status_code, 201)
+    def test_import_qsf_valid(self):
+        with open(self.qsf_path, 'rb') as file:
+            uploaded_file = SimpleUploadedFile(
+                self.qsf_path, file.read(), content_type="application/json")
 
-    # def test_create_qualtrics(self):
-    #     response = self.client.post(
-    #         self.url, self.payloadSuccess, format="json")
-    #     self.assertEqual(response.status_code, 201)
+        response = self.client.post(
+            self.url_import, {'file': uploaded_file}, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertDictEqual(json.loads(response.content.decode(
+            'utf-8')), json.load(open(self.valid_survey_path, 'r')))
+
+    def test_import_qsf_invalid(self):
+        # Malformed JSON data as bytes
+        invalid_json_data = b'{"key": "value"'
+
+        # Wrap the malformed data in SimpleUploadedFile
+        uploaded_file = SimpleUploadedFile(
+            "invalid_qsf.qsf", invalid_json_data, content_type="application/json")
+
+        # Make POST request with the uploaded file
+        response = self.client.post(
+            self.url_import, {'file': uploaded_file}, format='multipart')
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.json())
+        self.assertTrue('Invalid QSF data' in response.json()['error'])
+
+    def test_export_qsf_valid(self):
+        response = self.client.post(
+            self.url_export, self.payloadSuccess, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, 201)
+        self.assertEquals(response['Content-Disposition'],
+                          'attachment; filename="survey.qsf"')

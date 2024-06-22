@@ -131,3 +131,15 @@ class SurveySerializer(serializers.ModelSerializer):
                     "Each attribute must be a dict with 'name' and 'levels'.")
 
         return value
+
+
+class QualtricsSerializer(SurveySerializer):
+    doubleQ = serializers.BooleanField(default=False)
+    qType = serializers.CharField(default='MC')
+    qText = serializers.CharField(default='Please carefully review the options detailed below, \
+            then please answer the questions < /span >\n < br/>\n < br/>\n < span > Which of these choices do you prefer?')
+
+    class Meta(SurveySerializer.Meta):
+        fields = SurveySerializer.Meta.fields + [
+            'doubleQ', 'qType', 'qText'
+        ]

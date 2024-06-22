@@ -1,5 +1,7 @@
 import json
+import os
 
+from dotenv import load_dotenv
 from drf_spectacular.utils import (OpenApiExample, OpenApiResponse,
                                    extend_schema)
 from rest_framework import status
@@ -7,11 +9,13 @@ from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from .helpers import (_check_attributes, _create_js_file, _create_profiles,
-                      _create_survey, _download_survey,
-                      _generate_unlocked_order, _populate_csv,
-                      _send_file_response)
-from .serializers import ShortSurveySerializer, SurveySerializer
+from .helpers import (_create_js_file, _create_profiles, _create_survey,
+                      _download_survey, _generate_unlocked_order,
+                      _populate_csv, _send_file_response)
+from .serializers import (QualtricsSerializer, ShortSurveySerializer,
+                          SurveySerializer)
+
+load_dotenv()
 
 
 @extend_schema(
@@ -116,7 +120,7 @@ def preview_survey(request):
     request=SurveySerializer,
     responses={
         status.HTTP_200_OK: OpenApiResponse(
-            response=ShortSurveySerializer,
+            response=SurveySerializer,
             description="Validated survey data",
             examples=[
                 OpenApiExample(
@@ -279,17 +283,17 @@ def export_csv(request):
 
 
 @extend_schema(
-    request=SurveySerializer,
+    request=QualtricsSerializer,
     responses={
         status.HTTP_201_CREATED: OpenApiResponse(
-            response=SurveySerializer,
+            response=QualtricsSerializer,
             description="A QSF file containing the survey data.",
             examples=[
                 OpenApiExample(
                     name="CreateQualtricsExample",
                     description="Successful creation of Qualtrics survey and export of survey QSF",
                     value={
-                        "content_type": "application/octet-stream",
+                        "content_type": "application/json",
                         "headers": {
                             "Content-Disposition": 'attachment; filename="{filename}"'
                         }
@@ -312,213 +316,101 @@ def export_csv(request):
             ]
         )
     },
-    description="Creates a Qualtrics survey and exports it to a QSF file.",
-    summary="Create a Qualtrics survey",
-    tags=["Qualtrics"]
+    description="Generates and exports a Qualtrics survey based on the provided survey data if valid.",
+    summary="Export a survey to Qualtrics",
+    tags=["Export"]
 )
 @api_view(["POST"])
-def create_qualtrics(request):
+def export_qsf(request):
+    serializer = QualtricsSerializer(data=request.data)
+    if serializer.is_valid():
+        validated_data = serializer.validated_data
+        attributes = validated_data["attributes"]
+        filename = validated_data["filename"]
+        profiles = validated_data["profiles"]
+        tasks = validated_data["tasks"]
+        duplicate_first = validated_data["duplicate_first"]
+        duplicate_second = validated_data["duplicate_second"]
+        repeatFlip = validated_data["noFlip"]
+        doubleQ = validated_data["doubleQ"]
+        qType = validated_data["qType"]
+        qText = validated_data["qText"]
 
-    attributes = request.data.get("attributes", [])
-    filename = request.data.get("filename", "export survey")
-    profiles = request.data.get("profiles", 2)
-    tasks = request.data.get("tasks", 5)
-    duplicates = request.data.get("duplicates", [2, 4])
-    repeatFlip = request.data.get("repeatFlip", 1)
-    doubleQ = request.data.get("doubleQ", False)
-    resp = _check_attributes(attributes)
-    qType = request.data.get("qType", "MC")
-    qText = request.data.get(
-        "qText", "Please carefully review the options detailed below, then please answer the questions </span>\n<br/>\n<br/>\n<span>Which of these choices do you prefer?")
-    if resp:
-        return resp
-    jsname = _create_js_file(request)
-    js_py = json.dumps(request.data)
-    with open(jsname, "r", encoding="utf-8") as file_js:
-        js_text = file_js.read()
-    js_text = "Qualtrics.SurveyEngine.addOnload(function(){" + js_text
-    js_text += "\n"
-    js_text += "});\nQualtrics.SurveyEngine.addOnReady(function(){\
-               \n/*Place your JavaScript here to run when the page is fully displayed*/\
-                });\nQualtrics.SurveyEngine.addOnUnload(function()\
-                {\n/*Place your JavaScript here to run when the page is unloaded*/});"
-    js_text = "//" + js_py + "\n" + js_text
-    # FIGURE OUT BETTER WAY TO STORE THIS
-    user_token = "Vy99DuC4A57FSg4tzvoejFdE0sDgaBH8cAouYF6h"
-    created = _create_survey(
-        filename, user_token, tasks, len(
-            attributes), profiles, "", js_text, duplicates, repeatFlip, doubleQ, qText
-    )
+        jsname = _create_js_file(request)
+        with open(jsname, "r", encoding="utf-8") as file_js:
+            js_text = file_js.read()
+        js_text = "//" + json.dumps(request.data) + "\n" + \
+            "Qualtrics.SurveyEngine.addOnload(function(){" + js_text + "\n"
+        js_text += "});\nQualtrics.SurveyEngine.addOnReady(function(){\
+                \n/*Place your JavaScript here to run when the page is fully displayed*/\
+                    });\nQualtrics.SurveyEngine.addOnUnload(function()\
+                    {\n/*Place your JavaScript here to run when the page is unloaded*/});"
 
-    _download_survey(created, user_token, doubleQ, qType)
-    return _send_file_response("survey.qsf")
+        user_token = os.getenv("QUALTRICS_API_KEY")
+        created = _create_survey(
+            filename, user_token, tasks, len(
+                attributes), profiles, "", js_text, duplicate_first, duplicate_second, repeatFlip, doubleQ, qText
+        )
+
+        _download_survey(created, user_token, doubleQ, qType)
+        return _send_file_response("survey.qsf")
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema(
-    request=None,
+    request=SurveySerializer,
     responses={
-        status.HTTP_201_CREATED: OpenApiResponse(
-            response="application/octet-stream",
-            description="Reversing QSF File into Attribute JSON",
+        status.HTTP_200_OK: OpenApiResponse(
+            response=SurveySerializer,
+            description="Reversing QSF File into Survey",
             examples=[
                 OpenApiExample(
                     name="ReverseQualtricsExample",
-                    description="Successful Reversing QSF File into Attribute JSON",
-                    value={
-                        "attributes": [
-                            {
-                                "name": "att1",
-                                "levels": [
-                                    {"name": "b", "weight": 0.5},
-                                    {"name": "a", "weight": 0.5},
-                                ],
-                            },
-                            {
-                                "name": "att2",
-                                "levels": [
-                                    {"name": "d", "weight": 0.5},
-                                    {"name": "e", "weight": 0.5},
-                                ],
-                            },
-                            {
-                                "name": "att3",
-                                "levels": [
-                                    {"name": "f", "weight": 0.5},
-                                    {"name": "g", "weight": 0.5},
-                                ],
-                            },
-                        ],
-                        "restrictions": ["att1 == b || att1 == a then att2 == d"]
-
-                    }
-                )
+                    description="Successful Reversing QSF File into Survey",
+                    value=SurveySerializer().data,)
             ]
         ),
         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            response="application/octet-stream",
-            description="Error in Reversing QSF File into Attribute JSON",
-            examples=[
-                OpenApiExample(
-                    name="ReverseQualtricsErrorExample",
-                    description="This response is returned when request to reverse QSF File is unsuccessful",
-                    value={
-                        "error": "Invalid QSF provided.",
-                        "details": "QSF is invalid. Make sure QSF from survey created from projoint is used."
-                    },
-                )
-            ]
+            description="Error in Reversing QSF File into Survey",
         )
     },
-    description="Reverses a QSF file into an attribute JSON.",
-    summary="Reverse QSF File",
-    tags=["Qualtrics"]
+    description="Imports a QSF file into an attribute JSON.",
+    summary="Imports QSF File",
+    tags=["Import"]
 )
 @api_view(["POST"])
-def qsf_to_attributes(request):
-    qsf_data = json.loads(request)
-    questions = qsf_data.get("SurveyElements")
-    flag = 1
-    for i in questions:
-        if i.get("PrimaryAttribute") == "QID1":
-            payload = i.get("Payload", {})
-            js = payload.get("QuestionJS")
-            attribute_comment = js.split("\n")[0]
-            if "\\" in attribute_comment:
-                attribute_comment.replace("\\", "")
-                attribute_data = json.loads(attribute_comment)
-                flag = 0
-            break
-    if flag:  # If QSF invalid, will return empty json
-        attribute_data = {}
-    return attribute_data
+def import_qsf(request):
+    if 'file' not in request.FILES:
+        return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
-
-'''
-@extend_schema(
-    request=ShortSurveySerializer,
-    responses={
-        status.HTTP_201_CREATED: OpenApiResponse(
-            response="text/csv",
-            description="A CSV file containing the preview of survey data.",
-            examples=[
-                OpenApiExample(
-                    name="PreviewCSVFileExample",
-                    description="A CSV file stream containing the preview of survey data of all possible combinations.",
-                    value={
-                        "content_type": "text/csv",
-                        "headers": {
-                            "Content-Disposition": 'attachment; filename="preview.csv"'
-                        },
-                    },
-                ),
-            ],
-        ),
-        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            description="Bad Request, no survey data or invalid data provided",
-            response="application/json",
-            examples=[
-                OpenApiExample(
-                    name="SurveyPreviewFailEmpty",
-                    description="The survey data provided is empty.",
-                    value={"message": "Survey is empty."},
-                ),
-                OpenApiExample(
-                    name="SurveyPreviewFailInvalid",
-                    description="The survey data provided is invalid.",
-                    value={"message": "Invalid survey data."},
-                ),
-            ],
-        ),
-    },
-    description="Generates and sends a CSV file of profile combinations based on provided attributes.",
-)
-@api_view(["POST"])
-def noDuplicate_csv(request):
     try:
-        CSV_FILES_NUM = 500
-        attributes = request.data.get("attributes")
-        restrictions = request.data.get("restrictions", [])
-        profiles = request.data.get("profiles", 2)
+        file = request.FILES['file']
+    except KeyError as e:
+        return Response({'error': f'Invalid file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # To calculate the total number of combinations
-        levels_per_attribute = [len(attribute['levels'])
-                                for attribute in attributes]
-        profiles_per_attribute = [profiles for _ in attributes]
+    if file.content_type != 'application/json':
+        return Response({'error': 'Invalid file type. A QSF file is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        header = []
-        for i in range(1, len(attributes) + 1):
-            for j in range(1, profiles + 2):
-                if j == 1:
-                    header.append(f'ATT{i}')
+    try:
+        data = JSONParser().parse(file)
+    except Exception as e:
+        return Response({'error': f'Invalid QSF data: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    survey_elements = data.get("SurveyElements")
+    for elem in survey_elements:
+        if elem.get("PrimaryAttribute") == "QID1":
+            payload = elem.get("Payload")
+            question_js = payload.get("QuestionJS")
+            projoint_survey = question_js.split("\n")[0]
+            if "//" in projoint_survey:
+                attribute_data = json.loads(
+                    projoint_survey[2:])
+                serializer = SurveySerializer(data=attribute_data)
+                if serializer.is_valid():
+                    return Response(serializer.validated_data, status=status.HTTP_200_OK)
                 else:
-                    header.append(f'ATT{i}P{j-1}')
-        previews = []
-        previews.append(header)
-
-        rows = []
-        while len(rows) < CSV_FILES_NUM:
-            row = []
-            for attribute in attributes:
-                att_name = attribute['name']
-                row.append(att_name)
-
-                randomized_levels = [random.choice(attribute['levels'])[
-                    'name'] for _ in range(profiles + 1)]
-                row.extend(randomized_levels)
-            rows.append(row)
-
-        previews.extend(rows)
-
-        with open("unique_profiles.csv", "w") as file:
-            writer = csv.writer(file)
-            writer.writerows(previews)
-        return _send_file_response("profiles.csv")
-        # response = HttpResponse(content_type="text/csv", status=status.HTTP_201_CREATED)
-        # response["Content-Disposition"] = 'attachment; filename="survey.csv"'
-
-    except:
-        return Response(
-            {"message": "Invalid survey data."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-'''
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                break
+    return Response({'error': 'Invalid QSF survey. Please use QSF file from our platform.'}, status=status.HTTP_400_BAD_REQUEST)
