@@ -3,6 +3,7 @@ import styles from "./ui.module.css";
 
 import { LinearProgress } from "@mui/material";
 import { Sidebar } from "../sidebar/sidebar";
+import DownloadNotification from "./notification";
 
 const Layout = ({
   children,
@@ -16,6 +17,7 @@ const Layout = ({
   return (
     <div className={styles.main}>
       <Sidebar active={active} />
+      <DownloadNotification />
       {loading ? <LinearProgress /> : children}
     </div>
   );

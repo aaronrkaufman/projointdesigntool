@@ -11,6 +11,7 @@ import { ExportFormat } from "./__format/export__format";
 import { SettingsNumberRange } from "../settings/__number-range/settings__number-range";
 import english from "@/naming/english.json";
 import { useModalStore } from "@/context/modal_store";
+import { useDownload } from "@/context/download_context";
 
 interface IExportDropdown {
   size: "big" | "small";
@@ -18,7 +19,7 @@ interface IExportDropdown {
 
 export interface IFormat {
   name: string;
-  path: "create_qualtrics" | "export_js" | "export_csv" | "export_json";
+  path: "export_qsf" | "export_js" | "export_csv" | "export_json";
   description: string;
   clickable: boolean;
 }
@@ -26,8 +27,8 @@ export interface IFormat {
 const formats: IFormat[] = [
   {
     name: english.export.methods.qualtrics.value,
-    path: "create_qualtrics",
-    clickable: false,
+    path: "export_qsf",
+    clickable: true,
     description: english.export.methods.qualtrics.subtitle,
   },
   {
@@ -60,6 +61,7 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [numRows, setNumRows] = useState<number>(500);
   const { exportModalOpen, setExportModalOpen } = useModalStore();
+  const { setDownloadStatus } = useDownload();
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
@@ -73,16 +75,16 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
   const handleItemClick = (item: IFormat) => setActiveItem(item);
 
   const handleDownload = async (path: IFormat["path"]) => {
-    setIsLoading(true);
+    setExportModalOpen(false);
     await downloadSurvey(
       attributes,
       path,
       docName,
+      setDownloadStatus,
       numRows,
       restrictions,
       crossRestrictions
     );
-    setIsLoading(false);
   };
 
   const handleBlur = () => {

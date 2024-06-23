@@ -7,6 +7,7 @@ import {
   preprocessRestrictions,
 } from "./utils";
 import { RestrictionProps } from "@/components/restrictions/restriction";
+import { useDownload } from "@/context/download_context";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -14,25 +15,52 @@ const api = axios.create({
 
 export default api;
 
+// services/api.ts
 export const downloadSurvey = async (
   attributes: Attribute[],
-  path: "create_qualtrics" | "export_js" | "export_csv" | "export_json",
+  path: "export_qsf" | "export_js" | "export_csv" | "export_json",
   filename: string,
+  setDownloadStatus: (status: any) => void,
   csv_lines?: number,
   restrictions?: RestrictionProps[],
   crossRestrictions?: RestrictionProps[],
   settings?: number
-): Promise<void> => {
+) => {
+  console.log("Starting downloadSurvey");
+
+  const fileExtension = (filename: string) => {
+    switch (path) {
+      case "export_qsf":
+        return filename + ".qsf";
+      case "export_js":
+        return filename + ".js";
+      case "export_csv":
+        return filename + ".csv";
+      case "export_json":
+        return filename + ".json";
+      default:
+        return filename;
+    }
+  };
+
+  const file = fileExtension(filename);
+  setDownloadStatus({
+    isActive: true,
+    progress: 0,
+    filename: file,
+    completed: false,
+    error: false,
+  });
+
   try {
     const processedAttributes = preproccessAttributes(attributes);
     const processedRestrictions = preprocessRestrictions(restrictions || []);
     const processedCrossRestrictions = preprocessCrossRestrictions(
       crossRestrictions || []
     );
-    // console.log(processedAttributes);
+
     const response = await api.post(
       `/surveys/${path}/`,
-
       {
         ...processedAttributes,
         csv_lines,
@@ -45,37 +73,28 @@ export const downloadSurvey = async (
       }
     );
 
-    // console.log(response);
-    const fileExtension = (filename: string) => {
-      switch (path) {
-        case "create_qualtrics":
-          return filename + ".qsf";
-        case "export_js":
-          return filename + ".js";
-        case "export_csv":
-          return filename + ".csv";
-        case "export_json":
-          return filename + ".json";
-        default:
-          return filename;
-      }
-    };
+    const url = window.URL.createObjectURL(
+      new Blob([response.data], { type: "application/octet-stream" })
+    );
 
-    const file = fileExtension(filename);
-
-    console.log("filename", file);
-    // console.log("response", response.data);
-
-    const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", file); // Choose the correct file name and extension
+    link.setAttribute("download", file);
     document.body.appendChild(link);
     link.click();
-    window.URL.revokeObjectURL(url);
-    link.remove();
+
+    setDownloadStatus((prev: any) => ({
+      ...prev,
+      downloadUrl: url,
+      completed: true,
+    }));
   } catch (error) {
     console.error("Error during file download", error);
+    setDownloadStatus((prev: any) => ({
+      ...prev,
+      isActive: true,
+      error: true,
+    }));
   }
 };
 

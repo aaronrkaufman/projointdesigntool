@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 
 import Layout from "@/components/ui/layout";
+import { DownloadProvider } from "@/context/download_context";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -38,9 +39,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <DocProvider>
       <AttributeProvider>
-        <Layout active={activeItem} loading={loading}>
-          <Component {...pageProps} />
-        </Layout>
+        <DownloadProvider>
+          <Layout active={activeItem} loading={loading}>
+            <Component {...pageProps} />
+          </Layout>
+        </DownloadProvider>
       </AttributeProvider>
     </DocProvider>
   );
