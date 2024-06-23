@@ -14,6 +14,7 @@ import { styled } from "@mui/material/styles";
 import React from "react";
 import ExportDropdown from "../export/export";
 import { useModalStore } from "@/context/modal_store";
+import { useDownload } from "@/context/download_context";
 
 export const FileAddIcon = forwardRef<SVGSVGElement, { stroke?: string }>(
   (props, ref) => {
@@ -67,6 +68,7 @@ export const ThreeDots = forwardRef<HTMLDivElement, { onDelete?: () => void }>(
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef<HTMLDivElement>(null);
     const { setExportModalOpen } = useModalStore();
+    const { cleanDownloadStatus } = useDownload();
 
     const handleToggle = () => {
       setOpen((prevOpen) => !prevOpen);
@@ -177,7 +179,10 @@ export const ThreeDots = forwardRef<HTMLDivElement, { onDelete?: () => void }>(
                         fontSize: "0.875rem",
                         fontWeight: "medium",
                       }}
-                      onClick={() => setExportModalOpen(true)}
+                      onClick={() => {
+                        setExportModalOpen(true);
+                        cleanDownloadStatus();
+                      }}
                     >
                       <ExportDropdown size={"big"} />
                     </MenuItem>

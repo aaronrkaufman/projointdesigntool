@@ -1,7 +1,9 @@
 {
   "export": {
     "value": "Export",
+    "title": "Export this survey",
     "methods": {
+      "title": "Choose format",
       "qualtrics": {
         "value": "Qualtrics",
         "subtitle": "Export this survey to QSF file"
@@ -23,6 +25,11 @@
         "subtitle": "Export this survey to JSON file that you can import afterwards"
       }
     }
+  },
+  "import": {
+    "value": "Import",
+    "title": "Import a file",
+    "description": "Import a QSF or JSON file to be parsed into surveys"
   },
   "surveyPage": {
     "description": {

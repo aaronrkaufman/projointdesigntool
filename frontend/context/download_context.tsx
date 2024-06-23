@@ -4,12 +4,14 @@ import React, { createContext, useContext, useState } from "react";
 const DownloadContext = createContext({
   downloadStatus: {
     isActive: false,
-    progress: 0,
     filename: "",
+    import: false,
+    export: false,
     completed: false,
     error: false,
     downloadUrl: null,
   },
+  cleanDownloadStatus: () => {},
   setDownloadStatus: (status: any) => {},
 });
 
@@ -28,15 +30,31 @@ export const DownloadProvider = ({
 }) => {
   const [downloadStatus, setDownloadStatus] = useState({
     isActive: false,
-    progress: 0,
     filename: "",
+    import: false,
+    export: false,
     completed: false,
     error: false,
     downloadUrl: null,
   });
 
+  const cleanDownloadStatus = () => {
+    setDownloadStatus({
+      ...downloadStatus,
+      isActive: false,
+      filename: "",
+      import: false,
+      export: false,
+      completed: false,
+      error: false,
+      downloadUrl: null,
+    });
+  };
+
   return (
-    <DownloadContext.Provider value={{ downloadStatus, setDownloadStatus }}>
+    <DownloadContext.Provider
+      value={{ downloadStatus, cleanDownloadStatus, setDownloadStatus }}
+    >
       {children}
     </DownloadContext.Provider>
   );

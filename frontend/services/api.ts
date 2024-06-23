@@ -26,8 +26,6 @@ export const downloadSurvey = async (
   crossRestrictions?: RestrictionProps[],
   settings?: number
 ) => {
-  console.log("Starting downloadSurvey");
-
   const fileExtension = (filename: string) => {
     switch (path) {
       case "export_qsf":
@@ -46,8 +44,8 @@ export const downloadSurvey = async (
   const file = fileExtension(filename);
   setDownloadStatus({
     isActive: true,
-    progress: 0,
     filename: file,
+    export: true,
     completed: false,
     error: false,
   });
@@ -148,7 +146,40 @@ export const importDocument = async (
   onProgress: (percentage: number) => void
 ) => {
   try {
-    const response = await api.post("/surveys/import_json/", file, {
+    // Assuming `file` has a field that contains the file
+    const fileData = file.get("file"); // 'file' should match the key used when appending the file to FormData
+
+    if (!(fileData instanceof File)) {
+      throw new Error("No file provided.");
+    }
+
+    const filename = fileData.name;
+
+    if (!filename) {
+      throw new Error("No file provided.");
+    }
+
+    const fileExtension = filename.split(".").pop()?.toLowerCase();
+
+    if (!fileExtension) {
+      throw new Error("No file extension provided.");
+    }
+
+    let endpoint;
+    switch (fileExtension) {
+      case "qsf":
+        endpoint = "/surveys/import_qsf/";
+        break;
+      case "json":
+        endpoint = "/surveys/import_json/";
+        break;
+      default:
+        throw new Error(
+          "Unsupported file format. Please upload a .qsf or .json file."
+        );
+    }
+
+    const response = await api.post(endpoint, file, {
       onUploadProgress: (progressEvent) => {
         const percentCompleted = Math.round(
           (progressEvent.loaded * 100) / progressEvent.total!
@@ -157,8 +188,7 @@ export const importDocument = async (
       },
     });
     return response.data; // This assumes the response structure has `data`
-  } catch (error) {
-    console.error("Upload error", error);
-    throw error; // Throw the error to be caught in the component
+  } catch (error: any) {
+    throw new Error(error.response.data.error); // Rethrow to be caught by the calling component
   }
 };

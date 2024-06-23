@@ -13,5 +13,7 @@ export const useModalStore = create<ModalStoreState>((set) => ({
     set((state) => ({ importModalOpen: val ?? !state.importModalOpen })),
   exportModalOpen: false,
   setExportModalOpen: (val) =>
-    set((state) => ({ exportModalOpen: val ?? !state.exportModalOpen })),
+    set((state) => ({
+      exportModalOpen: val ?? !state.exportModalOpen,
+    })),
 }));

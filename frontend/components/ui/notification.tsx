@@ -5,7 +5,9 @@ import { useEffect } from "react";
 import { XIcon } from "./icons";
 
 const DownloadNotification = () => {
-  const { downloadStatus, setDownloadStatus } = useDownload();
+  const { downloadStatus, cleanDownloadStatus } = useDownload();
+
+  if (!downloadStatus.export) return null;
 
   useEffect(() => {
     return () => {
@@ -17,14 +19,6 @@ const DownloadNotification = () => {
 
   if (!downloadStatus.isActive) return null;
 
-  const handleClose = () => {
-    setDownloadStatus((prev: any) => ({
-      ...prev,
-      downloadUrl: null,
-      isActive: false,
-    }));
-  };
-
   const handleDownloadClick = () => {
     if (!downloadStatus.downloadUrl) return;
 
@@ -35,7 +29,7 @@ const DownloadNotification = () => {
     link.click();
 
     setTimeout(() => {
-      handleClose();
+      cleanDownloadStatus();
     }, 2000);
 
     link.remove();
@@ -51,7 +45,7 @@ const DownloadNotification = () => {
           <div className={styles.downloadComplete}>
             <h4>Download complete! </h4>
             <div className={styles.close}>
-              <XIcon onClick={handleClose} />
+              <XIcon onClick={cleanDownloadStatus} />
             </div>
           </div>
           <p>

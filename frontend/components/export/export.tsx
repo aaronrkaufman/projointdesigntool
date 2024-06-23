@@ -61,7 +61,7 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [numRows, setNumRows] = useState<number>(500);
   const { exportModalOpen, setExportModalOpen } = useModalStore();
-  const { setDownloadStatus } = useDownload();
+  const { setDownloadStatus, cleanDownloadStatus } = useDownload();
 
   const handleClickOutside = (event: MouseEvent) => {
     if (
@@ -114,13 +114,16 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
     <>
       {size === "big" ? (
         <>
-          <ExportIcon /> <p>Export</p>
+          <ExportIcon /> <p>{english.export.value}</p>
         </>
       ) : (
         <Button
-          text="Export"
+          text={english.export.value}
           icon={<ExportIcon stroke="white" />}
-          onClick={() => setExportModalOpen(true)}
+          onClick={() => {
+            setExportModalOpen(true);
+            cleanDownloadStatus();
+          }}
         ></Button>
       )}
       <Modal
@@ -131,7 +134,7 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
       >
         <Box sx={modalStyle}>
           <div className={styles.modalHeader}>
-            <h2 id="export-modal-title">Export this survey</h2>
+            <h2 id="export-modal-title">{english.export.title}</h2>
             <XIcon onClick={() => setExportModalOpen(false)} />
           </div>
           <div className={styles.modalContent}>
@@ -146,7 +149,7 @@ const ExportDropdown: React.FC<IExportDropdown> = ({ size }) => {
               className={styles.editableInput}
               // additional styling or attributes
             />
-            <p>Choose the format </p>
+            <p>{english.export.methods.title}</p>
             <ExportFormat
               formats={formats}
               activeItem={activeItem}

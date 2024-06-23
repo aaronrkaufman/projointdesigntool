@@ -13,6 +13,8 @@ import { useAttributes } from "@/context/attributes_context";
 import { addSurvey } from "@/components/utils/add-survey";
 import { useDropzone } from "react-dropzone";
 import { useModalStore } from "@/context/modal_store";
+import { useDownload } from "@/context/download_context";
+import english from "@/naming/english.json";
 
 export interface DocumentsImportProps {
   size: "big" | "small";
@@ -25,6 +27,8 @@ export const DocumentsImport: FC<DocumentsImportProps> = ({ size }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { setStorageChanged } = useAttributes();
+  const { downloadStatus, setDownloadStatus, cleanDownloadStatus } =
+    useDownload();
 
   const [file, setFile] = useState<File | null>(null);
   const [fileUpload, setFileUpload] = useState(0);
@@ -97,6 +101,12 @@ export const DocumentsImport: FC<DocumentsImportProps> = ({ size }) => {
         value: response,
         onStorageChange: setStorageChanged,
       });
+      setDownloadStatus({
+        ...downloadStatus,
+        import: true,
+        completed: true,
+        isActive: true,
+      });
       setImportModalOpen(false);
     } catch (error: any) {
       console.error("Failed to upload", error);
@@ -115,13 +125,16 @@ export const DocumentsImport: FC<DocumentsImportProps> = ({ size }) => {
     <>
       {size === "big" ? (
         <>
-          <ImportIcon /> <p>Import from JSON</p>{" "}
+          <ImportIcon /> <p>{english.import.value}</p>{" "}
         </>
       ) : (
         <Button
-          text="Import from JSON"
+          text={english.import.value}
           icon={<ImportIcon stroke="var(--white)" />}
-          onClick={() => setImportModalOpen()}
+          onClick={() => {
+            setImportModalOpen();
+            cleanDownloadStatus();
+          }}
         ></Button>
       )}
 
@@ -133,10 +146,15 @@ export const DocumentsImport: FC<DocumentsImportProps> = ({ size }) => {
       >
         <Box sx={modalStyle}>
           <div className={styles.modalHeader}>
-            <h2 id="import-modal-title">Import a JSON file</h2>
-            <XIcon onClick={() => setImportModalOpen(false)} />
+            <h2 id="import-modal-title">{english.import.title}</h2>
+            <div className={styles.close} onClick={() => setImportModalOpen()}>
+              <XIcon />
+            </div>
           </div>
           <div className={styles.modalContent}>
+            <p className={styles.modalDescription}>
+              {english.import.description}
+            </p>
             <div
               {...getRootProps()}
               className={`${styles.dropzone} ${

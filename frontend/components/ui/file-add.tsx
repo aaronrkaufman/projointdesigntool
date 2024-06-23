@@ -10,6 +10,7 @@ import React, { forwardRef } from "react";
 import { FileAddIcon } from "./icons";
 import { DocumentsImport } from "../documents/__import/documents__import";
 import { useModalStore } from "@/context/modal_store";
+import { useDownload } from "@/context/download_context";
 
 export const FileAdd = forwardRef<
   HTMLDivElement,
@@ -18,6 +19,7 @@ export const FileAdd = forwardRef<
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const { importModalOpen, setImportModalOpen } = useModalStore();
+  const { cleanDownloadStatus } = useDownload();
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -97,7 +99,7 @@ export const FileAdd = forwardRef<
               variant="outlined"
               sx={{
                 borderRadius: "0.5rem",
-                width: "14rem",
+                width: "10rem",
                 position: "relative",
               }}
             >
@@ -135,7 +137,10 @@ export const FileAdd = forwardRef<
                       height: "100%",
                       fontWeight: "medium",
                     }}
-                    onClick={() => setImportModalOpen(true)}
+                    onClick={() => {
+                      setImportModalOpen(true);
+                      cleanDownloadStatus();
+                    }}
                   >
                     <DocumentsImport size="big" />
                   </MenuItem>

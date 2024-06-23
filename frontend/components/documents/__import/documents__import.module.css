@@ -112,3 +112,18 @@
 .error {
   color: var(--red);
 }
+
+.close {
+  padding: 0.25rem 0.5rem;
+}
+
+.close:hover {
+  background-color: var(--border-gray);
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.modalDescription {
+  /* color: var(--dark-blue-h); */
+  font-weight: 500;
+}
