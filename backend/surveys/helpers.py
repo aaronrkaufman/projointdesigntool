@@ -343,14 +343,14 @@ def _create_js_file(request):
             file_js.write(temp_1)
 
             file_js.write(_create_array_or_prob_string(attributes, True))
-            file_js.write("var restrictionarray = " +
-                          str(restrictions) + ";\n\n")
+            restrictions_json = json.dumps(restrictions, indent=2)
+            file_js.write(f"var restrictionarray = {restrictions_json};\n\n")
             file_js.write(_create_array_or_prob_string(attributes, False)
                           if random == 1 else "var probabilityarray = {};\n\n")
 
             file_js.write(
                 "// Indicator for whether weighted randomization should be enabled or not\n")
-            file_js.write("var weighted = " + str(random) + ";\n\n")
+            file_js.write(f"var weighted =  {'true' if repeat_task else 'false'};\n\n")
             file_js.write(
                 "// K = Number of tasks displayed to the respondent\n")
             file_js.write("var K = " + str(tasks) + ";\n\n")

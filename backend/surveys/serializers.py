@@ -88,7 +88,7 @@ class SurveySerializer(serializers.ModelSerializer):
     duplicate_first = serializers.IntegerField(
         default=0, min_value=0, allow_null=True)
     duplicate_second = serializers.IntegerField(
-        default=0, min_value=0, allow_null=True)
+        default=4, min_value=0, allow_null=True)
     advanced = serializers.JSONField(default=dict)
 
     class Meta:
@@ -137,7 +137,7 @@ class QualtricsSerializer(SurveySerializer):
     doubleQ = serializers.BooleanField(default=False)
     qType = serializers.CharField(default='MC')
     qText = serializers.CharField(default='Please carefully review the options detailed below, \
-            then please answer the questions < /span >\n < br/>\n < br/>\n < span > Which of these choices do you prefer?')
+            then please answer the questions. Which of these choices do you prefer?')
 
     class Meta(SurveySerializer.Meta):
         fields = SurveySerializer.Meta.fields + [
