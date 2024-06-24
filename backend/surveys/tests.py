@@ -39,7 +39,8 @@ class ExportJsTests(TestCase):
                         {"name": "g"},
                     ],
                 },
-            ]
+            ],
+            "filename": "survey.js",
         }
 
         self.payloadFailure = {
@@ -53,15 +54,16 @@ class ExportJsTests(TestCase):
                         {"name": "4", "weight": 0.5},
                     ],
                 },
-            ]
+            ],
+            "filename": "survey.js",
         }
 
-    def test_export_success(self):
+    def test_export_js_success(self):
         response = self.client.post(
             self.url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 201)
 
-    def test_export_failure(self):
+    def test_export_js_failure(self):
         response = self.client.get(
             self.url, self.payloadSuccess, format="json")
         self.assertEqual(response.status_code, 405)
@@ -79,7 +81,8 @@ class PreviewSurveyTests(TestCase):
                            {"name": "att2", "levels": [{"name": "level2"}, {
                                "name": "another2"}], "locked": False},
                            {"name": "att3", "levels": [{"name": "level3"}, {"name": "another3"}], "locked": False}],
-            "profiles": 2
+            "profiles": 2,
+            "filename": "preview",
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -95,7 +98,8 @@ class PreviewSurveyTests(TestCase):
                 "condition": [{"attribute": "att1", "operation": "==", "value": "level1"},
                               {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
-            "profiles": 2
+            "profiles": 2,
+            "filename": "preview",
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -110,7 +114,8 @@ class PreviewSurveyTests(TestCase):
             "restrictions": [{
                 "condition": [{"attribute": "att1", "operation": "=", "value": "level1"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
-            "profiles": 2
+            "profiles": 2,
+            "filename": "preview",
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -122,12 +127,13 @@ class PreviewSurveyTests(TestCase):
         # Data where an attribute has no levels
         data = {
             "attributes": [{"name": "attr1", "levels": []}],
-            "profiles": 2
+            "profiles": 2,
+            "filename": "preview",
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(response.data, {
-                             "Error": "Cannot generate Preview. Some attributes have no levels."})
+        self.assertIn(
+            "Cannot export. Some attributes have no levels.", response.data["attributes"])
 
     def test_preview_survey_invalid_data(self):
         # Data with no attributes
@@ -167,7 +173,8 @@ class PreviewSurveyTests(TestCase):
                     "result": {"attribute": "att1", "operation": "==", "value": "another1"},
                 }
             ],
-            "profiles": 2
+            "profiles": 2,
+            "filename": "preview",
         }
         for _ in range(100):
             response = self.client.post(self.url, data, format='json')
@@ -207,7 +214,8 @@ class PreviewSurveyTests(TestCase):
                     "result": {"attribute": "att1", "operation": "==", "value": "another1"},
                 }
             ],
-            "profiles": 2
+            "profiles": 2,
+            "filename": "preview",
         }
         for _ in range(100):
             response = self.client.post(self.url, data, format='json')
@@ -236,6 +244,7 @@ class ExportCsvTests(TestCase):
                            {"name": "att6", "levels": [{"name": "lvl6"}, {"name": "another6"}, {"name": "bruh6"}]}],
             "profiles": 2,
             "csv_lines": 10000,
+            "filename": "survey.csv",
         }
         with patch('surveys.views._send_file_response') as mock_send_file_response:
             mock_send_file_response.return_value = HttpResponse(
@@ -255,7 +264,8 @@ class ExportCsvTests(TestCase):
                 "condition": [{"attribute": "att1", "operation": "==", "value": "level1"},
                               {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
-            "profiles": 2
+            "profiles": 2,
+            "filename": "survey.csv",
         }
         with patch('surveys.views._send_file_response') as mock_send_file_response:
             mock_send_file_response.return_value = HttpResponse(
@@ -268,12 +278,13 @@ class ExportCsvTests(TestCase):
         # Data where an attribute has no levels
         data = {
             "attributes": [{"name": "attr1", "levels": []}],
-            "profiles": 2
+            "profiles": 2,
+            "filename": "survey.csv",
         }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(response.data, {
-                             "Error": "Cannot export to JavaScript. Some attributes have no levels."})
+        self.assertIn(
+            "Cannot export. Some attributes have no levels.", response.data["attributes"])
 
     def test_export_csv_invalid_data(self):
         # Example of sending invalid data
@@ -356,7 +367,8 @@ class ExportJsonTests(TestCase):
                 }
             ],
             "cross_restrictions": [],
-            "profiles": 2
+            "profiles": 2,
+            "filename": "survey_export.json",
         }
 
     def test_export_json_success(self):
@@ -376,7 +388,7 @@ class ImportJsonTests(TestCase):
     def test_import_valid_json(self):
         with open(self.file_path, 'rb') as file:
             uploaded_file = SimpleUploadedFile(
-                "valid_survey.json", file.read(), content_type="application/json")
+                "valid_survey.json", file.read(), content_type="multipart/form-data")
 
         # Make POST request with the uploaded file
         response = self.client.post(
@@ -393,7 +405,7 @@ class ImportJsonTests(TestCase):
 
         # Wrap the malformed data in SimpleUploadedFile
         uploaded_file = SimpleUploadedFile(
-            "invalid_survey.json", invalid_json_data, content_type="application/json")
+            "invalid_survey.json", invalid_json_data, content_type="multipart/form-data")
 
         # Make POST request with the uploaded file
         response = self.client.post(
@@ -481,7 +493,7 @@ class QualtricsTests(TestCase):
                 }
             ],
             "cross_restrictions": [],
-            "filename": "survey.js",
+            "filename": "survey.qsf",
             "advanced": {},
             "profiles": 2,
             "tasks": 5,
@@ -501,7 +513,7 @@ class QualtricsTests(TestCase):
     def test_import_qsf_valid(self):
         with open(self.qsf_path, 'rb') as file:
             uploaded_file = SimpleUploadedFile(
-                self.qsf_path, file.read(), content_type="application/json")
+                self.qsf_path, file.read(), content_type="multipart/form-data")
 
         response = self.client.post(
             self.url_import, {'file': uploaded_file}, format='multipart')
@@ -516,7 +528,7 @@ class QualtricsTests(TestCase):
 
         # Wrap the malformed data in SimpleUploadedFile
         uploaded_file = SimpleUploadedFile(
-            "invalid_qsf.qsf", invalid_json_data, content_type="application/json")
+            "invalid_qsf.qsf", invalid_json_data, content_type="multipart/form-data")
 
         # Make POST request with the uploaded file
         response = self.client.post(

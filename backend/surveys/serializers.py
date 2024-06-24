@@ -42,11 +42,30 @@ class ShortSurveySerializer(serializers.ModelSerializer):
         many=True, required=False, default=list)
     profiles = serializers.IntegerField(default=2, min_value=2)
     csv_lines = serializers.IntegerField(default=500)
+    filename = serializers.CharField(required=True)
 
     class Meta:
         model = Survey
-        fields = ["attributes", "restrictions",
+        fields = ["attributes", "restrictions", "filename",
                   "cross_restrictions", "profiles", "csv_lines"]
+
+    def validate_attributes(self, value):
+        """
+        Check that attributes is a list of dicts with required keys 'name' and 'levels'.
+        """
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Attributes must be a list.")
+
+        if any(not attribute["levels"] for attribute in value):
+            raise serializers.ValidationError(
+                "Cannot export. Some attributes have no levels.")
+
+        for item in value:
+            if not isinstance(item, dict) or 'name' not in item or 'levels' not in item:
+                raise serializers.ValidationError(
+                    "Each attribute must be a dict with 'name' and 'levels'.")
+
+        return value
 
     def validate(self, data):
         """
@@ -76,7 +95,7 @@ class SurveySerializer(serializers.ModelSerializer):
         many=True, required=False, default=list)
     cross_restrictions = CrossRestrictionSerializer(
         many=True, required=False, default=list)
-    filename = serializers.CharField(default='survey.js', allow_blank=True)
+    filename = serializers.CharField(required=True)
     profiles = serializers.IntegerField(
         default=2, min_value=2, allow_null=True)
     tasks = serializers.IntegerField(default=5, min_value=1, allow_null=True)

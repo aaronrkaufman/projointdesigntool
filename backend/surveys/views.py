@@ -6,12 +6,14 @@ from drf_spectacular.utils import (OpenApiExample, OpenApiResponse,
                                    extend_schema)
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from .helpers import (_create_js_file, _create_profiles, _create_survey,
-                      _download_survey, _generate_unlocked_order,
-                      _populate_csv, _send_file_response)
+from .helpers import (_create_js_file, _create_profiles,
+                      _create_qualtrics_js_text, _create_survey,
+                      _download_survey, _filter_survey_data,
+                      _generate_unlocked_order, _populate_csv,
+                      _send_file_response, _validate_file,
+                      _validate_survey_data)
 from .serializers import (QualtricsSerializer, ShortSurveySerializer,
                           SurveySerializer)
 
@@ -102,9 +104,6 @@ def preview_survey(request):
         cross_restrictions = validated_data["cross_restrictions"]
         profiles = validated_data["profiles"]
 
-        if any(not attribute["levels"] for attribute in attributes):
-            return Response({"Error": "Cannot generate Preview. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-
         attributes_list = _generate_unlocked_order(attributes)
         answer = {"attributes": [], "previews": []}
         answer["previews"] = _create_profiles(
@@ -140,27 +139,10 @@ def preview_survey(request):
 )
 @api_view(["POST"])
 def import_json(request):
-    if 'file' not in request.FILES:
-        return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        file = request.FILES['file']
-    except KeyError as e:
-        return Response({'error': f'Invalid file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if file.content_type != 'application/json':
-        return Response({'error': 'Invalid file type. A JSON file is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        data = JSONParser().parse(file)
-    except Exception as e:
-        return Response({'error': f'Invalid JSON data: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-
-    serializer = SurveySerializer(data=data)
-    if serializer.is_valid():
-        return Response(serializer.validated_data, status=status.HTTP_200_OK)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    data = _validate_file(request, 'JSON')
+    if isinstance(data, Response):
+        return data
+    return _validate_survey_data(data)
 
 
 @extend_schema(
@@ -267,9 +249,6 @@ def export_csv(request):
         profiles = validated_data["profiles"]
         csv_lines = validated_data["csv_lines"]
 
-        if any(not attribute["levels"] for attribute in attributes):
-            return Response({"Error": "Cannot export to JavaScript. Some attributes have no levels."}, status=status.HTTP_400_BAD_REQUEST)
-
         _populate_csv(attributes, profiles, restrictions,
                       cross_restrictions, csv_lines)
         return _send_file_response("profiles.csv")
@@ -336,24 +315,19 @@ def export_qsf(request):
         qType = validated_data["qType"]
         qText = validated_data["qText"]
 
-        jsname = _create_js_file(request)
-        with open(jsname, "r", encoding="utf-8") as file_js:
-            js_text = file_js.read()
-        js_text = "//" + json.dumps(request.data) + "\n" + \
-            "Qualtrics.SurveyEngine.addOnload(function(){" + js_text + "\n"
-        js_text += "});\nQualtrics.SurveyEngine.addOnReady(function(){\
-                \n/*Place your JavaScript here to run when the page is fully displayed*/\
-                    });\nQualtrics.SurveyEngine.addOnUnload(function()\
-                    {\n/*Place your JavaScript here to run when the page is unloaded*/});"
-
         user_token = os.getenv("QUALTRICS_API_KEY")
-        created = _create_survey(
+
+        js_text = _create_qualtrics_js_text(request)
+        surveyID = _create_survey(
             filename, user_token, tasks, len(
                 attributes), profiles, "", js_text, duplicate_first, duplicate_second, repeatFlip, doubleQ, qText
         )
-
-        _download_survey(created, user_token, doubleQ, qType)
-        return _send_file_response("survey.qsf")
+        success = _download_survey(
+            surveyID, user_token, doubleQ, qType, filename)
+        if success:
+            return _send_file_response(filename)
+        else:
+            return Response({"error": "Failed to download survey."}, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -381,36 +355,11 @@ def export_qsf(request):
 )
 @api_view(["POST"])
 def import_qsf(request):
-    if 'file' not in request.FILES:
-        return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+    data = _validate_file(request, 'QSF')
+    if isinstance(data, Response):
+        return data
 
-    try:
-        file = request.FILES['file']
-    except KeyError as e:
-        return Response({'error': f'Invalid file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if file.content_type != 'application/json':
-        return Response({'error': 'Invalid file type. A QSF file is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        data = JSONParser().parse(file)
-    except Exception as e:
-        return Response({'error': f'Invalid QSF data: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-
-    survey_elements = data.get("SurveyElements")
-    for elem in survey_elements:
-        if elem.get("PrimaryAttribute") == "QID1":
-            payload = elem.get("Payload")
-            question_js = payload.get("QuestionJS")
-            projoint_survey = question_js.split("\n")[0]
-            if "//" in projoint_survey:
-                attribute_data = json.loads(
-                    projoint_survey[2:])
-                serializer = SurveySerializer(data=attribute_data)
-                if serializer.is_valid():
-                    return Response(serializer.validated_data, status=status.HTTP_200_OK)
-                else:
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                break
-    return Response({'error': 'Invalid QSF survey. Please use QSF file from our platform.'}, status=status.HTTP_400_BAD_REQUEST)
+    survey_data = _filter_survey_data(data)
+    if isinstance(survey_data, Response):
+        return survey_data
+    return _validate_survey_data(survey_data)
