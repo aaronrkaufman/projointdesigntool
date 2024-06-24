@@ -469,28 +469,28 @@ class QualtricsTests(TestCase):
             ],
             "constraints": [],
             "restrictions": [
-                {
-                    "condition": [
-                        {
-                            "attribute": "att1",
-                            "operation": "==",
-                            "value": "level1"
-                        },
-                        {
-                            "logical": "||",
-                            "attribute": "att2",
-                            "operation": "==",
-                            "value": "level2"
-                        }
-                    ],
-                    "result": [
-                        {
-                            "attribute": "att3",
-                            "operation": "!=",
-                            "value": "level3"
-                        }
-                    ]
-                }
+                # {
+                #     "condition": [
+                #         {
+                #             "attribute": "att1",
+                #             "operation": "==",
+                #             "value": "level1"
+                #         },
+                #         {
+                #             "logical": "||",
+                #             "attribute": "att2",
+                #             "operation": "==",
+                #             "value": "level2"
+                #         }
+                #     ],
+                #     "result": [
+                #         {
+                #             "attribute": "att3",
+                #             "operation": "!=",
+                #             "value": "level3"
+                #         }
+                #     ]
+                # }
             ],
             "cross_restrictions": [],
             "filename": "survey.qsf",

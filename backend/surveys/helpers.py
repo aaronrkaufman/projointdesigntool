@@ -310,7 +310,7 @@ def _send_file_response(file_path):
     )
     response.closed = file_js.close
     # Delete the file
-    os.remove(file_path)
+    #os.remove(file_path)
     return response
 
 
@@ -319,8 +319,7 @@ def _create_qualtrics_js_text(request):
     with open(jsname, "r", encoding="utf-8") as file_js:
         js_text = file_js.read()
 
-    return f"""
-    // {json.dumps(request.data)}
+    return f"""//{json.dumps(request.data)}
     Qualtrics.SurveyEngine.addOnload(function(){{
         {js_text}
     }});
@@ -329,8 +328,7 @@ def _create_qualtrics_js_text(request):
     }});
     Qualtrics.SurveyEngine.addOnUnload(function(){{
         /* Place your JavaScript here to run when the page is unloaded */
-    }});
-    """
+    }});"""
 
 
 def _create_js_file(request):
@@ -678,13 +676,13 @@ def _validate_file(request, file_type):
 
 
 def _create_html(i, num_attr, profiles, qNum, noFlip, qText):
-    if i == 0:
-        text_out = "<span>Blank page</span>"
-        return text_out
-    i -= 1
+    # if i == 0:
+    #     text_out = "<span>Blank page</span>"
+    #     return text_out
+    # i -= 1
     top = (
         "<span>Question "
-        + str(qNum + 1)
+        + str(qNum)
         + '</span>\n<br /><br />\n<span>'
         + qText
         + '</span>\n<br />\n<div>\n<br />\n<table class="UserTable">\n<tbody>\n'
@@ -706,7 +704,7 @@ def _create_html(i, num_attr, profiles, qNum, noFlip, qText):
     for m in range(num_attr):
         rows[m] = (
             "<tr>\n<td style='text-align: center;'><strong>${e://Field/F-"
-            + str(i + 1)
+            + str(i)
             + "-"
             + str(m + 1)
             + "}</strong></td>\n"
@@ -715,7 +713,7 @@ def _create_html(i, num_attr, profiles, qNum, noFlip, qText):
             rows[m] = (
                 rows[m]
                 + "<td style='text-align: center;'>${e://Field/F-"
-                + str(i + 1)
+                + str(i)
                 + "-"
                 + str(n + 1)
                 + "-"
@@ -747,26 +745,31 @@ def __CreateBlock(surveyID, bl, user_token):
 
 def _create_survey(name, user_token, task, num_attr, profiles, currText, js, d1, d2, repeatFlip, doubleQ, qText):
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions"  # CHANGE DATA CENTER
-    payload = {"SurveyName": name, "Language": "AR", "ProjectCategory": "CORE"}
+    payload = {"SurveyName": name, "Language": "EN", "ProjectCategory": "CORE"}
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
     response = requests.request(
         "POST", url, json=payload, headers=headers).json()
     surveyID = response["result"]["SurveyID"]
     for i in range(task+1):
         bl = _get_flow(surveyID, user_token)
-        blockID = __CreateBlock(surveyID, bl, user_token)
-        currText += qText
-        currText += "\n"
-        currText = _create_html(i, num_attr, profiles, i-1, 0, qText)
+        if i==0:
+            currText = "This block needs to be placed above your conjoint question blocks.<br>However, you may alter the contents of this block (i.e add an introduction to survey)."
+            blockID = bl
+        if i!=0:
+            blockID = __CreateBlock(surveyID, bl, user_token)
+            currText += qText
+            currText += "\n"
+            currText = _create_html(i, num_attr, profiles, i, 0, qText)
         # if i==d2:
         # currText = _create_html(d1, num_attr, profiles, i-1, repeatFlip)
         currQ = _create_question(
             surveyID, currText, blockID, user_token, profiles, js, i
         )
-        if doubleQ:
+        if doubleQ and i!=0:
             currQ = _create_question(
                 surveyID, " ", blockID, user_token, profiles, js, i
             )
+
     _emb_fields(surveyID, user_token, num_attr, profiles, task)
     return surveyID
 
@@ -792,17 +795,18 @@ def _create_question(surveyID, text, blockID, user_token, profiles, js, i):
     if i == 0:
         payload = {
             "QuestionText": question_text,
-            "QuestionType": "MC",
-            "Selector": "SAVR",
-            "Choices": answer_choices,
+            "DataExportTag": "Introduction",
+            "QuestionType": "TE",
             "QuestionJS": js,
         }
     else:
+        data_tag = F"Q{i}"
         payload = {
             "QuestionText": question_text,
             "QuestionType": "MC",
             "Selector": "SAVR",
             "Choices": answer_choices,
+            "DataExportTag": data_tag,
         }
     response = requests.post(
         url, json=payload, headers=headers, params=querystring)
@@ -810,12 +814,10 @@ def _create_question(surveyID, text, blockID, user_token, profiles, js, i):
 
 def _get_flow(surveyID, user_token):
     url = "https://yul1.qualtrics.com/API/v3/survey-definitions/" + surveyID + "/flow"
-
     headers = {"Content-Type": "application/json", "X-API-TOKEN": user_token}
     response = requests.request("GET", url, headers=headers).json()
     # print(response["result"]["Flow"][0]["ID"])
     return response["result"]["Flow"][0]["ID"]
-
 
 def _emb_fields(surveyID, user_token, num_attr, profiles, tasks):
     url = "https://yul1.qualtrics.com/API/v3/surveys/" + \
@@ -851,7 +853,6 @@ def _emb_fields(surveyID, user_token, num_attr, profiles, tasks):
     # Make the API request to set embedded fields without values
     response = requests.post(url, json=payload, headers=headers)
 
-
 def _download_survey(surveyID, user_token, doubleQ, qType, filename):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}"
     headers = {
@@ -865,45 +866,52 @@ def _download_survey(surveyID, user_token, doubleQ, qType, filename):
 
     try:
         response = requests.get(url, headers=headers, params=querystring)
-        if qType == "MC":
-            questionType = ['MC', 'SAVR']
-        elif qType == "Rank":
-            questionType = ["RO", "DND"]
-        else:
-            questionType = ["Slider", "HSLIDER"]
-        questionType2 = ['TE', 'SL']
-
-        if response.status_code == 200:
-            response_json = response.json()
-            qsf_data = response_json.get("result", {})
-
-            if doubleQ:
-                counter = 0
-                for i in qsf_data['SurveyElements']:
-                    if 'Payload' in i:
-                        counter += 1
-                        curr = i['Payload']
-                        if curr and 'QuestionType' in curr:
-                            if counter % 2 == 1:
-                                curr['QuestionType'] = questionType[0]
-                            else:
-                                curr['QuestionType'] = questionType2[0]
-                        if curr and 'Selector' in curr:
-                            if counter % 2 == 1:
-                                curr['Selector'] = questionType[1]
-                            else:
-                                curr['Selector'] = questionType2[1]
-            else:
-                for i in qsf_data['SurveyElements']:
-                    if 'Payload' in i:
-                        curr = i['Payload']
-                        if curr and 'QuestionType' in curr:
-                            curr['QuestionType'] = questionType[0]
-                        if curr and 'Selector' in curr:
-                            curr['Selector'] = questionType[1]
-
-            with open(filename, "w") as qsf_file:
-                json.dump(qsf_data, qsf_file)
-            return True
     except Exception as e:
         return f"An error occurred: {str(e)}"
+    
+    if qType == "MC":
+        questionType = ['MC', 'SAVR']
+    elif qType == "Rank":
+        questionType = ["RO", "DND"]
+    else:
+        questionType = ["Slider", "HSLIDER"]
+    questionType2 = ['TE', 'SL']
+
+    if response.status_code == 200:
+        response_json = response.json()
+        qsf_data = response_json.get("result", {})
+        # for element in qsf_data.get('SurveyElements', []):
+        #     if 'Payload' in element:
+        #         payload = element['Payload']
+        #         if payload and 'DataExportTag' in payload and payload['DataExportTag'] != 'Introduction':
+        #             payload['QuestionJS'] = False
+
+        if doubleQ:
+            counter = 0
+            for j in qsf_data['SurveyElements']:
+                if 'Payload' in j:
+                    counter += 1
+                    curr = j['Payload']
+                    if curr and 'QuestionType' in curr:
+                        if counter % 2 == 1:
+                            curr['QuestionType'] = questionType[0]
+                        else:
+                            curr['QuestionType'] = questionType2[0]
+                    if curr and 'Selector' in curr:
+                        if counter % 2 == 1:
+                            curr['Selector'] = questionType[1]
+                        else:
+                            curr['Selector'] = questionType2[1]
+        else:
+            for j in qsf_data['SurveyElements']:
+                if 'Payload' in j:
+                    curr = j['Payload']
+                    if curr and 'QuestionType' in curr:
+                        curr['QuestionType'] = questionType[0]
+                    if curr and 'Selector' in curr:
+                        curr['Selector'] = questionType[1]
+
+        with open(filename, "w") as qsf_file:
+            json.dump(qsf_data, qsf_file)
+        return True
+    
