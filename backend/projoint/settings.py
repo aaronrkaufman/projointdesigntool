@@ -142,7 +142,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'ProJoint Design Tool API',
-    'DESCRIPTION': 'This is the API documentation for the ProJoint Design Tool. It provides endpoints for managing surveys, profiles, and other common functionalities. Use this documentation to understand and interact with the API’s resources.',
+    'DESCRIPTION': 'This is the API documentation for the ProJoint Design Tool. It provides endpoints for managing surveys, profiles, and other common functionalities. Use this documentation to understand and interact with the APIs resources.',
     'VERSION': '1.0.0',  # API version
     'OPENAPI_VERSION': '3.0.3',  # OpenAPI spec version
     'SERVE_INCLUDE_SCHEMA': False,
