@@ -100,7 +100,8 @@ export const downloadSurvey = async (
 export const getPreview = async (
   attributes: Attribute[],
   restrictions: RestrictionProps[],
-  crossRestrictions: RestrictionProps[]
+  crossRestrictions: RestrictionProps[],
+  settings: number
 ): Promise<{ attributes: string[]; previews: string[][] }> => {
   try {
     const processedAttributes = preproccessAttributes(attributes);
@@ -113,6 +114,7 @@ export const getPreview = async (
       restrictions: processedRestrictions,
       cross_restrictions: processedCrossRestrictions,
       filename: "preview",
+      profiles: settings,
     });
 
     // Extract attributes and previews from the response

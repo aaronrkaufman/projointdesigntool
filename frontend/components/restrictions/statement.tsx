@@ -87,7 +87,7 @@ export const Statement: React.FC<IStatement> = ({
           />
         )}
         <CustomDropdown
-          value={capitalize(selectedAttr)}
+          value={selectedAttr}
           items={attributes.map((attr) => attr.name)}
           setSelected={setSelectedAttr}
           color={selectedAttr == "select attribute" ? true : false}
@@ -100,7 +100,7 @@ export const Statement: React.FC<IStatement> = ({
           color={false}
         />
         <CustomDropdown
-          value={capitalize(selectedLvl)}
+          value={selectedLvl}
           items={
             selectedAttr
               ? getAttributeLevels(selectedAttr).map((level) => level.name)
