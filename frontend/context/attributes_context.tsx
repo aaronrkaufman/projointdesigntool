@@ -41,6 +41,7 @@ export interface IInstructions {
 export interface Attribute {
   name: string;
   levels: Level[];
+  locked: boolean;
   key: number;
 }
 
@@ -87,6 +88,7 @@ interface AttributeContextType {
   instructions: IInstructions;
   settings: Settings;
   updateSettings: (newSettings: Settings) => void;
+  toggleAttributeLocked: (key: number) => void;
 }
 
 const AttributeContext = createContext<AttributeContextType | undefined>(
@@ -195,10 +197,22 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
       name,
       levels: [],
       key: Date.now(), // Using Date.now() to ensure a unique key
+      locked: false,
     };
     setAttributes([...attributes, newAttribute]);
     setIsCreatingAttribute(false);
     setEdited(true);
+  };
+
+  const toggleAttributeLocked = (key: number) => {
+    setAttributes((prevAttributes) => {
+      return prevAttributes.map((attribute) => {
+        if (attribute.key === key) {
+          return { ...attribute, locked: !attribute.locked };
+        }
+        return attribute;
+      });
+    });
   };
 
   const handleInstructions = (
@@ -394,6 +408,7 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     instructions,
     settings,
     updateSettings,
+    toggleAttributeLocked,
   };
 
   return (

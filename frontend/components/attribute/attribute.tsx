@@ -6,7 +6,14 @@ import { Draggable, Droppable } from "react-beautiful-dnd";
 import DragButton from "../ui/drag_button";
 import { Level } from "./__level/attribute__level";
 import { useAttributes } from "../../context/attributes_context";
-import { DeleteTip, EditTip, ExpandIcon } from "../ui/icons";
+import {
+  DeleteTip,
+  EditTip,
+  ExpandIcon,
+  LightTooltip,
+  LockIcon,
+  UnlockIcon,
+} from "../ui/icons";
 import { AttributeWeight } from "./__weight/attribute__weight";
 import { Button } from "../ui/button";
 import naming from "@/naming/english.json";
@@ -42,6 +49,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
     handleAttributeNameChange,
     addLevelToAttribute,
     updateWeight,
+    toggleAttributeLocked,
   } = useAttributes();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -129,6 +137,32 @@ export const Attribute: FC<PropsAttributeComponent> = ({
             }px`,
           }}
         >
+          <LightTooltip
+            title={attribute.locked ? "Unlock attribute" : "Lock attribute"}
+            placement="bottom"
+            PopperProps={{
+              modifiers: [
+                {
+                  name: "offset",
+                  options: {
+                    offset: [0, -15], // Adjust the offset to bring the tooltip closer
+                  },
+                },
+              ],
+            }}
+          >
+            <div
+              className={`${styles.lockHandle} ${show ? styles.visible : ""}`}
+              onClick={() => toggleAttributeLocked(attribute.key)}
+            >
+              {attribute.locked ? (
+                <LockIcon stroke="var(--blue)" />
+              ) : (
+                <UnlockIcon stroke="var(--blue)" />
+              )}
+            </div>
+          </LightTooltip>
+
           <div
             className={`${styles.attribute_left} ${
               !show ? styles.pointer : ""
@@ -141,6 +175,7 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                 {...provided.dragHandleProps}
               />
             </div>
+
             <ExpandIcon onClick={onShow} expand={!show} size={1.25} />
             <div
               className={styles.atrributeInfo}
@@ -156,7 +191,8 @@ export const Attribute: FC<PropsAttributeComponent> = ({
                   onBlur={handleBlur}
                   className={styles.input}
                   onFocus={(e) =>
-                    e.target.value === "Untitled" && e.target.select()
+                    // e.target.value === "Untitled" &&
+                    e.target.select()
                   }
                   // additional styling or attributes
                 />

@@ -72,7 +72,8 @@ export const Level = ({ name, index, id, attributeKey }: ILevelComponent) => {
                 onBlur={handleBlur}
                 className={styles.input}
                 onFocus={(e) =>
-                  e.target.value === "Untitled" && e.target.select()
+                  // e.target.value === "Untitled" &&
+                  e.target.select()
                 }
                 // additional styling or attributes
               />

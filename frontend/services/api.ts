@@ -7,7 +7,6 @@ import {
   preprocessRestrictions,
 } from "./utils";
 import { RestrictionProps } from "@/components/restrictions/restriction";
-import { useDownload } from "@/context/download_context";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -65,6 +64,7 @@ export const downloadSurvey = async (
         settings,
         restrictions: processedRestrictions,
         cross_restrictions: processedCrossRestrictions,
+        filename: file,
       },
       {
         responseType: "blob",
@@ -86,12 +86,13 @@ export const downloadSurvey = async (
       downloadUrl: url,
       completed: true,
     }));
-  } catch (error) {
-    console.error("Error during file download", error);
+  } catch (error: any) {
+    console.error("Error during file download");
     setDownloadStatus((prev: any) => ({
       ...prev,
       isActive: true,
       error: true,
+      errorMessage: error.response.data.error,
     }));
   }
 };
@@ -111,6 +112,7 @@ export const getPreview = async (
       ...processedAttributes,
       restrictions: processedRestrictions,
       cross_restrictions: processedCrossRestrictions,
+      filename: "preview",
     });
 
     // Extract attributes and previews from the response

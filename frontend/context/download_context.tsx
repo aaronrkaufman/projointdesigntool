@@ -9,6 +9,7 @@ const DownloadContext = createContext({
     export: false,
     completed: false,
     error: false,
+    errorMessage: "",
     downloadUrl: null,
   },
   cleanDownloadStatus: () => {},
@@ -35,6 +36,7 @@ export const DownloadProvider = ({
     export: false,
     completed: false,
     error: false,
+    errorMessage: "",
     downloadUrl: null,
   });
 
@@ -47,6 +49,7 @@ export const DownloadProvider = ({
       export: false,
       completed: false,
       error: false,
+      errorMessage: "",
       downloadUrl: null,
     });
   };
