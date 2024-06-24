@@ -10,6 +10,7 @@ import random
 import requests
 from django.http import FileResponse
 from rest_framework import status
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 from .serializers import QualtricsSerializer, SurveySerializer
@@ -313,6 +314,25 @@ def _send_file_response(file_path):
     return response
 
 
+def _create_qualtrics_js_text(request):
+    jsname = _create_js_file(request)
+    with open(jsname, "r", encoding="utf-8") as file_js:
+        js_text = file_js.read()
+
+    return f"""
+    // {json.dumps(request.data)}
+    Qualtrics.SurveyEngine.addOnload(function(){{
+        {js_text}
+    }});
+    Qualtrics.SurveyEngine.addOnReady(function(){{
+        /* Place your JavaScript here to run when the page is fully displayed */
+    }});
+    Qualtrics.SurveyEngine.addOnUnload(function(){{
+        /* Place your JavaScript here to run when the page is unloaded */
+    }});
+    """
+
+
 def _create_js_file(request):
     serializer = QualtricsSerializer(data=request.data)
     if serializer.is_valid():
@@ -320,11 +340,11 @@ def _create_js_file(request):
 
         # Convert parameters to types
         attributes = validated_data['attributes']
+        filename = validated_data['filename']
 
         # Optional
         constraints = validated_data['constraints']
         restrictions = validated_data['restrictions']
-        filename = validated_data['filename']
         profiles = validated_data['profiles']
         tasks = validated_data['tasks']
         randomize = validated_data['randomize']
@@ -610,7 +630,48 @@ def _populate_csv(attributes, profiles, restrictions, cross_restrictions, csv_li
             _rearrange_and_write_profiles(writer, profiles_list, profiles)
 
 
-# in your generate_profiles you are not calling any of the evaluate or check methods that check whether restrictions are broken
+def _filter_survey_data(data):
+    survey_elements = data.get("SurveyElements")
+    for elem in survey_elements:
+        if elem.get("PrimaryAttribute") == "QID1":
+            payload = elem.get("Payload")
+            question_js = payload.get("QuestionJS")
+            projoint_survey = question_js.split("\n")[0]
+            if "//" in projoint_survey:
+                return json.loads(projoint_survey[2:])
+            else:
+                break
+    return Response({'error': 'Invalid QSF survey. Please use QSF file from our platform.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def _validate_survey_data(survey_data):
+    serializer = SurveySerializer(data=survey_data)
+    if serializer.is_valid():
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def _validate_file(request, file_type):
+    if 'file' not in request.FILES:
+        return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        file = request.FILES['file']
+    except KeyError as e:
+        return Response({'error': f'Invalid file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if file.content_type != 'multipart/form-data':
+        return Response({'error': f'Invalid file type. A {file_type} file is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        data = JSONParser().parse(file)
+    except Exception as e:
+        return Response({'error': f'Invalid {file_type} data: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return data
+
+
 '''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''QUALTRICS LOGIC''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''
@@ -791,7 +852,7 @@ def _emb_fields(surveyID, user_token, num_attr, profiles, tasks):
     response = requests.post(url, json=payload, headers=headers)
 
 
-def _download_survey(surveyID, user_token, doubleQ, qType):
+def _download_survey(surveyID, user_token, doubleQ, qType, filename):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}"
     headers = {
         "Content-Type": "application/json",
@@ -841,8 +902,8 @@ def _download_survey(surveyID, user_token, doubleQ, qType):
                         if curr and 'Selector' in curr:
                             curr['Selector'] = questionType[1]
 
-            # Save the QSF data to a file named "survey.qsf"
-            with open("survey.qsf", "w") as qsf_file:
+            with open(filename, "w") as qsf_file:
                 json.dump(qsf_data, qsf_file)
+            return True
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        return f"An error occurred: {str(e)}"
