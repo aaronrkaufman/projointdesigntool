@@ -501,7 +501,7 @@ class QualtricsTests(TestCase):
             "repeat_task": False,
             "random": False,
             "duplicate_first": 0,
-            "duplicate_second": 0,
+            "duplicate_second": 4,
             "noFlip": False,
             "csv_lines": 500
         }
