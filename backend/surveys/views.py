@@ -14,8 +14,8 @@ from .helpers import (_create_js_file, _create_profiles,
                       _generate_unlocked_order, _populate_csv,
                       _send_file_response, _validate_file,
                       _validate_survey_data)
-from .serializers import (QualtricsSerializer, ShortSurveySerializer,
-                          SurveySerializer)
+from .serializers import (FileUploadSerializer, QualtricsSerializer,
+                          ShortSurveySerializer, SurveySerializer)
 
 load_dotenv()
 
@@ -116,7 +116,7 @@ def preview_survey(request):
 
 
 @extend_schema(
-    request=SurveySerializer,
+    request=FileUploadSerializer,
     responses={
         status.HTTP_200_OK: OpenApiResponse(
             response=SurveySerializer,
@@ -139,7 +139,7 @@ def preview_survey(request):
 )
 @api_view(["POST"])
 def import_json(request):
-    data = _validate_file(request, 'JSON')
+    data = _validate_file(request, 'JSON', "application/json")
     if isinstance(data, Response):
         return data
     return _validate_survey_data(data)
@@ -189,7 +189,7 @@ def import_json(request):
 def export_json(request):
     serializer = SurveySerializer(data=request.data)
     if serializer.is_valid():
-        filename = 'survey_export.json'
+        filename = serializer.validated_data["filename"]
         with open(filename, "w", encoding="utf-8") as file:
             json.dump(request.data, file, ensure_ascii=False, indent=4)
         return _send_file_response(filename)
@@ -248,10 +248,11 @@ def export_csv(request):
         cross_restrictions = validated_data["cross_restrictions"]
         profiles = validated_data["profiles"]
         csv_lines = validated_data["csv_lines"]
+        filename = validated_data["filename"]
 
         _populate_csv(attributes, profiles, restrictions,
-                      cross_restrictions, csv_lines)
-        return _send_file_response("profiles.csv")
+                      cross_restrictions, csv_lines, filename)
+        return _send_file_response(filename)
     else:
         return Response(serializer.errors, status=400)
 
@@ -333,7 +334,7 @@ def export_qsf(request):
 
 
 @extend_schema(
-    request=SurveySerializer,
+    request=FileUploadSerializer,
     responses={
         status.HTTP_200_OK: OpenApiResponse(
             response=SurveySerializer,
@@ -355,7 +356,7 @@ def export_qsf(request):
 )
 @api_view(["POST"])
 def import_qsf(request):
-    data = _validate_file(request, 'QSF')
+    data = _validate_file(request, 'QSF', "multipart/form-data")
     if isinstance(data, Response):
         return data
 

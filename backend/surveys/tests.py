@@ -120,7 +120,7 @@ class PreviewSurveyTests(TestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('non_field_errors', response.data)
-        self.assertIn('Invalid operation in result.',
+        self.assertIn('Invalid operation in condition.',
                       response.data['non_field_errors'][0])
 
     def test_preview_survey_no_levels(self):
@@ -388,7 +388,7 @@ class ImportJsonTests(TestCase):
     def test_import_valid_json(self):
         with open(self.file_path, 'rb') as file:
             uploaded_file = SimpleUploadedFile(
-                "valid_survey.json", file.read(), content_type="multipart/form-data")
+                "valid_survey.json", file.read(), content_type="application/json")
 
         # Make POST request with the uploaded file
         response = self.client.post(
@@ -405,7 +405,7 @@ class ImportJsonTests(TestCase):
 
         # Wrap the malformed data in SimpleUploadedFile
         uploaded_file = SimpleUploadedFile(
-            "invalid_survey.json", invalid_json_data, content_type="multipart/form-data")
+            "invalid_survey.json", invalid_json_data, content_type="application/json")
 
         # Make POST request with the uploaded file
         response = self.client.post(

@@ -285,11 +285,6 @@ for (var pr = 0; pr < returnarrayKeys.length; pr++) {
 '''''''''''''''''''''''''''''''''''''''''''''
 
 
-def _clean_constraints(constraints):
-    # Drop any Null constraints
-    return [constraint for constraint in constraints if constraint != []]
-
-
 def _create_array_or_prob_string(attributes, isArray):
     arrayString = {}
     for attribute in attributes:
@@ -299,18 +294,17 @@ def _create_array_or_prob_string(attributes, isArray):
     return f"var {'featurearray' if isArray else 'probabilityarray'} = " + str(arrayString) + ";\n\n"
 
 
-def _send_file_response(file_path):
-    file_js = open(file_path, "rb")
+def _send_file_response(filename):
+    file = open(filename, "rb")
     response = FileResponse(
-        file_js,
-        content_type="application/javascript",
+        file,
         status=status.HTTP_201_CREATED,
         as_attachment=True,
-        filename=file_path,
+        filename=filename,
     )
-    response.closed = file_js.close
+    response.closed = file.close
     # Delete the file
-    #os.remove(file_path)
+    # os.remove(file_path)
     return response
 
 
@@ -342,7 +336,7 @@ def _create_js_file(request):
 
         # Optional
         constraints = validated_data['constraints']
-        restrictions = validated_data['restrictions']
+        restrictions = []  # TODO: standardize restrictions for javascript
         profiles = validated_data['profiles']
         tasks = validated_data['tasks']
         randomize = validated_data['randomize']
@@ -351,10 +345,7 @@ def _create_js_file(request):
         advanced = validated_data['advanced']
         duplicate_first = validated_data['duplicate_first']
         duplicate_second = validated_data['duplicate_second']
-
         noFlip = validated_data['noFlip']
-
-        constraints = _clean_constraints(constraints)
 
         """ Write into file """
         with open(filename, "w", encoding="utf-8") as file_js:
@@ -368,7 +359,8 @@ def _create_js_file(request):
 
             file_js.write(
                 "// Indicator for whether weighted randomization should be enabled or not\n")
-            file_js.write(f"var weighted =  {'true' if repeat_task else 'false'};\n\n")
+            file_js.write(
+                f"var weighted =  {'true' if repeat_task else 'false'};\n\n")
             file_js.write(
                 "// K = Number of tasks displayed to the respondent\n")
             file_js.write("var K = " + str(tasks) + ";\n\n")
@@ -592,7 +584,6 @@ def _write_header(writer, attributes, profiles):
     header = []
     for i in range(1, len(attributes) + 1):
         for j in range(1, profiles + 2):
-
             if j == 1:
                 header.append(f'ATT{i}')
             else:
@@ -615,8 +606,8 @@ def _create_csv_profiles(profiles_num, attribute_list, restrictions, cross_restr
     return [[item for pair in profile.items() for item in pair] for profile in profiles]
 
 
-def _populate_csv(attributes, profiles, restrictions, cross_restrictions, csv_lines):
-    with open("profiles.csv", "w") as file:
+def _populate_csv(attributes, profiles, restrictions, cross_restrictions, csv_lines, filename):
+    with open(filename, "w") as file:
         writer = csv.writer(file)
 
         _write_header(writer, attributes, profiles)
@@ -650,7 +641,7 @@ def _validate_survey_data(survey_data):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def _validate_file(request, file_type):
+def _validate_file(request, file_type, content_type):
     if 'file' not in request.FILES:
         return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -659,7 +650,7 @@ def _validate_file(request, file_type):
     except KeyError as e:
         return Response({'error': f'Invalid file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
-    if file.content_type != 'multipart/form-data':
+    if file.content_type != content_type:
         return Response({'error': f'Invalid file type. A {file_type} file is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
@@ -752,10 +743,10 @@ def _create_survey(name, user_token, task, num_attr, profiles, currText, js, d1,
     surveyID = response["result"]["SurveyID"]
     for i in range(task+1):
         bl = _get_flow(surveyID, user_token)
-        if i==0:
+        if i == 0:
             currText = "This block needs to be placed above your conjoint question blocks.<br>However, you may alter the contents of this block (i.e add an introduction to survey)."
             blockID = bl
-        if i!=0:
+        if i != 0:
             blockID = __CreateBlock(surveyID, bl, user_token)
             currText += qText
             currText += "\n"
@@ -765,7 +756,7 @@ def _create_survey(name, user_token, task, num_attr, profiles, currText, js, d1,
         currQ = _create_question(
             surveyID, currText, blockID, user_token, profiles, js, i
         )
-        if doubleQ and i!=0:
+        if doubleQ and i != 0:
             currQ = _create_question(
                 surveyID, " ", blockID, user_token, profiles, js, i
             )
@@ -819,6 +810,7 @@ def _get_flow(surveyID, user_token):
     # print(response["result"]["Flow"][0]["ID"])
     return response["result"]["Flow"][0]["ID"]
 
+
 def _emb_fields(surveyID, user_token, num_attr, profiles, tasks):
     url = "https://yul1.qualtrics.com/API/v3/surveys/" + \
         surveyID + "/embeddeddatafields"
@@ -853,6 +845,7 @@ def _emb_fields(surveyID, user_token, num_attr, profiles, tasks):
     # Make the API request to set embedded fields without values
     response = requests.post(url, json=payload, headers=headers)
 
+
 def _download_survey(surveyID, user_token, doubleQ, qType, filename):
     url = f"https://yul1.qualtrics.com/API/v3/survey-definitions/{surveyID}"
     headers = {
@@ -868,7 +861,7 @@ def _download_survey(surveyID, user_token, doubleQ, qType, filename):
         response = requests.get(url, headers=headers, params=querystring)
     except Exception as e:
         return f"An error occurred: {str(e)}"
-    
+
     if qType == "MC":
         questionType = ['MC', 'SAVR']
     elif qType == "Rank":
@@ -914,4 +907,3 @@ def _download_survey(surveyID, user_token, doubleQ, qType, filename):
         with open(filename, "w") as qsf_file:
             json.dump(qsf_data, qsf_file)
         return True
-    

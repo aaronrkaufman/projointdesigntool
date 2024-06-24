@@ -34,6 +34,10 @@ class CrossRestrictionSerializer(serializers.Serializer):
     result = SimpleSerializer()
 
 
+class FileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
+
+
 class ShortSurveySerializer(serializers.ModelSerializer):
     attributes = AttributeSerializer(many=True, required=True)
     restrictions = RestrictionSerializer(
@@ -79,7 +83,7 @@ class ShortSurveySerializer(serializers.ModelSerializer):
             for cond in restriction['condition']:
                 if cond['operation'] not in ['==', '!=']:
                     raise serializers.ValidationError(
-                        "Invalid operation in result.")
+                        "Invalid operation in condition.")
             for res in restriction['result']:
                 if res['operation'] not in ['==', '!=']:
                     raise serializers.ValidationError(
@@ -87,69 +91,24 @@ class ShortSurveySerializer(serializers.ModelSerializer):
         return data
 
 
-class SurveySerializer(serializers.ModelSerializer):
-    attributes = AttributeSerializer(many=True, required=True)
-    constraints = serializers.ListField(
-        child=serializers.JSONField(), required=False, default=list)
-    restrictions = RestrictionSerializer(
-        many=True, required=False, default=list)
-    cross_restrictions = CrossRestrictionSerializer(
-        many=True, required=False, default=list)
-    filename = serializers.CharField(required=True)
-    profiles = serializers.IntegerField(
-        default=2, min_value=2, allow_null=True)
+class SurveySerializer(ShortSurveySerializer):
+    constraints = serializers.JSONField(default=dict)
     tasks = serializers.IntegerField(default=5, min_value=1, allow_null=True)
     randomize = serializers.BooleanField(default=False, allow_null=True)
     repeat_task = serializers.BooleanField(default=False, allow_null=True)
     random = serializers.BooleanField(default=False, allow_null=True)
     noFlip = serializers.BooleanField(default=False, allow_null=True)
-    csv_lines = serializers.IntegerField(default=500, allow_null=True)
     duplicate_first = serializers.IntegerField(
         default=0, min_value=0, allow_null=True)
     duplicate_second = serializers.IntegerField(
         default=4, min_value=0, allow_null=True)
     advanced = serializers.JSONField(default=dict)
 
-    class Meta:
-        model = Survey
-        fields = [
-            'id', 'attributes', 'constraints', 'restrictions', 'cross_restrictions', 'filename',
-            'advanced', 'profiles', 'tasks', 'randomize', 'repeat_task',
-            'random', 'duplicate_first', 'duplicate_second', 'noFlip', 'csv_lines'
+    class Meta(ShortSurveySerializer.Meta):
+        fields = ShortSurveySerializer.Meta.fields + [
+            'constraints', 'advanced', 'profiles', 'tasks', 'randomize', 'repeat_task',
+            'random', 'duplicate_first', 'duplicate_second', 'noFlip'
         ]
-
-    def validate(self, data):
-        """
-        Custom validation that checks each restriction for logic errors or inconsistencies.
-        """
-        restrictions = data['restrictions']
-        attributes = set([attribute['name']
-                         for attribute in data["attributes"]])
-
-        for restriction in restrictions:
-            for cond in restriction['condition']:
-                if cond['attribute'] not in attributes:
-                    raise serializers.ValidationError(
-                        "Invalid attribute in condition.")
-            for res in restriction['result']:
-                if res['operation'] not in ['==', '!=']:
-                    raise serializers.ValidationError(
-                        "Invalid operation in result.")
-        return data
-
-    def validate_attributes(self, value):
-        """
-        Check that attributes is a list of dicts with required keys 'name' and 'levels'.
-        """
-        if not isinstance(value, list):
-            raise serializers.ValidationError("Attributes must be a list.")
-
-        for item in value:
-            if not isinstance(item, dict) or 'name' not in item or 'levels' not in item:
-                raise serializers.ValidationError(
-                    "Each attribute must be a dict with 'name' and 'levels'.")
-
-        return value
 
 
 class QualtricsSerializer(SurveySerializer):
