@@ -750,6 +750,7 @@ def _create_survey(name, user_token, task, num_attr, profiles, currText, js, d1,
     response = requests.request(
         "POST", url, json=payload, headers=headers).json()
     surveyID = response["result"]["SurveyID"]
+
     for i in range(task+1):
         bl = _get_flow(surveyID, user_token)
         if i==0:
@@ -798,6 +799,7 @@ def _create_question(surveyID, text, blockID, user_token, profiles, js, i):
             "DataExportTag": "Introduction",
             "QuestionType": "TE",
             "QuestionJS": js,
+            "Language": [],
         }
     else:
         data_tag = F"Q{i}"
@@ -807,6 +809,7 @@ def _create_question(surveyID, text, blockID, user_token, profiles, js, i):
             "Selector": "SAVR",
             "Choices": answer_choices,
             "DataExportTag": data_tag,
+            "Language": [],
         }
     response = requests.post(
         url, json=payload, headers=headers, params=querystring)
