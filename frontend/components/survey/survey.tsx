@@ -92,7 +92,8 @@ export const Survey: FC = () => {
                 onBlur={handleBlur}
                 className={styles.editableInput}
                 onFocus={(e) =>
-                  e.target.value === "Untitled" && e.target.select()
+                  // e.target.value === "Untitled" && e.target.select()
+                  e.target.select()
                 }
                 // additional styling or attributes
               />

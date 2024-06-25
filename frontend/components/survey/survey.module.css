@@ -110,9 +110,29 @@
   visibility: hidden;
 }
 
-.attribute:hover .dragAttribute {
+.lockHandle {
+  position: absolute;
+  right: -2rem;
+  padding: 0.5rem;
+  font-size: 1.25rem;
+  visibility: hidden;
+}
+
+.lockHandle:hover {
+  cursor: pointer;
+}
+
+.attribute:hover .lockHandle {
   visibility: visible;
 }
+
+.visible {
+  visibility: visible;
+}
+
+/* .attribute:hover .dragAttribute {
+  visibility: visible;
+} */
 
 /* .attribute:hover .deleteHandle {
   visibility: visible;
@@ -288,4 +308,3 @@
   background-color: var(--blue);
   color: white;
 }
-  

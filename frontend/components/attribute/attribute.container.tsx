@@ -13,6 +13,7 @@ export interface ILevel {
 export interface IAttribute {
   name: string;
   key: number;
+  locked: boolean;
   levels: ILevel[];
 }
 
@@ -79,6 +80,7 @@ export const AttributeContainer: FC<PropsAttributeContainer> = ({
           name: "",
           levels: [],
           key: 1,
+          locked: false,
         }
       }
       index={index!}

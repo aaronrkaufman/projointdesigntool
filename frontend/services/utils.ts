@@ -13,6 +13,7 @@ export const preproccessAttributes = (attributes: Attribute[]) => {
     return {
       name: attribute.name,
       levels: levels,
+      locked: attribute.locked ?? false,
     };
   });
 

@@ -60,6 +60,7 @@ export const reintegrateAttributes = (
       name: attribute.name,
       levels: levels,
       key: Date.now() + index,
+      locked: attribute.locked ?? false,
     };
   });
 };

@@ -39,6 +39,7 @@
   gap: 1rem;
   min-width: 48rem;
   overflow-x: auto;
+  align-items: flex-start;
 }
 
 .attributes {
@@ -49,10 +50,34 @@
   flex-direction: column;
   /* align-items: flex-end; */
   justify-content: flex-end;
+  width: 10rem;
 }
 
 .attributes li {
   font-weight: 600;
+}
+
+.cardsContainer {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  width: 37rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-gray) transparent;
+}
+
+/* For Webkit browsers like Chrome, Safari */
+.cardsContainer::-webkit-scrollbar {
+  height: 4px; /* width of the entire scrollbar */
+}
+
+.cardsContainer::-webkit-scrollbar-track {
+  background: transparent; /* color of the tracking area */
+}
+
+.cardsContainer::-webkit-scrollbar-thumb {
+  background-color: var(--border-gray); /* color of the scroll thumb */
+  border-radius: 2px; /* roundness of the scroll thumb */
 }
 
 .card,
@@ -61,7 +86,8 @@
   /* border: 1px solid #ccc; */
   padding: 1rem;
   border-radius: 0.5rem;
-  width: 100%; /* Adjust width as necessary */
+  width: calc(18.5rem);
+  min-width: 18.5rem;
   margin: 1rem 0;
   border: 1px solid var(--border-gray);
 }
@@ -77,6 +103,7 @@
   flex-direction: column;
   gap: 2rem;
   align-items: center;
+  text-align: center;
 }
 
 .buttonContainer {

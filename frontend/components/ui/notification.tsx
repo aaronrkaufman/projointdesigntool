@@ -7,8 +7,6 @@ import { XIcon } from "./icons";
 const DownloadNotification = () => {
   const { downloadStatus, cleanDownloadStatus } = useDownload();
 
-  if (!downloadStatus.export) return null;
-
   useEffect(() => {
     return () => {
       if (downloadStatus.downloadUrl) {
@@ -17,6 +15,7 @@ const DownloadNotification = () => {
     };
   }, [downloadStatus.downloadUrl]);
 
+  if (!downloadStatus.export) return null;
   if (!downloadStatus.isActive) return null;
 
   const handleDownloadClick = () => {
@@ -37,7 +36,7 @@ const DownloadNotification = () => {
 
   return (
     <Box className={styles.notification}>
-      {!downloadStatus.completed && (
+      {!downloadStatus.completed && !downloadStatus.error && (
         <h4>Downloading: {downloadStatus.filename}</h4>
       )}
       {downloadStatus.completed && (
@@ -53,11 +52,18 @@ const DownloadNotification = () => {
             <a className={styles.link} href="#" onClick={handleDownloadClick}>
               here
             </a>{" "}
-            if the file didn't start downloading.
+            if the file didn&#39;t start downloading.
           </p>
         </>
       )}
-      {downloadStatus.error && <p>Error in download. Try again.</p>}
+      {downloadStatus.error && (
+        <div className={styles.downloadComplete}>
+          <h4>Error in download {downloadStatus.errorMessage}. Try again.</h4>
+          <div className={styles.close}>
+            <XIcon onClick={cleanDownloadStatus} />
+          </div>
+        </div>
+      )}
     </Box>
   );
 };

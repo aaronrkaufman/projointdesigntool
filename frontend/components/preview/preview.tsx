@@ -74,21 +74,29 @@ const Preview = ({
         </div>
         <div className={styles.cardContainer}>
           <ul className={styles.attributes}>
+            <li style={{ visibility: "hidden" }}>Profile</li>
             {attributes.map((attribute, index) => (
               <li key={attribute + index}>{attribute}:</li>
             ))}
           </ul>
-          {previews.map((preview, index) => (
-            <div key={index} className={styles.card}>
-              <ul className={styles.cardContent}>
-                <li className={styles.profile_name}>Profile {index + 1}</li>
-                {preview &&
-                  preview.map((value, index) => (
-                    <li key={value + index}>{` ${value}`}</li>
-                  ))}
-              </ul>
-            </div>
-          ))}
+          <div className={styles.cardsContainer}>
+            {previews.map((preview, index) => (
+              <div key={index}>
+                <div className={styles.card}>
+                  <ul className={styles.cardContent}>
+                    <li className={styles.profile_name}>Profile {index + 1}</li>
+                    {preview &&
+                      preview.map((value, index) => (
+                        <li key={value + index}>{` ${value}`}</li>
+                      ))}
+                  </ul>
+                </div>
+                {/* {instructions?.outcomeType === "mcq" && (
+                  <li>{` ${preview[0]}`}</li>
+                )} */}
+              </div>
+            ))}
+          </div>
         </div>
         <div className={styles.instructions}>
           {instructions && instructions.instructions}
