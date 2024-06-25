@@ -81,8 +81,8 @@ const Preview = ({
           </ul>
           <div className={styles.cardsContainer}>
             {previews.map((preview, index) => (
-              <div>
-                <div key={index} className={styles.card}>
+              <div key={index}>
+                <div className={styles.card}>
                   <ul className={styles.cardContent}>
                     <li className={styles.profile_name}>Profile {index + 1}</li>
                     {preview &&
