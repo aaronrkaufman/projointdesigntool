@@ -10,10 +10,10 @@
       },
       "csv": {
         "value": "CSV",
-        "subtitle": "Export this survey to CSV file",
+        "subtitle": "Generate test responses and export them to a CSV file",
         "rows": {
           "value": "Rows",
-          "subtitle": "Set the amount of rows to export in CSV file"
+          "subtitle": "Set the number of rows to export in CSV file"
         }
       },
       "js": {
@@ -33,7 +33,7 @@
   },
   "surveyPage": {
     "description": {
-      "value": "Enter your description here! Example: 'Here are two profiles A and B. "
+      "value": "Enter your description here! Example: 'Here are two profiles A and B.' "
     },
 
     "instructions": {
