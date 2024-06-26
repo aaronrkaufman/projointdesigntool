@@ -6,7 +6,7 @@
       "title": "Choose format",
       "qualtrics": {
         "value": "Qualtrics",
-        "subtitle": "Export this survey to QSF file"
+        "subtitle": "Export this survey to a QSF file with embedded Javascript"
       },
       "csv": {
         "value": "CSV",
@@ -18,7 +18,7 @@
       },
       "js": {
         "value": "JS",
-        "subtitle": "Export this survey to JavaScript file"
+        "subtitle": "Export a JavaScript file to embed into a Qualtrics survey"
       },
       "json": {
         "value": "JSON",
