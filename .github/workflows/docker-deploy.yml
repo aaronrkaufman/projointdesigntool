@@ -16,7 +16,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: SSH and Deploy Docker Containers using Password
+    - name: SSH and Deploy Docker Containers Using Password
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
