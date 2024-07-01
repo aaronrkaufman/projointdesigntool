@@ -136,6 +136,15 @@ export const AttributeProvider: React.FC<{ children: ReactNode }> = ({
     noFlip: false,
   });
 
+  // "numProfiles": 2,
+  // "numTasks": 5,
+  // "randomize": false,
+  // "repeat_task": false,
+  // "random": false,
+  // "duplicate_first": 0,
+  // "duplicate_second": 4,
+  // "noFlip": false
+
   useEffect(() => {
     if (currentDocID && currentDocID !== prevDocID) {
       setEdited(false);

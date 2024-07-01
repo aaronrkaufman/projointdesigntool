@@ -114,7 +114,7 @@ class PreviewSurveyTests(TestCase):
             "restrictions": [{
                 "condition": [{"attribute": "att1", "operation": "=", "value": "level1"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
-            "profiles": 2,
+            "num_profiles": 2,
             "filename": "preview",
         }
         response = self.client.post(self.url, data, format='json')
@@ -127,7 +127,7 @@ class PreviewSurveyTests(TestCase):
         # Data where an attribute has no levels
         data = {
             "attributes": [{"name": "attr1", "levels": []}],
-            "profiles": 2,
+            "num_profiles": 2,
             "filename": "preview",
         }
         response = self.client.post(self.url, data, format='json')
@@ -173,7 +173,7 @@ class PreviewSurveyTests(TestCase):
                     "result": {"attribute": "att1", "operation": "==", "value": "another1"},
                 }
             ],
-            "profiles": 2,
+            "num_profiles": 2,
             "filename": "preview",
         }
         for _ in range(100):
@@ -214,7 +214,7 @@ class PreviewSurveyTests(TestCase):
                     "result": {"attribute": "att1", "operation": "==", "value": "another1"},
                 }
             ],
-            "profiles": 2,
+            "num_profiles": 2,
             "filename": "preview",
         }
         for _ in range(100):
@@ -242,7 +242,7 @@ class ExportCsvTests(TestCase):
                            {"name": "att5", "levels": [{"name": "lvl5"}, {
                                "name": "another5"}, {"name": "bruh5"}]},
                            {"name": "att6", "levels": [{"name": "lvl6"}, {"name": "another6"}, {"name": "bruh6"}]}],
-            "profiles": 2,
+            "num_profiles": 2,
             "csv_lines": 10000,
             "filename": "survey.csv",
         }
@@ -264,7 +264,7 @@ class ExportCsvTests(TestCase):
                 "condition": [{"attribute": "att1", "operation": "==", "value": "level1"},
                               {"logical": "||", "attribute": "att2", "operation": "==", "value": "level2"}],
                 "result": [{"attribute": "att3", "operation": "!=", "value": "level3"}]}],
-            "profiles": 2,
+            "num_profiles": 2,
             "filename": "survey.csv",
         }
         with patch('surveys.views._send_file_response') as mock_send_file_response:
@@ -278,7 +278,7 @@ class ExportCsvTests(TestCase):
         # Data where an attribute has no levels
         data = {
             "attributes": [{"name": "attr1", "levels": []}],
-            "profiles": 2,
+            "num_profiles": 2,
             "filename": "survey.csv",
         }
         response = self.client.post(self.url, data, format='json')
@@ -367,14 +367,14 @@ class ExportJsonTests(TestCase):
                 }
             ],
             "cross_restrictions": [],
-            "profiles": 2,
+            "num_profiles": 2,
             "filename": "survey_export.json",
         }
 
     def test_export_json_success(self):
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(response['Content-Disposition'],
+        self.assertEqual(response['Content-Disposition'],
                           'attachment; filename="survey_export.json"')
 
 
@@ -495,14 +495,14 @@ class QualtricsTests(TestCase):
             "cross_restrictions": [],
             "filename": "survey.qsf",
             "advanced": {},
-            "profiles": 2,
-            "tasks": 5,
+            "num_profiles": 2,
+            "num_tasks": 5,
             "randomize": False,
-            "repeat_task": False,
+            "repeated_tasks": False,
+            "repeated_tasks_flipped": False,
+            "task_to_repeat": 0,
+            "where_to_repeat": 4,
             "random": False,
-            "duplicate_first": 0,
-            "duplicate_second": 4,
-            "noFlip": False,
             "csv_lines": 500
         }
         self.valid_survey_path = os.path.join(
@@ -545,5 +545,5 @@ class QualtricsTests(TestCase):
 
         # Assertions
         self.assertEqual(response.status_code, 201)
-        self.assertEquals(response['Content-Disposition'],
-                          'attachment; filename="survey.qsf"')
+        self.assertEqual(response['Content-Disposition'],
+                         'attachment; filename="survey.qsf"')
